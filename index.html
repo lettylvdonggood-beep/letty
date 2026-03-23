@@ -97,9 +97,51 @@
             .card-entry { padding: 2rem 1.5rem; }
             .card-lbl { font-size: 1.3rem; }
         }
+        /* ══════════════════════ LANGUAGE SWITCHER ══════════════════════ */
+        .lang-switch {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid rgba(234,230,223,0.3);
+            border-radius: 999px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(13,13,13,0.6);
+        }
+        .lang-switch a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            font-family: var(--font-m);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            color: rgba(234,230,223,0.55);
+            transition: all 0.25s ease;
+        }
+        .lang-switch a:hover {
+            color: rgba(234,230,223,0.85);
+        }
+        .lang-switch a.active {
+            background: rgba(234,230,223,0.12);
+            color: var(--cream);
+        }
     </style>
 </head>
 <body>
+    <!-- Language Switcher -->
+    <nav class="lang-switch">
+        <a href="index.html" class="active">中</a>
+        <a href="index-en.html">EN</a>
+    </nav>
+
     <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
         <defs>
             <linearGradient id="dither-driver" x1="40%" y1="0%" x2="100%" y2="0%">
@@ -229,7 +271,7 @@
     document.getElementById('calBtn').addEventListener('click', function() {
         // Replace YOUR_CALENDLY_LINK with your actual Calendly URL after setup
         // e.g. https://calendly.com/lettylvdong/coffee-chat
-        var calURL = 'https://calendly.com/lettylvdonggood/new-meeting';
+        var calURL = 'https://calendly.com/YOUR_CALENDLY_LINK/30min';
         if (typeof Calendly !== 'undefined') {
             Calendly.initPopupWidget({ url: calURL });
         } else {
