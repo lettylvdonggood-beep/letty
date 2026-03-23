@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letty — Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #030a03;
+            --dark: #081208;
+            --green: #00ff41;
+            --green-dim: #0a6e2a;
+            --green-glow: rgba(0,255,65,.12);
+            --green-text: #b4ffcb;
+            --green-muted: rgba(0,255,65,.35);
+            --green-faint: rgba(0,255,65,.08);
+            --border: rgba(0,255,65,.08);
+            --border-mid: rgba(0,255,65,.12);
+            --font-d: "Syne", sans-serif;
+            --font-s: "Noto Sans SC", sans-serif;
+            --font-r: "Noto Serif SC", serif;
+            --font-m: "Share Tech Mono", "JetBrains Mono", monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-s);
+            background: var(--black);
+            color: var(--green-text);
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ── 数字雨背景 ── */
+        #matrix-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        /* 扫描线 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,.03) 2px,
+                rgba(0,0,0,.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 所有内容浮于数字雨之上 */
+        .page-nav, .page-header, .section-a, .section-b, .page-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* nav */
+        .page-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 10;
+            background: rgba(3,10,3,.92);
+            backdrop-filter: blur(12px);
+        }
+        .nav-back {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: var(--green-muted); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .nav-back:hover { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.2); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .nav-link:hover { color: rgba(0,255,65,.6); }
+        .nav-link.active { color: var(--green); text-shadow: 0 0 6px var(--green-glow); }
+
+        /* page header */
+        .page-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: end;
+        }
+        .page-title {
+            font-family: var(--font-d);
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700; letter-spacing: -0.04em;
+            line-height: .9;
+            color: var(--green);
+            text-shadow: 0 0 30px rgba(0,255,65,.2), 0 0 60px rgba(0,255,65,.08);
+        }
+
+        /* ── HUD 面板区 ── */
+        .hud-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1px;
+            background: rgba(0,255,65,.06);
+            border: 1px solid rgba(0,255,65,.1);
+            font-family: var(--font-m);
+            position: relative;
+        }
+        .hud-area::before {
+            content: '[ OPERATOR TERMINAL ]';
+            position: absolute;
+            top: -8px; left: 12px;
+            background: var(--black);
+            padding: 0 6px;
+            font-size: .42rem;
+            letter-spacing: .12em;
+            color: var(--green-dim);
+            z-index: 1;
+        }
+
+        .hud-cell {
+            background: rgba(3,10,3,.75);
+            padding: .7rem .9rem;
+        }
+
+        /* profile cell */
+        .hud-profile {
+            display: flex;
+            gap: .8rem;
+            align-items: flex-start;
+        }
+        .avatar-frame {
+            width: 52px; height: 52px;
+            border: 1px solid rgba(0,255,65,.2);
+            position: relative;
+            flex-shrink: 0;
+            overflow: hidden;
+            background: rgba(0,255,65,.03);
+        }
+        .avatar-frame canvas { width: 100%; height: 100%; }
+        .avatar-frame::after {
+            content: '';
+            position: absolute;
+            top: 3px; right: 3px;
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: pulse-dot 1.5s ease infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+        .profile-info {
+            font-size: .5rem;
+            line-height: 1.7;
+            color: rgba(180,255,203,.5);
+            letter-spacing: .04em;
+        }
+        .profile-info .p-label { color: var(--green-dim); margin-right: .25rem; }
+        .profile-info .p-val { color: var(--green-text); }
+
+        /* telemetry cell */
+        .hud-telemetry .tel-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: .48rem;
+            margin-bottom: 3px;
+        }
+        .hud-telemetry .tel-label { color: var(--green-dim); }
+        .hud-telemetry .tel-val { color: var(--green-text); }
+        .hud-telemetry .tel-cyan { color: #00F0FF; text-shadow: 0 0 4px rgba(0,240,255,.3); }
+
+        .meter-row {
+            margin-top: 5px;
+        }
+        .meter-row .meter-label {
+            font-size: .42rem;
+            color: var(--green-dim);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        .meter-track {
+            height: 4px;
+            border: 1px solid rgba(0,255,65,.12);
+            background: rgba(0,255,65,.03);
+            margin-bottom: 5px;
+        }
+        .meter-fill {
+            height: 100%;
+            background: var(--green);
+            box-shadow: 0 0 6px rgba(0,255,65,.3);
+            transition: width .5s ease;
+        }
+
+        /* signal cell */
+        .hud-signal {
+            display: flex;
+            flex-direction: column;
+        }
+        .signal-header {
+            font-size: .42rem;
+            color: var(--green-dim);
+            letter-spacing: .1em;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .signal-live {
+            color: var(--green);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .signal-live::before {
+            content: '';
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 4px var(--green);
+            animation: pulse-dot 1.5s ease infinite;
+        }
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 20px;
+            flex-grow: 1;
+        }
+        .signal-bar .bar {
+            flex: 1;
+            height: 3px;
+            background: var(--green);
+            border-radius: 1px 1px 0 0;
+            opacity: .3;
+            transition: height .1s ease, opacity .1s ease;
+            max-width: 5px;
+        }
+
+        /* hex stream cell */
+        .hud-hex {
+            font-size: .4rem;
+            color: var(--green-dim);
+            line-height: 1.35;
+            word-break: break-all;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .hex-label {
+            font-size: .42rem;
+            color: var(--green-dim);
+            letter-spacing: .1em;
+            margin-bottom: 4px;
+        }
+        .hex-stream {
+            opacity: .6;
+            font-size: .38rem;
+        }
+
+        /* 通用 section 标题 */
+        .section-heading {
+            font-family: var(--font-d);
+            font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(0,255,65,.15);
+            margin-bottom: 1.8rem;
+        }
+
+        /* ── Section A ── */
+        .section-a {
+            padding: 2.2rem 2rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border-mid);
+            border: 1px solid var(--border-mid);
+        }
+
+        .card {
+            background: rgba(3,10,3,.85);
+            padding: 1.8rem 1.6rem 2rem;
+            display: flex; flex-direction: column;
+            position: relative;
+            transition: background .35s ease, box-shadow .35s ease;
+        }
+        .card:hover {
+            background: rgba(0,255,65,.03);
+            box-shadow: inset 0 0 30px rgba(0,255,65,.04);
+        }
+
+        .card-stage {
+            font-family: var(--font-m);
+            font-size: .58rem;
+            letter-spacing: .06em;
+            color: var(--green-dim);
+            margin-bottom: 1.2rem;
+        }
+
+        .card-title {
+            font-family: var(--font-d);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--green);
+            line-height: 1.3;
+            margin-bottom: .35rem;
+            text-shadow: 0 0 10px rgba(0,255,65,.15);
+        }
+
+        .card-body p {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.45);
+            margin-bottom: .7rem;
+            text-align: justify;
+        }
+        .card-body p:last-child { margin-bottom: 0; }
+        .card-body .hl { color: var(--green-text); font-weight: 500; }
+
+        /* 条目样式 */
+        .card-body .card-problem {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.32);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .card-item {
+            margin-bottom: 1rem;
+        }
+        .card-item:last-child { margin-bottom: 0; }
+
+        .card-item-title {
+            font-family: var(--font-s);
+            font-size: .78rem;
+            font-weight: 500;
+            color: rgba(180,255,203,.75);
+            margin-bottom: .25rem;
+            display: flex;
+            align-items: baseline;
+            gap: .45rem;
+        }
+        .card-item-title::before {
+            content: '>';
+            font-family: var(--font-m);
+            font-size: .65rem;
+            color: var(--green-dim);
+            flex-shrink: 0;
+        }
+
+        .card-item-desc {
+            font-weight: 300; font-size: .8rem;
+            line-height: 1.75; color: rgba(180,255,203,.4);
+            padding-left: 1.1rem;
+        }
+
+        .card-tags {
+            margin-top: auto;
+            padding-top: 1.3rem;
+            display: flex; flex-wrap: wrap; gap: .5rem;
+        }
+        .card-tag {
+            font-family: var(--font-m);
+            font-size: .6rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--green);
+            border: 1px solid rgba(0,255,65,.18);
+            padding: .35rem .7rem;
+            border-radius: 2px;
+            background: rgba(0,255,65,.04);
+            transition: color .2s, border-color .2s, box-shadow .2s, background .2s;
+        }
+        .card-tag:hover {
+            color: #fff;
+            border-color: rgba(0,255,65,.5);
+            background: rgba(0,255,65,.1);
+            box-shadow: 0 0 10px rgba(0,255,65,.15);
+        }
+
+        /* ── Section B: 双列杂志布局 ── */
+        .section-b {
+            padding: 2.2rem 2rem 3.5rem;
+        }
+
+        .section-b-epigraph {
+            position: relative;
+            font-family: var(--font-r);
+            font-size: clamp(.88rem, 1.8vw, 1.05rem);
+            font-weight: 400;
+            line-height: 1.85;
+            color: rgba(180,255,203,.4);
+            padding-left: 2.8rem;
+            margin-bottom: 2.5rem;
+            max-width: 760px;
+        }
+        .section-b-epigraph::before {
+            content: '\201C';
+            position: absolute;
+            left: 0; top: -.1rem;
+            font-family: var(--font-r);
+            font-size: 3rem;
+            line-height: 1;
+            color: rgba(0,255,65,.1);
+            font-weight: 600;
+        }
+
+        /* 双列书页 */
+        .book-spread {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border-mid);
+            border: 1px solid var(--border-mid);
+        }
+
+        .book-page {
+            background: rgba(3,10,3,.85);
+            padding: 2rem 2.2rem;
+            transition: box-shadow .35s ease;
+        }
+        .book-page:hover {
+            box-shadow: inset 0 0 40px rgba(0,255,65,.03);
+        }
+
+        .book-page .page-label {
+            font-family: var(--font-m); font-size: .52rem;
+            letter-spacing: .08em; text-transform: uppercase;
+            color: var(--green-dim);
+            margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .book-page .page-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0,255,65,.06);
+        }
+
+        .book-page .page-title {
+            font-family: var(--font-d);
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--green);
+            letter-spacing: -0.02em;
+            margin-bottom: .8rem;
+            line-height: 1.3;
+            text-shadow: 0 0 10px rgba(0,255,65,.12);
+        }
+
+        .book-page p {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.45);
+            margin-bottom: .8rem;
+            text-align: justify;
+        }
+        .book-page p:last-child { margin-bottom: 0; }
+        .book-page .hl { color: var(--green-text); font-weight: 500; }
+
+        .book-page .role-line {
+            font-family: var(--font-s);
+            font-size: .78rem;
+            font-weight: 400;
+            color: rgba(180,255,203,.55);
+            border-left: 2px solid var(--green-dim);
+            padding-left: .8rem;
+            margin-top: 1rem;
+            line-height: 1.7;
+        }
+
+        /* footer */
+        .page-footer {
+            border-top: 1px solid var(--border);
+            padding: 2.2rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 2rem; flex-wrap: wrap;
+        }
+        .footer-label {
+            font-family: var(--font-m); font-size: .6rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.18);
+        }
+        .footer-links { display: flex; gap: 2rem; }
+        .footer-link {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.28); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .footer-link:hover { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+        .footer-link::after { content: ' →'; }
+
+        /* ── 动画 ── */
+        .card, .section-heading, .section-b-epigraph, .book-page {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: fadeUp .5s ease forwards;
+        }
+        .card:nth-child(1) { animation-delay: .08s; }
+        .card:nth-child(2) { animation-delay: .18s; }
+        .card:nth-child(3) { animation-delay: .28s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* title glitch on hover */
+        .page-title {
+            position: relative;
+            cursor: default;
+        }
+        .page-title:hover {
+            animation: glitch .3s ease;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); text-shadow: 2px 0 #ff0040, -2px 0 #00ff41; }
+            40% { transform: translate(2px, -1px); text-shadow: -2px 0 #ff0040, 2px 0 #00ff41; }
+            60% { transform: translate(-1px, 2px); text-shadow: 1px 0 #ff0040, -1px 0 #00ff41; }
+            80% { transform: translate(1px, -1px); }
+            100% { transform: translate(0); text-shadow: 0 0 30px rgba(0,255,65,.2), 0 0 60px rgba(0,255,65,.08); }
+        }
+
+        /* ── 响应式 ── */
+        @media (max-width: 900px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .book-spread { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .page-header { padding: 1.5rem; grid-template-columns: 1fr; }
+            .hud-area { display: none; }
+            .section-a { padding: 1.8rem 1.5rem 2rem; }
+            .section-b { padding: 1.8rem 1.5rem 2.5rem; }
+            .nav-links { display: none; }
+            .card { padding: 1.5rem 1.2rem 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 数字雨背景 -->
+<canvas id="matrix-bg"></canvas>
+
+<nav class="page-nav">
+    <a href="index.html" class="nav-back">← Return</a>
+    <div class="nav-links">
+        <a href="analyst.html" class="nav-link active">Analyst</a>
+        <a href="creator.html" class="nav-link">Creator</a>
+        <a href="gamer.html" class="nav-link">Gamer</a>
+    </div>
+</nav>
+
+<header class="page-header">
+    <div>
+        <h1 class="page-title">ANALYST</h1>
+    </div>
+    <div class="hud-area">
+        <!-- 左上: Profile -->
+        <div class="hud-cell hud-profile">
+            <div class="avatar-frame">
+                <canvas id="avatar-canvas" width="52" height="52"></canvas>
+            </div>
+            <div class="profile-info">
+                <div><span class="p-label">ID:</span> <span class="p-val">LETTY</span></div>
+                <div><span class="p-label">ROLE:</span> <span class="p-val">SR. ANALYST</span></div>
+                <div><span class="p-label">EXP:</span> <span class="p-val">8Y+ CROSS-INDUSTRY</span></div>
+                <div><span class="p-label">FIELD:</span> <span class="p-val">FINTECH / CONTENT / E-COM</span></div>
+            </div>
+        </div>
+        <!-- 右上: Telemetry -->
+        <div class="hud-cell hud-telemetry">
+            <div class="tel-row"><span class="tel-label">MEM_ADDR:</span><span class="tel-val" id="tel-mem">0xFA489B</span></div>
+            <div class="tel-row"><span class="tel-label">UPTIME:</span><span class="tel-val" id="tel-uptime">72:14:09</span></div>
+            <div class="tel-row"><span class="tel-label">ENC_PROTO:</span><span class="tel-cyan">AES-256-GCM</span></div>
+            <div class="tel-row"><span class="tel-label">PKT_LOSS:</span><span class="tel-val">0.003%</span></div>
+            <div class="meter-row">
+                <div class="meter-label"><span>CPU_LOAD</span><span id="cpu-val">45%</span></div>
+                <div class="meter-track"><div class="meter-fill" id="cpu-fill" style="width:45%"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label"><span>NET_TRAFFIC</span><span id="net-val">82%</span></div>
+                <div class="meter-track"><div class="meter-fill" id="net-fill" style="width:82%"></div></div>
+            </div>
+        </div>
+        <!-- 左下: Signal -->
+        <div class="hud-cell hud-signal">
+            <div class="signal-header">
+                <span>WAVEFORM_MONITOR</span>
+                <span class="signal-live">LIVE</span>
+            </div>
+            <div class="signal-bar" id="signal-bar">
+                <!-- JS fills 30 bars -->
+            </div>
+        </div>
+        <!-- 右下: Hex stream -->
+        <div class="hud-cell hud-hex">
+            <div class="hex-label">DATA_STREAM // RAW</div>
+            <div class="hex-stream" id="hex-stream"></div>
+        </div>
+    </div>
+</header>
+
+
+<!-- ══════════ SECTION A ══════════ -->
+<section class="section-a">
+    <div class="section-heading">我能做什么</div>
+
+    <div class="cards-grid">
+
+        <!-- 从 0 到 1 -->
+        <div class="card">
+            <div class="card-stage">从 0 到 1</div>
+            <div class="card-title">定义用户</div>
+            <div class="card-body">
+                <p class="card-problem">企业面临的问题：我们不知道该卖给谁。用户是谁？如何找到他们？他们为什么来？</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">用户画像搭建</div>
+                    <div class="card-item-desc">擅长通过定量数据与定性访谈交叉验证，构建可落地的用户画像体系。曾从 0 到 1 定义过平台完整的标签体系与口径，将模糊的"目标用户"转化为可度量、可执行的人群定义。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">种子用户识别与渠道定位</div>
+                    <div class="card-item-desc">擅长从行为数据中提取高活跃、高留存、高传播意愿用户的共性特征，锁定核心人群画像，反推最高效的触达渠道与获客路径。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">用户调研与行为归因</div>
+                    <div class="card-item-desc">擅长结合用户访谈与行为路径分析，穿透表层数据，定位用户的真实使用动机与决策驱动因素。不止于"发生了什么"，而是回答"为什么发生"。</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">SQL</span>
+                <span class="card-tag">Python/R</span>
+                <span class="card-tag">问卷与访谈方法论</span>
+                <span class="card-tag">共情能力</span>
+                <span class="card-tag">探究本质</span>
+                <span class="card-tag">沟通能力</span>
+            </div>
+        </div>
+
+        <!-- 从 1 到 N -->
+        <div class="card">
+            <div class="card-stage">从 1 到 N</div>
+            <div class="card-title">驱动增长</div>
+            <div class="card-body">
+                <p class="card-problem">企业面临的问题：用户来了，但不知道哪些动作真正有效。钱花的值么？如何让用户来得更多、留得更久？</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">实验框架搭建与 A/B 测试</div>
+                    <div class="card-item-desc">习惯以实验驱动增长决策：搭建标准化测试框架，每个增长动作配备假设、对照组与成功指标。做过完整的转化漏斗优化与引导流程迭代，确保每一笔资源投入有可量化的回报预期。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">渠道归因与 ROI 评估</div>
+                    <div class="card-item-desc">擅长建立多触点归因模型，区分渠道的"数据贡献"与"真实用户贡献"。过去几年持续优化的核心工作：在有限预算约束下，识别 ROI 最高的增长路径。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">留存诊断与生命周期管理</div>
+                    <div class="card-item-desc">擅长拆解注册→激活→留存的完整链路，精准定位各阶段流失节点与成因，输出可执行的干预策略，而非仅呈现"留存率下降"的结论。</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">A/B 测试</span>
+                <span class="card-tag">因果分析</span>
+                <span class="card-tag">渠道归因</span>
+                <span class="card-tag">指标体系</span>
+            </div>
+        </div>
+
+        <!-- 从 N 到 N+ -->
+        <div class="card">
+            <div class="card-stage">从 N 到 N+</div>
+            <div class="card-title">沉淀效能</div>
+            <div class="card-body">
+                <p class="card-problem">企业面临的问题：增长跑起来了，但全靠人盯，离了谁就转不动。下一条曲线在哪里？组织冗余效率太慢？</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">数据产品设计与自助平台搭建</div>
+                    <div class="card-item-desc">有用户画像平台、行为分析平台从 0 到 1 的完整搭建经验——覆盖需求定义、数据架构、交互设计到落地交付。目标：让业务方自助取数、自助决策，不依赖分析师排期。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">指标体系与数据治理</div>
+                    <div class="card-item-desc">擅长定义全公司统一的核心指标口径——活跃、留存、有效获客各部门同一标准，消除跨团队数据打架，降低决策摩擦。</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">数据叙事与决策推动</div>
+                    <div class="card-item-desc">擅长将数据逻辑转译为业务语言：对产品讲路径与机会点，对管理层讲结论与优先级。六个月从 0 到数万粉丝的内容运营经验，核心训练的就是"用受众能感知的方式传递关键信息"。</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">数据产品</span>
+                <span class="card-tag">指标体系</span>
+                <span class="card-tag">跨部门协作</span>
+                <span class="card-tag">数据叙事</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ══════════ SECTION B ══════════ -->
+<section class="section-b">
+    <div class="section-heading">我如何去做</div>
+
+    <div class="section-b-epigraph">增长不是某个阶段的任务，而是贯穿产品生命周期的持续命题。不同阶段的核心矛盾不同，解法也完全不同——认清你在哪个阶段，比盲目加速更重要。</div>
+
+    <div class="book-spread">
+
+        <!-- 第一页：认知门槛 -->
+        <div class="book-page">
+            <div class="page-label">前置认知</div>
+            <div class="page-title">认知门槛：增长的隐性天花板</div>
+            <p>大部分产品——尤其是早期产品——面临的核心挑战不是"没流量"，而是<span class="hl">认知门槛</span>。一个新产品往往也是一个新概念，用户没有参照物，很难在 30 秒内感知到"这东西对我有用"。</p>
+            <p>很多团队把增长问题误判为曝光问题，花大量资源去"让更多人知道"，但真正卡住的地方是：知道了，然后呢？增长的第一步不是扩大漏斗顶部，而是<span class="hl">降低理解成本</span>——让产品的价值在用户第一次接触时就能被直觉感知到。</p>
+            <div class="role-line">实践经验：曾在六个月内将一个内容账号从 0 做到数万粉丝——本质上就是在信息过载的环境里反复验证"如何让人在 3 秒内感知价值"。这段经历训练出的不是内容技巧，而是对市场情绪的敏锐嗅觉：如何让信息在正确的人群中自发传播。</div>
+        </div>
+
+        <!-- 第二页：从 0 到 1 -->
+        <div class="book-page">
+            <div class="page-label">从 0 到 1</div>
+            <div class="page-title">找到"对频"的种子用户</div>
+            <p>什么样的人会最先 get 到产品的价值？通常是那些<span class="hl">已经在主动寻找解决方案的人</span>——有明确需求，试过现有方案但不满意。对他们来说，你的产品不是需要被教育的新概念，而是一个迟来的回应。</p>
+            <p>早期增长策略往往不是靠投放，而是<span class="hl">让产品本身成为传播载体。</span>种子用户既是用户，也是渠道——使用产品的过程天然就在帮你传播。</p>
+            <div class="role-line">实践经验：曾从 0 到 1 定义平台用户标签体系与画像口径，通过行为数据与用户访谈交叉验证，将模糊的"目标用户"转化为可度量、可执行的人群定义，精准锁定种子用户特征与高效触达路径。</div>
+        </div>
+
+        <!-- 第三页：从 1 到 N -->
+        <div class="book-page">
+            <div class="page-label">从 1 到 N</div>
+            <div class="page-title">用实验取代直觉</div>
+            <p>用户开始来了，但同时改了落地页、调了投放策略、上了新功能，数据涨了——到底是谁的功劳？没有归因就没有复制的可能。</p>
+            <p>这个阶段的核心不是"做更多"，而是<span class="hl">搞清楚什么真正有效</span>。同样一笔预算，投在不同渠道、不同人群、不同时间节点，回报可以差十几倍。关键在于精准识别增长杠杆，避免在无效渠道上空转。</p>
+            <div class="role-line">实践经验：搭建过标准化 A/B 测试框架与多触点归因模型，在有限预算约束下识别 ROI 最高的增长路径。每一个增长动作都有假设、有对照、有结论——把"感觉有效"变成"数据证明有效"。</div>
+        </div>
+
+        <!-- 第四页：从 N 到 N+ -->
+        <div class="book-page">
+            <div class="page-label">从 N 到 N+</div>
+            <div class="page-title">让增长不依赖任何个体</div>
+            <p>增长跑通了，但经验全在某个人脑子里，人走了就归零；每次决策都等分析师出报告，决策链路又慢又低效；产品说日活涨了，运营说留存跌了——因为大家对"活跃用户"的定义都不一样。</p>
+            <p>这个阶段的核心矛盾是：<span class="hl">个人能力无法支撑组织规模。</span>需要把增长能力固化到流程和工具里，让组织自己能用数据决策。</p>
+            <div class="role-line">实践经验：有用户画像平台、行为分析平台从 0 到 1 的完整搭建经验，设计过全公司统一的核心指标口径，让业务方自助取数、自助决策。擅长将数据逻辑转译为不同受众能理解并行动的业务语言。</div>
+        </div>
+
+    </div>
+</section>
+
+
+<footer class="page-footer">
+    <span class="footer-label">OTHER VIEWS</span>
+    <div class="footer-links">
+        <a href="creator.html" class="footer-link">CREATOR</a>
+        <a href="gamer.html" class="footer-link">GAMER</a>
+        <a href="index.html" class="footer-link">HOME</a>
+    </div>
+</footer>
+
+<script>
+// ── 数字雨 ──
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.documentElement.scrollHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+const charArr = chars.split('');
+const fontSize = 14;
+const columns = Math.floor(canvas.width / fontSize);
+const drops = new Array(columns).fill(0).map(() => Math.random() * -100 | 0);
+
+function draw() {
+    ctx.fillStyle = 'rgba(3, 10, 3, 0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < drops.length; i++) {
+        const char = charArr[Math.floor(Math.random() * charArr.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // 头部亮绿，尾部暗绿
+        const brightness = Math.random();
+        if (brightness > 0.95) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00ff41';
+        } else {
+            ctx.fillStyle = `rgba(0, ${100 + Math.floor(Math.random() * 155)}, ${20 + Math.floor(Math.random() * 40)}, ${0.4 + Math.random() * 0.4})`;
+            ctx.shadowBlur = 0;
+        }
+
+        ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+        ctx.fillText(char, x, y);
+        ctx.shadowBlur = 0;
+
+        if (y > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
+}
+
+setInterval(draw, 45);
+
+const observer = new ResizeObserver(() => resize());
+observer.observe(document.body);
+
+// ── 虚拟头像 ──
+const avCanvas = document.getElementById('avatar-canvas');
+if (avCanvas) {
+    const ac = avCanvas.getContext('2d');
+    const aw = 52, ah = 52;
+    const face = [
+        [0,0,1,1,1,1,0,0],
+        [0,1,2,2,2,2,1,0],
+        [1,2,1,2,2,1,2,1],
+        [1,2,3,2,2,3,2,1],
+        [1,2,2,2,2,2,2,1],
+        [0,1,2,1,1,2,1,0],
+        [0,0,1,2,2,1,0,0],
+        [0,0,0,1,1,0,0,0],
+    ];
+    const avChars = '01ﾊﾐﾑﾒﾓ';
+    function drawAvatar() {
+        ac.fillStyle = 'rgba(3,10,3,0.3)';
+        ac.fillRect(0,0,aw,ah);
+        const cs = 6.5;
+        for (let r=0; r<8; r++) {
+            for (let c=0; c<8; c++) {
+                const v = face[r][c];
+                if (v === 0) continue;
+                const ch = avChars[Math.floor(Math.random()*avChars.length)];
+                const alpha = v === 3 ? (.7+Math.random()*.3) : v === 2 ? (.35+Math.random()*.25) : (.12+Math.random()*.1);
+                ac.fillStyle = `rgba(0,255,65,${alpha})`;
+                ac.font = `${cs}px "Share Tech Mono", monospace`;
+                ac.fillText(ch, c*cs, r*cs+cs-1);
+            }
+        }
+        if (Math.random() > .85) {
+            const gr = Math.floor(Math.random()*8);
+            ac.fillStyle = 'rgba(0,255,65,0.15)';
+            ac.fillRect(0, gr*6.5, aw, 6.5);
+        }
+    }
+    setInterval(drawAvatar, 200);
+}
+
+// ── 信号波形：动态生成 bars ──
+const sigBar = document.getElementById('signal-bar');
+if (sigBar) {
+    for (let i = 0; i < 40; i++) {
+        const b = document.createElement('div');
+        b.className = 'bar';
+        sigBar.appendChild(b);
+    }
+}
+const bars = document.querySelectorAll('.signal-bar .bar');
+function animateBars() {
+    bars.forEach(bar => {
+        const h = 2 + Math.random() * 18;
+        bar.style.height = h + 'px';
+        bar.style.opacity = 0.25 + (h / 20) * 0.65;
+    });
+}
+setInterval(animateBars, 120);
+
+// ── Hex stream ──
+const hexEl = document.getElementById('hex-stream');
+function updateHex() {
+    if (!hexEl) return;
+    let s = '';
+    for (let i = 0; i < 80; i++) {
+        s += Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase();
+        if (i % 16 === 15) s += '\n';
+        else s += ' ';
+    }
+    hexEl.textContent = s;
+}
+updateHex();
+setInterval(updateHex, 2000);
+
+// ── Telemetry 动态更新 ──
+function updateTelemetry() {
+    const mem = document.getElementById('tel-mem');
+    const uptime = document.getElementById('tel-uptime');
+    const cpuFill = document.getElementById('cpu-fill');
+    const cpuVal = document.getElementById('cpu-val');
+    const netFill = document.getElementById('net-fill');
+    const netVal = document.getElementById('net-val');
+
+    if (mem) mem.textContent = '0x' + Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6,'0');
+    if (uptime) {
+        const h = 72 + Math.floor(Math.random()*2);
+        const m = Math.floor(Math.random()*60);
+        const sec = Math.floor(Math.random()*60);
+        uptime.textContent = `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+    if (cpuFill && cpuVal) {
+        const cv = 30 + Math.floor(Math.random()*40);
+        cpuFill.style.width = cv + '%';
+        cpuVal.textContent = cv + '%';
+    }
+    if (netFill && netVal) {
+        const nv = 60 + Math.floor(Math.random()*30);
+        netFill.style.width = nv + '%';
+        netVal.textContent = nv + '%';
+    }
+}
+setInterval(updateTelemetry, 3000);
+</script>
+
+</body>
+</html>
