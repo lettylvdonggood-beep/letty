@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letty — Creator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0d0d0d;
+            --cream: #EAE6DF;
+            --sage: #74B776;
+            --blush: #EBB1BA;
+            --lavender: #CDB5CD;
+            --gold: #FDE02F;
+            --border: rgba(234,230,223,0.10);
+            --brutal-shadow: 8px 8px 0 #000;
+            --brutal-shadow-sm: 5px 5px 0 #000;
+            --font-d: "Helvetica Neue", "DM Sans", Helvetica, Arial, sans-serif;
+            --font-s: "Inter", "Noto Sans SC", sans-serif;
+            --font-r: "Noto Serif SC", serif;
+            --font-m: "Space Mono", "JetBrains Mono", monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-s);
+            background: var(--black);
+            color: var(--cream);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ── Nav ── */
+        .page-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.2rem 2rem; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(13,13,13,.92); backdrop-filter: blur(12px);
+        }
+        .nav-back { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.45); text-decoration: none; transition: color .2s; }
+        .nav-back:hover { color: var(--cream); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.28); text-decoration: none; transition: color .2s; }
+        .nav-link:hover { color: rgba(234,230,223,.7); }
+        .nav-link.active { color: var(--sage); }
+
+        /* ══════════ HERO ══════════ */
+        .hero {
+            position: relative;
+            width: 100%;
+            /* Fixed aspect ratio via padding */
+            height: 0;
+            padding-bottom: min(100vh, 56.25%); /* 16:9 ish, but capped at viewport */
+            min-height: 0;
+            overflow: hidden;
+            background: var(--cream);
+        }
+        /* On shorter screens, use viewport height */
+        @media (max-aspect-ratio: 4/3) {
+            .hero {
+                height: 100vh;
+                padding-bottom: 0;
+            }
+        }
+
+        .hero-inner {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0,0,0,.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,.08) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+        }
+
+        /* Orbit cards */
+        .orbit-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            z-index: 2;
+        }
+
+        .float-card {
+            position: absolute;
+            width: 150px; height: 94px;
+            border: 3px solid #000;
+            box-shadow: var(--brutal-shadow);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 4px;
+            cursor: default;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            margin-top: -47px; margin-left: -75px;
+            overflow: hidden;
+        }
+
+        .float-card:hover {
+            z-index: 10;
+            box-shadow: 12px 12px 0 #000;
+        }
+
+        .float-card .card-label {
+            font-family: var(--font-d);
+            font-weight: 800;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #000;
+        }
+
+        /* Card SVG illustrations */
+        .float-card svg {
+            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0;
+        }
+        .float-card svg * {
+            stroke: #000;
+            stroke-width: 3px;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        /* Card positions & colors — matching reference palette */
+        .fc-1 { background: var(--sage); transform: translate(0px, -260px) rotate(-10deg); }
+        .fc-2 { background: var(--blush); transform: translate(230px, -160px) rotate(14deg); }
+        .fc-3 { background: #fff; transform: translate(280px, 60px) rotate(-6deg); }
+        .fc-4 { background: var(--lavender); transform: translate(160px, 230px) rotate(18deg); }
+        .fc-5 { background: var(--blush); transform: translate(-60px, 260px) rotate(-13deg); }
+        .fc-6 { background: var(--gold); transform: translate(-240px, 140px) rotate(9deg); }
+        .fc-7 { background: var(--sage); transform: translate(-280px, -60px) rotate(-18deg); }
+        .fc-8 { background: #fff; transform: translate(-150px, -230px) rotate(7deg); }
+
+        .fc-1:hover { transform: translate(0px, -260px) rotate(0deg) scale(1.12); }
+        .fc-2:hover { transform: translate(230px, -160px) rotate(0deg) scale(1.12); }
+        .fc-3:hover { transform: translate(280px, 60px) rotate(0deg) scale(1.12); }
+        .fc-4:hover { transform: translate(160px, 230px) rotate(0deg) scale(1.12); }
+        .fc-5:hover { transform: translate(-60px, 260px) rotate(0deg) scale(1.12); }
+        .fc-6:hover { transform: translate(-240px, 140px) rotate(0deg) scale(1.12); }
+        .fc-7:hover { transform: translate(-280px, -60px) rotate(0deg) scale(1.12); }
+        .fc-8:hover { transform: translate(-150px, -230px) rotate(0deg) scale(1.12); }
+
+        /* Center title card */
+        .hero-center {
+            position: relative;
+            z-index: 5;
+            display: flex; flex-direction: column; align-items: center; gap: 1.8rem;
+            transform: translateY(-1vh);
+        }
+
+        .title-card {
+            background: #fff;
+            border: 5px solid #000;
+            box-shadow: 12px 12px 0 #000;
+            padding: 1.8rem 2.4rem;
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+
+        .title-card h1 {
+            font-family: var(--font-d);
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #000;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .hero-tagline {
+            font-family: var(--font-s);
+            font-size: .85rem;
+            color: rgba(0,0,0,.5);
+            max-width: 380px;
+            line-height: 1.65;
+            text-align: center;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            background: var(--gold);
+            color: #000;
+            font-family: var(--font-d);
+            font-size: 1rem;
+            font-weight: 800;
+            padding: .9rem 2.2rem;
+            border: 4px solid #000;
+            box-shadow: var(--brutal-shadow);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.1s, box-shadow 0.1s, background 0.1s, color 0.1s;
+        }
+        .hero-cta:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0 #000;
+            background: #000;
+            color: var(--gold);
+        }
+
+        /* ══════════ STATS ══════════ */
+        .stats-strip {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            border-top: 3px solid var(--sage);
+            border-bottom: 3px solid var(--sage);
+        }
+
+        .stat-item {
+            flex: 1;
+            max-width: 300px;
+            text-align: center;
+            padding: 4rem 1.5rem;
+            border-right: 1px solid rgba(116,183,118,.2);
+            color: var(--cream);
+        }
+        .stat-item:last-child { border-right: none; }
+
+        .stat-num {
+            font-family: var(--font-d);
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: .8rem;
+            color: var(--sage);
+        }
+
+        .stat-label {
+            font-family: var(--font-s);
+            font-size: .75rem;
+            font-weight: 400;
+            letter-spacing: .06em;
+            color: rgba(234,230,223,.4);
+        }
+
+        /* ══════════ CONTENT ══════════ */
+        .content-area {
+            background: var(--black);
+            position: relative;
+            z-index: 5;
+        }
+
+        .block {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .block + .block {
+            border-top: 1px solid var(--border);
+        }
+
+        .block-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .block-num {
+            font-family: var(--font-d);
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--sage);
+            opacity: .2;
+            flex-shrink: 0;
+        }
+
+        .block-title-group { padding-top: .5rem; }
+
+        .block-label {
+            font-family: var(--font-m);
+            font-size: .56rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--sage);
+            opacity: .55;
+            margin-bottom: .5rem;
+        }
+
+        .block-title {
+            font-family: var(--font-d);
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--cream);
+            line-height: 1.25;
+        }
+
+        /* Quote cards — ALL BLACK TEXT */
+        .quote-card {
+            background: var(--sage);
+            color: #000;
+            padding: 1.8rem 2.2rem;
+            border: 3px solid rgba(234,230,223,.12);
+            box-shadow: 5px 5px 0px rgba(234,230,223,.06);
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .quote-card p,
+        .block .quote-card p {
+            font-family: var(--font-s) !important;
+            font-size: 1.05rem !important;
+            font-weight: 600 !important;
+            line-height: 1.75 !important;
+            color: #000 !important;
+            text-align: left !important;
+            margin: 0 !important;
+        }
+
+        .quote-card::before {
+            content: '✦';
+            position: absolute;
+            top: -11px; left: 14px;
+            font-size: 1.2rem;
+            color: var(--gold);
+            background: var(--black);
+            padding: 0 5px;
+        }
+
+        .alt-gold { background: var(--gold); }
+        .alt-blush { background: var(--blush); }
+        .alt-lavender { background: var(--lavender); }
+
+        /* Body text */
+        .block p {
+            font-weight: 300;
+            font-size: .92rem;
+            line-height: 2;
+            color: rgba(234,230,223,.58);
+            margin-bottom: 1.1rem;
+        }
+        .block p:last-child { margin-bottom: 0; }
+        .hl { color: rgba(234,230,223,.92); font-weight: 500; }
+
+        /* ══════════ METHOD GRID ══════════ */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2.2rem 0;
+        }
+
+        .method-card {
+            background: rgba(234,230,223,.03);
+            border: 2px solid rgba(234,230,223,.07);
+            padding: 1.6rem 1.2rem;
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .method-card:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 6px 6px 0px rgba(116,183,118,.15);
+            border-color: rgba(116,183,118,.3);
+        }
+
+        .method-card .mc-step {
+            font-family: var(--font-d);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--sage);
+            opacity: .25;
+            margin-bottom: .8rem;
+        }
+
+        .method-card .mc-title {
+            font-family: var(--font-d);
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: .5rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .method-card .mc-desc {
+            font-size: .76rem;
+            line-height: 1.75;
+            color: rgba(234,230,223,.42);
+            font-weight: 300;
+        }
+
+        .method-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background: var(--sage);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .3s;
+        }
+        .method-card:hover::after { transform: scaleX(1); }
+
+        /* ══════════ CROSS BANNER ══════════ */
+        .cross-banner {
+            background: var(--gold);
+            color: #000;
+            padding: 3.5rem 2rem;
+            text-align: center;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+        }
+
+        .cross-banner h3 {
+            font-family: var(--font-d);
+            font-size: clamp(1.3rem, 3.5vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            margin-bottom: .8rem;
+        }
+
+        .cross-banner p {
+            font-family: var(--font-s);
+            font-size: .85rem;
+            line-height: 1.8;
+            max-width: 540px;
+            margin: 0 auto;
+            opacity: .65;
+        }
+
+        /* ══════════ FOOTER ══════════ */
+        .page-footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: var(--black);
+        }
+        .footer-label { font-family: var(--font-m); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.25); }
+        .footer-links { display: flex; gap: 2rem; }
+        .footer-link { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.35); text-decoration: none; transition: color .2s; }
+        .footer-link:hover { color: var(--sage); }
+        .footer-link::after { content: ' →'; }
+
+        /* ══════════ ANIM ══════════ */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity .6s ease-out, transform .6s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 900px) {
+            .orbit-ring { transform: scale(0.55); }
+            .method-grid { grid-template-columns: 1fr; }
+            .stats-strip { flex-direction: column; }
+            .stat-item { border-right: none; border-bottom: 1px solid rgba(116,183,118,.15); padding: 2rem 1.5rem; }
+            .stat-item:last-child { border-bottom: none; }
+            .title-card h1 { font-size: clamp(2.8rem, 7vw, 4.5rem); }
+            .title-card { padding: 1.4rem 1.8rem; }
+        }
+
+        @media (max-width: 600px) {
+            .orbit-ring { transform: scale(0.32); }
+            .hero { padding-bottom: 0; height: 100vh; height: 100svh; }
+            .title-card h1 { font-size: 2.5rem; }
+            .title-card { padding: 1.2rem 1.5rem; border-width: 4px; box-shadow: 8px 8px 0 #000; }
+            .block { padding: 3.5rem 1.5rem; }
+            .block-header { flex-direction: column; gap: .6rem; }
+            .block-num { font-size: 2.8rem; }
+            .nav-links { display: none; }
+            .quote-card { padding: 1.4rem 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="page-nav">
+    <a href="index.html" class="nav-back">← Letty</a>
+    <div class="nav-links">
+        <a href="analyst.html" class="nav-link">Analyst</a>
+        <a href="creator.html" class="nav-link active">Creator</a>
+        <a href="gamer.html" class="nav-link">Gamer</a>
+    </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-grid"></div>
+
+        <div class="orbit-ring">
+            <!-- 8 cards with SVG art, matching reference style -->
+            <div class="float-card fc-1">
+                <svg viewBox="0 0 150 94"><circle cx="75" cy="36" r="22" fill="none"/><circle cx="75" cy="36" r="8" fill="#000" stroke="none"/><path d="M50 70 Q75 55 100 70" fill="none"/><circle cx="40" cy="20" r="4" fill="#FDE02F" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">洞察</span>
+            </div>
+            <div class="float-card fc-2">
+                <svg viewBox="0 0 150 94"><rect x="35" y="25" width="30" height="30" rx="4" fill="#000" stroke="none"/><circle cx="100" cy="50" r="18" fill="none"/><line x1="65" y1="40" x2="82" y2="40"/><circle cx="115" cy="25" r="5" fill="#FDE02F" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">策略</span>
+            </div>
+            <div class="float-card fc-3">
+                <svg viewBox="0 0 150 94"><path d="M30 70 L75 20 L120 70 Z" fill="none"/><circle cx="75" cy="45" r="12" fill="#74B776" stroke="none"/><circle cx="45" cy="25" r="6" fill="#EBB1BA" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">增长</span>
+            </div>
+            <div class="float-card fc-4">
+                <svg viewBox="0 0 150 94"><circle cx="50" cy="47" r="24" fill="none"/><circle cx="95" cy="40" r="28" fill="none" opacity=".6"/><circle cx="70" cy="60" r="10" fill="#000" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">用户</span>
+            </div>
+            <div class="float-card fc-5">
+                <svg viewBox="0 0 150 94"><path d="M20 50 Q55 15 75 50 T130 50" fill="none"/><rect x="60" y="38" width="16" height="16" rx="2" fill="#FDE02F" stroke="none"/><circle cx="110" cy="65" r="6" fill="#000" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">迭代</span>
+            </div>
+            <div class="float-card fc-6">
+                <svg viewBox="0 0 150 94"><path d="M30 47 Q75 10 120 47 Q75 84 30 47" fill="none"/><circle cx="75" cy="47" r="14" fill="#fff" stroke="none"/><circle cx="75" cy="47" r="6" fill="#000" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">内容</span>
+            </div>
+            <div class="float-card fc-7">
+                <svg viewBox="0 0 150 94"><polygon points="40,25 110,25 95,70 55,70" fill="none"/><circle cx="75" cy="38" r="10" fill="#EBB1BA" stroke="none"/><line x1="55" y1="70" x2="50" y2="85"/><line x1="95" y1="70" x2="100" y2="85"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">测试</span>
+            </div>
+            <div class="float-card fc-8">
+                <svg viewBox="0 0 150 94"><circle cx="45" cy="45" r="18" fill="none"/><rect x="80" y="30" width="28" height="28" rx="14" fill="none"/><path d="M63 45 L80 44" stroke="#000"/><circle cx="30" cy="20" r="4" fill="#74B776" stroke="none"/></svg>
+                <span class="card-label" style="position:relative;z-index:2;">心理</span>
+            </div>
+        </div>
+
+        <div class="hero-center">
+            <div class="title-card">
+                <h1>Creator</h1>
+            </div>
+            <div class="hero-tagline">一个人做完了产品增长的全链路——<br>只不过产品是我自己。</div>
+            <a href="#story" class="hero-cta">往下看故事 ↓</a>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════ STATS ══════════ -->
+<div class="stats-strip">
+    <div class="stat-item">
+        <div class="stat-num">0 → 2万</div>
+        <div class="stat-label">粉丝增长</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">2 个月</div>
+        <div class="stat-label">冷启动周期</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">1 个人</div>
+        <div class="stat-label">全链路操盘</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">对用户的好奇</div>
+    </div>
+</div>
+
+<!-- ══════════ CONTENT ══════════ -->
+<div class="content-area" id="story">
+
+    <!-- 01 -->
+    <div class="block fade-up">
+        <div class="block-header">
+            <div class="block-num">01</div>
+            <div class="block-title-group">
+                <div class="block-label">Cold Start</div>
+                <div class="block-title">第一个月，涨了个位数</div>
+            </div>
+        </div>
+        <p>说出来不怕丢人——我刚开始做自媒体的时候，第一个月粉丝涨了个位数。不是因为不努力，恰恰相反，我做了<span class="hl">一大堆我自己觉得特别好的内容</span>。选题精心、文案反复打磨、排版漂漂亮亮。</p>
+        <p>然后发出去，安静得像往大海里扔了一颗石子。</p>
+        <div class="quote-card">
+            <p>后来我才明白：我一直在自说自话。我做的不是用户需要的内容，而是我想展示的内容。</p>
+        </div>
+        <p>这个感觉，做过产品的人应该很熟悉——<span class="hl">你觉得你的功能很棒，但用户根本不在意</span>。经典的"没有 PMF"状态。只不过在自媒体这个战场上，反馈来得更快、更残酷：数据不会给你面子。</p>
+    </div>
+
+    <!-- 02 -->
+    <div class="block fade-up">
+        <div class="block-header">
+            <div class="block-num">02</div>
+            <div class="block-title-group">
+                <div class="block-label">Listen → Iterate</div>
+                <div class="block-title">评论区教会我的事</div>
+            </div>
+        </div>
+        <p>转折发生在我开始<span class="hl">认真读评论和私信</span>的时候。不是扫一眼，是一条一条地看——看他们在抱怨什么、在期待什么、在什么样的措辞上停留得更久。</p>
+        <p>我发现用户关心的东西跟我预设的完全不一样。他们不在乎你的选题多新颖、观点多深刻。他们在意的是：<span class="hl">"这个东西，能不能让我在某个具体的困境里，感觉稍微好一点。"</span></p>
+        <div class="quote-card alt-gold">
+            <p>用户不是被你"吸引"来的，而是被你"对上了"。你说出了他们心里有、但没说出口的话——转化就在那一刻发生。</p>
+        </div>
+        <p>于是我把整个内容策略推翻重来：不再从"我想说什么"出发，而是从"他们正在经历什么"出发。标题怎么写、结构怎么排、情绪在哪里释放——每一个决定都变成了一次可以用数据验证的假设。</p>
+        <p>两个月之内，从零到两万。不是因为运气好，是因为<span class="hl">终于学会了听</span>。</p>
+    </div>
+
+    <!-- Cross Banner -->
+    <div class="cross-banner">
+        <h3>做自媒体 = 一个人跑通增长全链路</h3>
+        <p>用户调研、内容策略、A/B 测试、数据复盘、迭代优化——<br>只不过预算是零，团队是我自己。</p>
+    </div>
+
+    <!-- 03 -->
+    <div class="block fade-up">
+        <div class="block-header">
+            <div class="block-num">03</div>
+            <div class="block-title-group">
+                <div class="block-label">Career Impact</div>
+                <div class="block-title">这段经历，改变了我做分析的方式</div>
+            </div>
+        </div>
+        <p>很多分析师是从数据出发去理解用户。我多了一条路径——<span class="hl">我自己就当过那个"被增长"的对象，也当过那个想尽办法让别人留下来的人</span>。</p>
+        <p>这意味着当我看到一条转化率曲线下降的时候，我不只是想"哪个漏斗环节出了问题"，我会想："用户在那个环节的体验是什么？他心里在想什么？是什么让他决定离开的？"</p>
+        <div class="quote-card alt-blush">
+            <p>数据告诉你 what happened，但理解人才能告诉你 why——以及接下来该怎么办。</p>
+        </div>
+        <p>而且因为我自己也是各类 AI 工具和内容产品的深度用户，我对"用户体验"的判断不是抽象的——<span class="hl">是带着手感的</span>。我知道一个功能好不好用，不是因为我做了用户访谈，而是因为我昨天刚被它卡住过。</p>
+    </div>
+
+    <!-- 04 -->
+    <div class="block fade-up">
+        <div class="block-header">
+            <div class="block-num">04</div>
+            <div class="block-title-group">
+                <div class="block-label">Growth Framework</div>
+                <div class="block-title">我从中提炼的增长方法论</div>
+            </div>
+        </div>
+        <p>把做自媒体学到的东西抽象一层，其实就是一套<span class="hl">以用户为中心的增长循环</span>：</p>
+        <div class="method-grid">
+            <div class="method-card">
+                <div class="mc-step">01</div>
+                <div class="mc-title">找到真实处境</div>
+                <div class="mc-desc">不是"用户画像"，是一个活生生的人，在一个具体的处境里，有一个没被满足的需求。</div>
+            </div>
+            <div class="method-card">
+                <div class="mc-step">02</div>
+                <div class="mc-title">找到切入角度</div>
+                <div class="mc-desc">同一个需求可以有十种回应方式。好的切口，是用户看到的第一秒就觉得"这说的是我"。</div>
+            </div>
+            <div class="method-card">
+                <div class="mc-step">03</div>
+                <div class="mc-title">快速验证迭代</div>
+                <div class="mc-desc">发出去、看数据、听反馈、调整。不要在脑子里完善，要在真实世界里碰壁。</div>
+            </div>
+        </div>
+        <p>这套逻辑放在内容创作里叫"做选题"，放在产品增长里叫"跑实验"。<span class="hl">底层是同一件事：不要被自己的假设带跑，去找到真正驱动人做决策的那个东西。</span></p>
+    </div>
+
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="page-footer">
+    <span class="footer-label">OTHER VIEWS</span>
+    <div class="footer-links">
+        <a href="analyst.html" class="footer-link">ANALYST</a>
+        <a href="gamer.html" class="footer-link">GAMER</a>
+        <a href="index.html" class="footer-link">HOME</a>
+    </div>
+</footer>
+
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
