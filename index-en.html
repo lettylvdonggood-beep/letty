@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hi, I'm Letty — Senior Data Analyst focused on Growth">
+    <title>Hi, I'm Letty</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=La+Belle+Aurore&family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Calendly widget CSS -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0d0d0d;
+            --cream: #EAE6DF;
+            --border: rgba(234, 230, 223, 0.10);
+            --muted: rgba(234, 230, 223, 0.38);
+            --font-d: "Syne", "Inter", -apple-system, sans-serif;
+            --font-s: "Inter", "Noto Sans SC", -apple-system, sans-serif;
+            --font-r: "Noto Serif SC", serif;
+            --font-m: "JetBrains Mono", "SF Mono", "Roboto Mono", monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-s); background: var(--black); color: var(--cream); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .hero { position: relative; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid var(--border); }
+        #starfield { position: absolute; inset: 0; z-index: 0; }
+        .nebula-r { position: absolute; top: 0; right: -20%; width: 55%; height: 90%; background: radial-gradient(ellipse, rgba(50,80,180,.06) 0%, transparent 65%); filter: blur(60px); pointer-events: none; z-index: 0; }
+        .ch { position: absolute; width: 1rem; height: 1rem; opacity: .18; z-index: 1; }
+        .ch::before, .ch::after { content: ''; position: absolute; background: var(--cream); }
+        .ch::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+        .ch::after { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+        .ch-tl { top: 1.25rem; left: 1.25rem; } .ch-tr { top: 1.25rem; right: 1.25rem; }
+        .ch-bl { bottom: 1.25rem; left: 1.25rem; } .ch-br { bottom: 1.25rem; right: 1.25rem; }
+        .hero-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: 5rem 2rem; gap: 2.8rem; }
+        .taichi-wrap { position: relative; width: clamp(240px, 34vw, 420px); aspect-ratio: 1; }
+        .taichi-svg { width: 100%; height: 100%; display: block; animation: spinMark 30s linear infinite; }
+        @keyframes spinMark { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .anno { position: absolute; display: flex; align-items: center; gap: 10px; pointer-events: none; white-space: nowrap; z-index: 3; }
+        .anno-text { font-family: var(--font-m); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: rgba(234,230,223,.92); text-shadow: 0 0 10px rgba(13,13,13,1), 0 0 6px rgba(13,13,13,1); }
+        .anno-line { height: 1px; width: 24px; background: rgba(234,230,223,.65); }
+        .anno-r { top: 25%; right: calc(50% + 25px); transform: translateY(-50%); }
+        .anno-i { top: 75%; left: calc(50% + 25px); transform: translateY(-50%); flex-direction: row-reverse; }
+        .taichi-eye { position: absolute; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; width: clamp(20px, 3vw, 30px); height: clamp(20px, 3vw, 30px); z-index: 2; pointer-events: none; }
+        .taichi-eye-r { top: 25%; background: var(--cream); } .taichi-eye-i { top: 75%; background: var(--black); }
+        .hero-title h1 { font-family: var(--font-d); font-size: clamp(2.6rem, 7.5vw, 6rem); font-weight: 500; letter-spacing: -0.04em; line-height: .9; color: var(--cream); text-align: center; }
+        .hero-hook { font-family: var(--font-m); font-size: .75rem; letter-spacing: .05em; color: var(--muted); text-align: center; line-height: 1.7; }
+        .hero-hook em { color: rgba(234,230,223,.92); font-style: normal; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .taichi-wrap { animation: fadeUp .9s ease both .05s; } .hero-title { animation: fadeUp .8s ease both .3s; } .hero-hook { animation: fadeUp .7s ease both .5s; }
+        #puzzlePiece { position: fixed; z-index: 100; cursor: grab; filter: drop-shadow(0 0 8px rgba(234,230,223,0.12)) drop-shadow(0 0 20px rgba(100,140,255,0.06)); transition: filter 0.3s ease; touch-action: none; user-select: none; }
+        #puzzlePiece:hover { filter: drop-shadow(0 0 14px rgba(234,230,223,0.25)) drop-shadow(0 0 30px rgba(100,140,255,0.12)); }
+        #puzzlePiece.dragging { cursor: grabbing; filter: drop-shadow(0 0 20px rgba(234,230,223,0.35)) drop-shadow(0 0 40px rgba(100,140,255,0.2)); }
+        #puzzlePiece.near-target { filter: drop-shadow(0 0 25px rgba(234,230,223,0.55)) drop-shadow(0 0 50px rgba(180,200,255,0.35)); }
+        .success-flash { position: fixed; inset: 0; z-index: 1000; background: radial-gradient(circle at center, rgba(234,230,223,0.2), transparent 70%); opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+        .success-flash.active { opacity: 1; }
+        .success-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); z-index: 1001; font-family: var(--font-d); font-size: clamp(1.2rem, 3vw, 2rem); color: var(--cream); letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; line-height: 1.6; }
+        .success-msg.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .success-msg .sub { display: block; font-family: var(--font-m); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-top: 0.8rem; text-transform: uppercase; }
+        .cards-section { background: var(--black); }
+        .cards-top { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+        .card-entry { padding: 2.8rem 2.5rem; border-right: 1px solid var(--border); text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background .2s; }
+        .card-entry:last-child { border-right: none; } .card-entry:hover { background: rgba(234,230,223,.025); }
+        .card-lbl { font-family: var(--font-d); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; color: var(--cream); margin-bottom: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .card-icon { flex-shrink: 0; opacity: .8; }
+        .card-tagline { font-family: var(--font-s); font-size: clamp(.9rem, 1.6vw, 1.05rem); font-weight: 400; line-height: 1.55; color: rgba(234,230,223,.72); margin-bottom: 1.4rem; flex: 1; }
+        .card-desc { font-family: var(--font-m); font-size: .58rem; letter-spacing: .05em; color: rgba(234,230,223,.32); margin-bottom: 2rem; line-height: 1.7; }
+        .card-cta { font-family: var(--font-m); font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(234,230,223,.52); transition: color .2s; display: flex; align-items: center; gap: 6px; }
+        .card-cta::after { content: '→'; } .card-entry:hover .card-cta { color: rgba(234,230,223,.92); }
+        .card-core { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--border); }
+        .core-left { padding: 3rem 2.5rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 2rem; }
+        .core-lbl { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.35); }
+        .mini-mark svg { display: block; }
+        .overview-stats { display: flex; flex-direction: column; gap: 1.2rem; }
+        .os-val { font-family: var(--font-d); font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--cream); }
+        .os-key { font-family: var(--font-m); font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(234,230,223,.3); margin-top: 2px; }
+        .core-right { padding: 2rem 3.5rem 4rem; display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; }
+        .core-sub { font-family: var(--font-s); font-size: 0.95rem; font-weight: 300; line-height: 1.8; color: rgba(234,230,223,0.6); }
+        .core-sub strong { color: var(--cream); font-weight: 500; }
+        .manifesto-section { margin-bottom: 1.5rem; }
+        .manifesto-item { margin-top: 1rem; padding-left: 1rem; border-left: 1px solid rgba(234,230,223,0.15); }
+        .core-footer { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .core-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border: 1px solid rgba(234,230,223,.2); border-radius: 999px; background: transparent; color: var(--cream); font-family: var(--font-m); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; cursor: pointer; }
+        .core-btn:hover { border-color: var(--cream); background: var(--cream); color: var(--black); }
+        .copy-toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(234,230,223,0.95); color: var(--black); font-family: var(--font-m); font-size: .7rem; letter-spacing: .08em; padding: 10px 24px; border-radius: 999px; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 999; }
+        .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @media (max-width: 900px) {
+            .cards-top { grid-template-columns: 1fr; }
+            .card-entry { border-right: none; border-bottom: 1px solid var(--border); }
+            .card-core { grid-template-columns: 1fr; }
+            .core-left { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem; }
+            .core-right { padding: 3rem 2rem; }
+        }
+        @media (max-width: 600px) {
+            .anno, .taichi-eye { display: none; }
+            .hero-title h1 { font-size: 2.6rem; }
+            .hero-inner { padding: 4rem 1.5rem 4.5rem; gap: 2.2rem; }
+            .card-entry { padding: 2rem 1.5rem; }
+            .card-lbl { font-size: 1.3rem; }
+        }
+        /* ══════════════════════ LANGUAGE SWITCHER ══════════════════════ */
+        .lang-switch {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid rgba(234,230,223,0.3);
+            border-radius: 999px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(13,13,13,0.6);
+        }
+        .lang-switch a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            font-family: var(--font-m);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            color: rgba(234,230,223,0.55);
+            transition: all 0.25s ease;
+        }
+        .lang-switch a:hover {
+            color: rgba(234,230,223,0.85);
+        }
+        .lang-switch a.active {
+            background: rgba(234,230,223,0.12);
+            color: var(--cream);
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <nav class="lang-switch">
+        <a href="index.html">中</a>
+        <a href="index-en.html" class="active">EN</a>
+    </nav>
+
+    <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+        <defs>
+            <linearGradient id="dither-driver" x1="40%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/>
+            </linearGradient>
+            <filter id="analog-dither" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" result="noise"/>
+                <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 1 0" in="noise" result="grayNoise"/>
+                <feComposite operator="arithmetic" k1="0" k2="1" k3="1" k4="-0.5" in="SourceGraphic" in2="grayNoise" result="combined"/>
+                <feComponentTransfer in="combined" result="threshold">
+                    <feFuncR type="step" stepv="0.5"/><feFuncG type="step" stepv="0.5"/><feFuncB type="step" stepv="0.5"/>
+                </feComponentTransfer>
+                <feColorMatrix type="matrix" values="0.851 0 0 0 0.0666 0.835 0 0 0 0.0666 0.808 0 0 0 0.0666 0 0 0 1 0" in="threshold"/>
+            </filter>
+            <clipPath id="mark-clip"><circle cx="50" cy="50" r="50"/></clipPath>
+        </defs>
+    </svg>
+
+    <div class="success-flash" id="successFlash"></div>
+    <div class="success-msg" id="successMsg">✦ Secret Space Unlocked ✦<span class="sub">Entering the hidden world…</span></div>
+    <div class="copy-toast" id="copyToast">✓ Email copied to clipboard</div>
+
+    <section class="hero">
+        <canvas id="starfield"></canvas>
+        <div class="nebula-r"></div>
+        <div class="ch ch-tl"></div><div class="ch ch-tr"></div>
+        <div class="ch ch-bl"></div><div class="ch ch-br"></div>
+        <div class="hero-inner">
+            <div class="taichi-wrap" id="taichiWrap">
+                <svg class="taichi-svg" id="taichiSvg" viewBox="0 0 100 100">
+                    <defs>
+                        <mask id="hole-mask">
+                            <rect x="0" y="0" width="100" height="100" fill="white"/>
+                            <g id="puzzleHoleMask">
+                                <path fill="black" d="M 62,14 L 65.5,14 A 2.5,2.5 0 0,1 70.5,14 L 74,14 L 74,17.5 A 2.5,2.5 0 0,0 74,22.5 L 74,26 L 62,26 Z"/>
+                            </g>
+                        </mask>
+                    </defs>
+                    <g clip-path="url(#mark-clip)">
+                        <g mask="url(#hole-mask)">
+                            <rect x="0" y="0" width="100" height="100" fill="#EAE6DF"/>
+                            <rect x="0" y="0" width="100" height="100" fill="url(#dither-driver)" filter="url(#analog-dither)"/>
+                            <path d="M 50,0 C 75,25 25,75 50,100 L 0,100 L 0,0 Z" fill="#0d0d0d"/>
+                        </g>
+                    </g>
+                    <circle cx="50" cy="50" r="49.5" fill="none" stroke="rgba(234,230,223,0.12)" stroke-width="0.5"/>
+                </svg>
+                <div class="taichi-eye taichi-eye-r"></div>
+                <div class="taichi-eye taichi-eye-i"></div>
+                <div class="anno anno-r"><div class="anno-text">RATIONAL [ANALYST]</div><div class="anno-line"></div></div>
+                <div class="anno anno-i"><div class="anno-text">INTUITIVE [CREATOR/GAMER/AI NATIVE]</div><div class="anno-line"></div></div>
+            </div>
+            <div class="hero-title"><h1>Hi, I'm Letty</h1></div>
+            <p class="hero-hook">Looking for <em>growth-oriented</em> roles in <em>Business Analytics / Strategy / Operations / Product</em></p>
+        </div>
+    </section>
+
+    <svg id="puzzlePiece" viewBox="59 11 18 17">
+        <defs><clipPath id="piece-clip"><path d="M 62,14 L 65.5,14 A 2.5,2.5 0 0,1 70.5,14 L 74,14 L 74,17.5 A 2.5,2.5 0 0,0 74,22.5 L 74,26 L 62,26 Z"/></clipPath></defs>
+        <g clip-path="url(#piece-clip)"><rect x="59" y="11" width="18" height="17" fill="#EAE6DF"/><rect x="59" y="11" width="18" height="17" fill="url(#dither-driver)" filter="url(#analog-dither)"/></g>
+        <path d="M 62,14 L 65.5,14 A 2.5,2.5 0 0,1 70.5,14 L 74,14 L 74,17.5 A 2.5,2.5 0 0,0 74,22.5 L 74,26 L 62,26 Z" fill="none" stroke="rgba(234,230,223,0.35)" stroke-width="0.3"/>
+    </svg>
+
+    <section class="cards-section" id="content">
+        <div class="cards-top">
+            <a href="analyst.html" class="card-entry">
+                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14 11.5 L16 9 L18 11" stroke-width="1.2"/><line x1="16" y1="9" x2="16" y2="14" stroke-width="1.2"/></svg>Senior Business Analyst</div>
+                <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
+                    <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">7 years of experience using data to answer the core questions of growth: Who are the users, where do they come from, why do they stay, and why do they leave — finding the right people matters more than finding more people.</div>
+                </div>
+                <div class="card-desc">SQL · Python · A/B Testing · Causal Experiments · User Analytics · AI Tool Implementation · Prompt Design</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+            <a href="creator.html" class="card-entry">
+                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14.5 2.5 L17.5 5.5" stroke-width="1.2"/><path d="M13 4l3 3-6 6H7v-3l6-6z" stroke-width="1.2"/></svg>Content Creator</div>
+                <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
+                    <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">Growing from zero to tens of thousands of followers in 6 months — with zero paid traffic — taught me that growth isn't a one-time ad buy. It's about consistently observing people, understanding people. What users really want is to be seen.</div>
+                </div>
+                <div class="card-desc">Growth Practice · Content Strategy · User Psychology · Human Insight · Market Sensitivity</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+            <a href="gamer.html" class="card-entry">
+                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><line x1="14" y1="12" x2="18" y2="12" stroke-width="1.2"/><line x1="16" y1="10" x2="16" y2="14" stroke-width="1.2"/><circle cx="12.5" cy="15.5" r=".6" fill="currentColor"/><circle cx="14.5" cy="13.5" r=".6" fill="currentColor"/></svg>Gamer / AI Native</div>
+                <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
+                    <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">Gaming taught me to deconstruct systems and pinpoint the key variables in complex situations. AI lets me turn ideas directly into reality — the website you're looking at right now is something I designed and built with AI.</div>
+                </div>
+                <div class="card-desc">50+ Games Played · Systems Thinking · Vibe Coding</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+        </div>
+        <div class="card-core">
+            <div class="core-left">
+                <div class="core-lbl">Letty Lyu</div>
+                <div class="mini-mark"><svg viewBox="0 0 100 100" width="72" height="72"><g clip-path="url(#mark-clip)"><rect x="0" y="0" width="100" height="100" fill="#EAE6DF"/><rect x="0" y="0" width="100" height="100" fill="url(#dither-driver)" filter="url(#analog-dither)"/><path d="M 50,0 C 75,25 25,75 50,100 L 0,100 L 0,0 Z" fill="#0d0d0d"/></g></svg></div>
+                <div class="overview-stats">
+                    <div class="os-item"><div class="os-val">7 YEARS</div><div class="os-key">Experience</div></div>
+                    <div class="os-item"><div class="os-val" style="font-size:0.82rem;white-space:nowrap;">Fintech · Content · E-com · Retail</div><div class="os-key">Industries</div></div>
+                    <div class="os-item"><div class="os-val" style="font-size:0.82rem;white-space:nowrap;">AI · Gaming · Emerging</div><div class="os-key">Target Sectors</div></div>
+                </div>
+            </div>
+            <div class="core-right">
+                <div class="core-sub">
+                    <p style="margin-bottom:2rem;">Hi, I'm Letty — senior business analyst, content creator, dedicated gamer, and AI native. If any of these identities intrigue you, <strong>click VIEW → above</strong>. As for a certain <span style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(234,230,223,0.35);">hidden identity</span>… the clue is somewhere on this page.</p>
+                    <p style="margin-bottom:2rem;">At this stage of my career, I'm no longer chasing louder titles or a cog-in-the-machine role at a big corporation. I'm looking to join a team that's truly in sync. I want this to be more than a job — I want it to feel like creating something I can pour my heart into. <strong>If your team is breaking into new markets or building a product from 0 to 1, I think we'll have a lot to talk about.</strong></p>
+                    <div class="manifesto-section">
+                        <p><strong>For my next chapter, I'm looking to grow in soil like this:</strong></p>
+                        <div class="manifesto-item"><strong>Equality & Respect:</strong> Respect is the foundation of effective collaboration. I value dialogue built on mutual recognition of each other's worth — I care more about the sincerity between partners than mechanical hierarchy.</div>
+                        <div class="manifesto-item"><strong>Outcome-Driven:</strong> I favor decentralized communication that channels energy into actually solving problems — no performative busyness, no busywork for the sake of looking busy.</div>
+                    </div>
+                    <p style="margin-top:2rem;color:var(--cream);">If this resonates, I'd love to have a <strong>Coffee Chat</strong>.</p>
+                </div>
+                <div class="core-footer">
+                    <a class="core-btn" id="calBtn" href="javascript:void(0)">☕ Book a Coffee Chat</a>
+                    <button class="core-btn" id="copyBtn" style="cursor:pointer;">✉ Copy Email</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendly widget JS -->
+    <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <script>
+    // ── Coffee Chat interactions ──
+    document.getElementById('calBtn').addEventListener('click', function() {
+        var calURL = 'https://calendly.com/YOUR_CALENDLY_LINK/30min';
+        if (typeof Calendly !== 'undefined') {
+            Calendly.initPopupWidget({ url: calURL });
+        } else {
+            window.open(calURL, '_blank');
+        }
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        var btn = this;
+        navigator.clipboard.writeText('lettylvdong@hotmail.com').then(function() {
+            var toast = document.getElementById('copyToast');
+            toast.classList.add('show');
+            btn.textContent = '✓ Copied';
+            setTimeout(function() {
+                toast.classList.remove('show');
+                btn.textContent = '✉ Copy Email';
+            }, 2000);
+        });
+    });
+    </script>
+
+    <script>
+    (function() {
+        // ══════════════════════ ENHANCED STARFIELD ══════════════════════
+        var canvas = document.getElementById('starfield');
+        var ctx = canvas.getContext('2d');
+        var stars = [], shootingStars = [];
+        var W, H;
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function initStars() {
+            stars = Array.from({ length: 220 }, function() { return {
+                x: Math.random() * W, y: Math.random() * H,
+                r: Math.random() * 1.2 + 0.15, baseA: Math.random() * 0.5 + 0.1,
+                twinkleSpeed: Math.random() * 2 + 0.5, twinkleOffset: Math.random() * Math.PI * 2,
+                driftX: (Math.random() - 0.5) * 0.08, driftY: (Math.random() - 0.5) * 0.04,
+                tint: Math.random() < 0.15 ? [180,200,255] : Math.random() < 0.1 ? [255,230,200] : [234,230,223]
+            };});
+        }
+        function spawnShootingStar() {
+            if (shootingStars.length > 2) return;
+            var angle = Math.random() * 0.4 + 0.2, speed = Math.random() * 6 + 4;
+            shootingStars.push({ x: Math.random()*W*0.7, y: Math.random()*H*0.4, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, life: 1, decay: Math.random()*0.015+0.008, len: Math.random()*40+20 });
+        }
+        var t = 0;
+        function drawStars() {
+            ctx.clearRect(0,0,W,H); t += 0.016;
+            stars.forEach(function(s) {
+                var tw = 0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset);
+                var a = s.baseA * (0.3 + 0.7 * tw);
+                s.x += s.driftX; s.y += s.driftY;
+                if (s.x < -5) s.x = W + 5; if (s.x > W + 5) s.x = -5;
+                if (s.y < -5) s.y = H + 5; if (s.y > H + 5) s.y = -5;
+                var c = s.tint;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'; ctx.fill();
+                if (s.r > 0.9 && tw > 0.85) {
+                    ctx.strokeStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+','+(a*0.3)+')';
+                    ctx.lineWidth = 0.5; var l = s.r*3;
+                    ctx.beginPath(); ctx.moveTo(s.x-l,s.y); ctx.lineTo(s.x+l,s.y);
+                    ctx.moveTo(s.x,s.y-l); ctx.lineTo(s.x,s.y+l); ctx.stroke();
+                }
+            });
+            for (var i = shootingStars.length-1; i >= 0; i--) {
+                var ss = shootingStars[i];
+                var mag = Math.sqrt(ss.vx*ss.vx+ss.vy*ss.vy);
+                var tx = ss.x-ss.vx*(ss.len/mag), ty = ss.y-ss.vy*(ss.len/mag);
+                var g = ctx.createLinearGradient(tx,ty,ss.x,ss.y);
+                g.addColorStop(0,'rgba(234,230,223,0)');
+                g.addColorStop(1,'rgba(234,230,223,'+(ss.life*0.7)+')');
+                ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(ss.x,ss.y);
+                ctx.strokeStyle=g; ctx.lineWidth=1.2; ctx.stroke();
+                ctx.beginPath(); ctx.arc(ss.x,ss.y,1.5,0,Math.PI*2);
+                ctx.fillStyle='rgba(234,230,223,'+(ss.life*0.9)+')'; ctx.fill();
+                ss.x+=ss.vx; ss.y+=ss.vy; ss.life-=ss.decay;
+                if(ss.life<=0||ss.x>W+50||ss.y>H+50) shootingStars.splice(i,1);
+            }
+            requestAnimationFrame(drawStars);
+        }
+        resize(); initStars(); drawStars();
+        window.addEventListener('resize',function(){resize();initStars();});
+        setInterval(function(){if(Math.random()<0.4)spawnShootingStar();},3000);
+        setTimeout(spawnShootingStar,2000);
+
+        // ══════════════════════ PUZZLE PIECE SYSTEM ══════════════════════
+        var piece = document.getElementById('puzzlePiece');
+        var taichiWrap = document.getElementById('taichiWrap');
+        var taichiSvg = document.getElementById('taichiSvg');
+        var HOLE_CX = 18, HOLE_CY = -30;
+        var PIECE_VB_X = 59, PIECE_VB_Y = 11, PIECE_VB_W = 18, PIECE_VB_H = 17;
+        var isDragging = false, isPlaced = false;
+        var pxLeft = -200, pxTop = -200, dragOffX = 0, dragOffY = 0;
+        var orbitAngle = Math.random() * Math.PI * 2;
+        var taichiRect, taichiSize, scale, piecePxW, piecePxH, orbitCX, orbitCY, orbitR;
+
+        function updateLayout() {
+            taichiRect = taichiWrap.getBoundingClientRect();
+            taichiSize = taichiRect.width; scale = taichiSize / 100;
+            piecePxW = PIECE_VB_W * scale; piecePxH = PIECE_VB_H * scale;
+            piece.style.width = piecePxW + 'px'; piece.style.height = piecePxH + 'px';
+            orbitCX = taichiRect.left + taichiSize/2; orbitCY = taichiRect.top + taichiSize/2;
+            orbitR = taichiSize * 0.65;
+        }
+        function getTaichiRotation() {
+            var m = getComputedStyle(taichiSvg).transform;
+            if (!m || m === 'none') return 0;
+            var v = m.match(/matrix\((.+)\)/); if (!v) return 0;
+            var p = v[1].split(',').map(Number); return Math.atan2(p[1], p[0]);
+        }
+        function getTargetPos() {
+            var rot = getTaichiRotation(), cx = taichiRect.left+taichiSize/2, cy = taichiRect.top+taichiSize/2;
+            var ox = (PIECE_VB_X-50)*scale, oy = (PIECE_VB_Y-50)*scale;
+            return { x: cx + ox*Math.cos(rot)-oy*Math.sin(rot), y: cy + ox*Math.sin(rot)+oy*Math.cos(rot) };
+        }
+        function getHoleCenter() {
+            var rot = getTaichiRotation(), cx = taichiRect.left+taichiSize/2, cy = taichiRect.top+taichiSize/2;
+            var hx = HOLE_CX*scale, hy = HOLE_CY*scale;
+            return { x: cx+hx*Math.cos(rot)-hy*Math.sin(rot), y: cy+hx*Math.sin(rot)+hy*Math.cos(rot) };
+        }
+        function getPieceCenter() { return { x: pxLeft+piecePxW/2, y: pxTop+piecePxH/2 }; }
+        updateLayout();
+        window.addEventListener('resize', updateLayout);
+        window.addEventListener('scroll', updateLayout);
+
+        function animateOrbit(now) {
+            if (isPlaced) return;
+            if (!isDragging) {
+                orbitAngle += 0.0028;
+                var wobX = Math.sin(now*0.0007)*5, wobY = Math.cos(now*0.001)*4, bob = Math.sin(now*0.0018)*3;
+                pxLeft = orbitCX + Math.cos(orbitAngle)*orbitR + wobX - piecePxW/2;
+                pxTop = orbitCY + Math.sin(orbitAngle)*orbitR*0.5 + wobY + bob - piecePxH/2;
+                var rotDeg = Math.sin(orbitAngle*0.4)*12;
+                piece.style.left = pxLeft+'px'; piece.style.top = pxTop+'px';
+                piece.style.transform = 'rotate('+rotDeg+'deg)';
+            }
+            requestAnimationFrame(animateOrbit);
+        }
+        requestAnimationFrame(animateOrbit);
+
+        function startDrag(cx,cy) {
+            if (isPlaced) return; isDragging = true; piece.classList.add('dragging');
+            var r = piece.getBoundingClientRect(); dragOffX = cx-r.left; dragOffY = cy-r.top;
+        }
+        function moveDrag(cx,cy) {
+            if (!isDragging||isPlaced) return;
+            pxLeft = cx-dragOffX; pxTop = cy-dragOffY;
+            piece.style.left = pxLeft+'px'; piece.style.top = pxTop+'px';
+            piece.style.transform = 'rotate(0deg)';
+            var hc = getHoleCenter(), pc = getPieceCenter();
+            var dist = Math.sqrt(Math.pow(pc.x-hc.x,2)+Math.pow(pc.y-hc.y,2));
+            if (dist < taichiSize*0.12) piece.classList.add('near-target');
+            else piece.classList.remove('near-target');
+        }
+        function endDrag() {
+            if (!isDragging||isPlaced) return; isDragging = false; piece.classList.remove('dragging');
+            var hc = getHoleCenter(), pc = getPieceCenter();
+            var dist = Math.sqrt(Math.pow(pc.x-hc.x,2)+Math.pow(pc.y-hc.y,2));
+            if (dist < taichiSize*0.12) snapPiece();
+            else { piece.classList.remove('near-target'); orbitAngle = Math.atan2(pxTop+piecePxH/2-orbitCY, pxLeft+piecePxW/2-orbitCX); }
+        }
+        piece.addEventListener('mousedown', function(e){e.preventDefault();startDrag(e.clientX,e.clientY);});
+        window.addEventListener('mousemove', function(e){moveDrag(e.clientX,e.clientY);});
+        window.addEventListener('mouseup', endDrag);
+        piece.addEventListener('touchstart', function(e){e.preventDefault();startDrag(e.touches[0].clientX,e.touches[0].clientY);}, {passive:false});
+        window.addEventListener('touchmove', function(e){if(isDragging)moveDrag(e.touches[0].clientX,e.touches[0].clientY);}, {passive:true});
+        window.addEventListener('touchend', endDrag);
+
+        function snapPiece() {
+            isPlaced = true; piece.classList.remove('near-target','dragging');
+            var rot = getTaichiRotation();
+            taichiSvg.style.animation = 'none'; taichiSvg.style.transform = 'rotate('+rot+'rad)';
+            var target = getTargetPos(), rotDeg = rot*180/Math.PI;
+            piece.style.transition = 'all 0.35s cubic-bezier(0.16,1,0.3,1)';
+            piece.style.left = target.x+'px'; piece.style.top = target.y+'px';
+            piece.style.transform = 'rotate('+rotDeg+'deg)'; piece.style.filter = 'none';
+            setTimeout(function(){
+                document.getElementById('puzzleHoleMask').querySelector('path').setAttribute('fill','white');
+                piece.style.opacity = '0';
+                taichiSvg.style.animation = ''; taichiSvg.style.transform = '';
+            }, 400);
+            setTimeout(function(){
+                document.getElementById('successFlash').classList.add('active');
+                document.getElementById('successMsg').classList.add('active');
+                for (var i=0;i<5;i++) setTimeout(spawnShootingStar, i*150);
+            }, 700);
+            setTimeout(function(){ window.location.href = 'secret.html'; }, 3000);
+        }
+    })();
+    </script>
+</body>
+</html>
