@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hi, I'm Letty — 增长方向的资深数据分析师">
+    <title>Hi, I'm Letty</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=La+Belle+Aurore&family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0d0d0d;
+            --cream: #EAE6DF;
+            --border: rgba(234, 230, 223, 0.10);
+            --muted: rgba(234, 230, 223, 0.38);
+            --font-d: "Syne", "Inter", -apple-system, sans-serif;
+            --font-s: "Inter", "Noto Sans SC", -apple-system, sans-serif;
+            --font-r: "Noto Serif SC", serif;
+            --font-m: "JetBrains Mono", "SF Mono", "Roboto Mono", monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-s);
+            background: var(--black);
+            color: var(--cream);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ══════════════════════════════════ HERO ══════════════════════════════════ */
+        .hero {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+        }
+        #starfield { position: absolute; inset: 0; z-index: 0; }
+        .nebula-r {
+            position: absolute; top: 0; right: -20%; width: 55%; height: 90%;
+            background: radial-gradient(ellipse, rgba(50,80,180,.06) 0%, transparent 65%);
+            filter: blur(60px); pointer-events: none; z-index: 0;
+        }
+        .ch { position: absolute; width: 1rem; height: 1rem; opacity: .18; z-index: 1; }
+        .ch::before, .ch::after { content: ''; position: absolute; background: var(--cream); }
+        .ch::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+        .ch::after { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+        .ch-tl { top: 1.25rem; left: 1.25rem; }
+        .ch-tr { top: 1.25rem; right: 1.25rem; }
+        .ch-bl { bottom: 1.25rem; left: 1.25rem; }
+        .ch-br { bottom: 1.25rem; right: 1.25rem; }
+        .hero-inner {
+            position: relative; z-index: 1; display: flex; flex-direction: column;
+            align-items: center; padding: 5rem 2rem; gap: 2.8rem;
+        }
+
+        /* taichi */
+        .taichi-wrap { position: relative; width: clamp(240px, 34vw, 420px); aspect-ratio: 1; }
+        .taichi-svg { width: 100%; height: 100%; display: block; animation: spinMark 30s linear infinite; }
+        @keyframes spinMark { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* annotations */
+        .anno { position: absolute; display: flex; align-items: center; gap: 10px; pointer-events: none; white-space: nowrap; z-index: 3; }
+        .anno-text { font-family: var(--font-m); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: rgba(234,230,223,.92); text-shadow: 0 0 10px rgba(13,13,13,1), 0 0 6px rgba(13,13,13,1); }
+        .anno-line { height: 1px; width: 24px; background: rgba(234,230,223,.65); }
+        .anno-r { top: 25%; right: calc(50% + 25px); transform: translateY(-50%); }
+        .anno-i { top: 75%; left: calc(50% + 25px); transform: translateY(-50%); flex-direction: row-reverse; }
+
+        /* taichi eyes */
+        .taichi-eye {
+            position: absolute; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; width: clamp(20px, 3vw, 30px); height: clamp(20px, 3vw, 30px);
+            z-index: 2; pointer-events: none;
+        }
+        .taichi-eye-r { top: 25%; background: var(--cream); }
+        .taichi-eye-i { top: 75%; background: var(--black); }
+
+        .hero-title h1 { font-family: var(--font-d); font-size: clamp(2.6rem, 7.5vw, 6rem); font-weight: 500; letter-spacing: -0.04em; line-height: .9; color: var(--cream); text-align: center; }
+        .hero-hook { font-family: var(--font-m); font-size: .75rem; letter-spacing: .05em; color: var(--muted); text-align: center; line-height: 1.7; }
+        .hero-hook em { color: rgba(234,230,223,.92); font-style: normal; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .taichi-wrap { animation: fadeUp .9s ease both .05s; }
+        .hero-title { animation: fadeUp .8s ease both .3s; }
+        .hero-hook { animation: fadeUp .7s ease both .5s; }
+
+        /* ══════════════════════ PUZZLE PIECE ══════════════════════ */
+        #puzzlePiece {
+            position: fixed;
+            z-index: 100;
+            cursor: grab;
+            filter: drop-shadow(0 0 8px rgba(234,230,223,0.12)) drop-shadow(0 0 20px rgba(100,140,255,0.06));
+            transition: filter 0.3s ease;
+            touch-action: none;
+            user-select: none;
+        }
+        #puzzlePiece:hover {
+            filter: drop-shadow(0 0 14px rgba(234,230,223,0.25)) drop-shadow(0 0 30px rgba(100,140,255,0.12));
+        }
+        #puzzlePiece.dragging {
+            cursor: grabbing;
+            filter: drop-shadow(0 0 20px rgba(234,230,223,0.35)) drop-shadow(0 0 40px rgba(100,140,255,0.2));
+        }
+        #puzzlePiece.near-target {
+            filter: drop-shadow(0 0 25px rgba(234,230,223,0.55)) drop-shadow(0 0 50px rgba(180,200,255,0.35));
+        }
+
+        .success-flash {
+            position: fixed; inset: 0; z-index: 1000;
+            background: radial-gradient(circle at center, rgba(234,230,223,0.2), transparent 70%);
+            opacity: 0; pointer-events: none; transition: opacity 0.6s ease;
+        }
+        .success-flash.active { opacity: 1; }
+        .success-msg {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 1001; font-family: var(--font-d);
+            font-size: clamp(1.2rem, 3vw, 2rem); color: var(--cream);
+            letter-spacing: 0.05em; opacity: 0; pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center; line-height: 1.6;
+        }
+        .success-msg.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .success-msg .sub { display: block; font-family: var(--font-m); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-top: 0.8rem; text-transform: uppercase; }
+
+        /* ══════════════════════════════════ CARDS ══════════════════════════════════ */
+        .cards-section { background: var(--black); }
+        .cards-top { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+        .card-entry { padding: 2.8rem 2.5rem; border-right: 1px solid var(--border); text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background .2s; }
+        .card-entry:last-child { border-right: none; }
+        .card-entry:hover { background: rgba(234,230,223,.025); }
+        .card-lbl { font-family: var(--font-d); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; color: var(--cream); margin-bottom: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .card-icon { flex-shrink: 0; opacity: .8; }
+        .card-tagline { font-family: var(--font-s); font-size: clamp(.9rem, 1.6vw, 1.05rem); font-weight: 400; line-height: 1.55; color: rgba(234,230,223,.72); margin-bottom: 1.4rem; flex: 1; }
+        .card-desc { font-family: var(--font-m); font-size: .58rem; letter-spacing: .05em; color: rgba(234,230,223,.32); margin-bottom: 2rem; line-height: 1.7; }
+        .card-cta { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.28); transition: color .2s; display: flex; align-items: center; gap: 6px; }
+        .card-cta::after { content: '→'; }
+        .card-entry:hover .card-cta { color: rgba(234,230,223,.75); }
+        .card-core { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--border); }
+        .core-left { padding: 3rem 2.5rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 2rem; }
+        .core-lbl { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.35); }
+        .mini-mark svg { display: block; }
+        .overview-stats { display: flex; flex-direction: column; gap: 1.2rem; }
+        .os-val { font-family: var(--font-d); font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--cream); }
+        .os-key { font-family: var(--font-m); font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(234,230,223,.3); margin-top: 2px; }
+        .core-right { padding: 2rem 3.5rem 4rem; display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; }
+        .core-sub { font-family: var(--font-s); font-size: 0.95rem; font-weight: 300; line-height: 1.8; color: rgba(234,230,223,0.6); }
+        .core-sub strong { color: var(--cream); font-weight: 500; }
+        .manifesto-section { margin-bottom: 1.5rem; }
+        .manifesto-item { margin-top: 1rem; padding-left: 1rem; border-left: 1px solid rgba(234,230,223,0.15); }
+        .core-footer { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        .core-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border: 1px solid rgba(234,230,223,.2); border-radius: 999px; background: transparent; color: var(--cream); font-family: var(--font-m); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; }
+        .core-btn:hover { border-color: var(--cream); background: var(--cream); color: var(--black); }
+        .core-email { font-family: var(--font-m); font-size: .65rem; letter-spacing: .05em; color: rgba(234,230,223,.3); }
+        .core-email a { color: rgba(234,230,223,.58); text-decoration: none; }
+        .core-email a:hover { color: var(--cream); }
+
+        @media (max-width: 900px) {
+            .cards-top { grid-template-columns: 1fr; }
+            .card-entry { border-right: none; border-bottom: 1px solid var(--border); }
+            .card-core { grid-template-columns: 1fr; }
+            .core-left { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem; }
+            .core-right { padding: 3rem 2rem; }
+        }
+        @media (max-width: 600px) {
+            .anno, .taichi-eye { display: none; }
+            .hero-title h1 { font-size: 2.6rem; }
+            .hero-inner { padding: 4rem 1.5rem 4.5rem; gap: 2.2rem; }
+            .card-entry { padding: 2rem 1.5rem; }
+            .card-lbl { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+        <defs>
+            <linearGradient id="dither-driver" x1="40%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/>
+            </linearGradient>
+            <filter id="analog-dither" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" result="noise"/>
+                <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 1 0" in="noise" result="grayNoise"/>
+                <feComposite operator="arithmetic" k1="0" k2="1" k3="1" k4="-0.5" in="SourceGraphic" in2="grayNoise" result="combined"/>
+                <feComponentTransfer in="combined" result="threshold">
+                    <feFuncR type="step" stepv="0.5"/><feFuncG type="step" stepv="0.5"/><feFuncB type="step" stepv="0.5"/>
+                </feComponentTransfer>
+                <feColorMatrix type="matrix" values="0.851 0 0 0 0.0666 0.835 0 0 0 0.0666 0.808 0 0 0 0.0666 0 0 0 1 0" in="threshold"/>
+            </filter>
+            <clipPath id="mark-clip"><circle cx="50" cy="50" r="50"/></clipPath>
+        </defs>
+    </svg>
+
+    <div class="success-flash" id="successFlash"></div>
+    <div class="success-msg" id="successMsg">
+        ✦ 解锁隐秘空间 ✦
+        <span class="sub">正在进入隐藏世界…</span>
+    </div>
+
+    <section class="hero">
+        <canvas id="starfield"></canvas>
+        <div class="nebula-r"></div>
+        <div class="ch ch-tl"></div><div class="ch ch-tr"></div>
+        <div class="ch ch-bl"></div><div class="ch ch-br"></div>
+
+        <div class="hero-inner">
+            <div class="taichi-wrap" id="taichiWrap">
+                <svg class="taichi-svg" id="taichiSvg" viewBox="0 0 100 100">
+                    <defs>
+                        <mask id="hole-mask">
+                            <rect x="0" y="0" width="100" height="100" fill="white"/>
+                            <g id="puzzleHoleMask">
+                                <!--
+                                    Jigsaw piece shape in viewBox coords.
+                                    Base square: 12x12 at (62, 14) → (74, 26)
+                                    Tab on top: semicircle bumping up from y=14, centered at x=68
+                                    Tab on right: semicircle bumping right from x=74, centered at y=20
+                                -->
+                                <path fill="black" d="
+                                    M 62,14
+                                    L 65.5,14
+                                    A 2.5,2.5 0 0,1 70.5,14
+                                    L 74,14
+                                    L 74,17.5
+                                    A 2.5,2.5 0 0,0 74,22.5
+                                    L 74,26
+                                    L 62,26
+                                    Z
+                                "/>
+                            </g>
+                        </mask>
+                    </defs>
+                    <g clip-path="url(#mark-clip)">
+                        <g mask="url(#hole-mask)">
+                            <rect x="0" y="0" width="100" height="100" fill="#EAE6DF"/>
+                            <rect x="0" y="0" width="100" height="100" fill="url(#dither-driver)" filter="url(#analog-dither)"/>
+                            <path d="M 50,0 C 75,25 25,75 50,100 L 0,100 L 0,0 Z" fill="#0d0d0d"/>
+                        </g>
+                    </g>
+                    <!-- Subtle border circle -->
+                    <circle cx="50" cy="50" r="49.5" fill="none" stroke="rgba(234,230,223,0.12)" stroke-width="0.5"/>
+                </svg>
+
+                <div class="taichi-eye taichi-eye-r"></div>
+                <div class="taichi-eye taichi-eye-i"></div>
+                <div class="anno anno-r">
+                    <div class="anno-text">RATIONAL [ANALYST]</div>
+                    <div class="anno-line"></div>
+                </div>
+                <div class="anno anno-i">
+                    <div class="anno-text">INTUITIVE [CREATOR/GAMER/AI NATIVE]</div>
+                    <div class="anno-line"></div>
+                </div>
+            </div>
+            <div class="hero-title"><h1>Hi, I'm Letty</h1></div>
+            <p class="hero-hook">正在寻找 <em>增长方向</em> 的「<em>商分/策略/运营/产品</em>」的任何机会</p>
+        </div>
+    </section>
+
+    <!--
+        The puzzle piece: an SVG with the EXACT same jigsaw path,
+        but rendered as a standalone floating element.
+        viewBox matches the bounding box of the jigsaw shape: x 62→77, y 11.5→26 → 15 x 14.5
+        We pad slightly: viewBox="59 11 18 17"
+    -->
+    <svg id="puzzlePiece" viewBox="59 11 18 17">
+        <defs>
+            <clipPath id="piece-clip">
+                <path d="
+                    M 62,14
+                    L 65.5,14
+                    A 2.5,2.5 0 0,1 70.5,14
+                    L 74,14
+                    L 74,17.5
+                    A 2.5,2.5 0 0,0 74,22.5
+                    L 74,26
+                    L 62,26
+                    Z
+                "/>
+            </clipPath>
+        </defs>
+        <g clip-path="url(#piece-clip)">
+            <!-- Same fill as the taichi's light side -->
+            <rect x="59" y="11" width="18" height="17" fill="#EAE6DF"/>
+            <rect x="59" y="11" width="18" height="17" fill="url(#dither-driver)" filter="url(#analog-dither)"/>
+        </g>
+        <!-- Outline -->
+        <path d="
+            M 62,14
+            L 65.5,14
+            A 2.5,2.5 0 0,1 70.5,14
+            L 74,14
+            L 74,17.5
+            A 2.5,2.5 0 0,0 74,22.5
+            L 74,26
+            L 62,26
+            Z
+        " fill="none" stroke="rgba(234,230,223,0.35)" stroke-width="0.3"/>
+    </svg>
+
+    <section class="cards-section" id="content">
+        <div class="cards-top">
+            <a href="analyst.html" class="card-entry">
+                <div class="card-lbl">
+                    <svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14 11.5 L16 9 L18 11" stroke-width="1.2"/><line x1="16" y1="9" x2="16" y2="14" stroke-width="1.2"/></svg>
+                    资深业务分析师
+                </div>
+                <div class="card-tagline" style="position: relative; padding: 0.5rem 0; margin-bottom: 0.8rem;">
+                    <span style="position: absolute; top: -15px; left: -12px; font-size: 80px; font-family: Georgia, serif; color: rgba(234,230,223,0.08); line-height: 1; pointer-events: none;"> " </span>
+                    <div style="position: relative; z-index: 1; font-size: clamp(.95rem, 1.6vw, 1.1rem); line-height: 1.5; color: rgba(234,230,223,.85);">7年资深经验，用数据回答增长的核心问题：用户是谁、从哪来、为什么留、为什么走——找到对的人，比找到多的人重要。</div>
+                </div>
+                <div class="card-desc">SQL · Python · A/B测试 · 因果实验 · 用户分析 · AI工具落地 · Prompt设计</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+            <a href="creator.html" class="card-entry">
+                <div class="card-lbl">
+                    <svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14.5 2.5 L17.5 5.5" stroke-width="1.2"/><path d="M13 4l3 3-6 6H7v-3l6-6z" stroke-width="1.2"/></svg>
+                    内容创作者
+                </div>
+                <div class="card-tagline" style="position: relative; padding: 0.5rem 0; margin-bottom: 0.8rem;">
+                    <span style="position: absolute; top: -15px; left: -12px; font-size: 80px; font-family: Georgia, serif; color: rgba(234,230,223,0.08); line-height: 1; pointer-events: none;"> " </span>
+                    <div style="position: relative; z-index: 1; font-size: clamp(.95rem, 1.6vw, 1.1rem); line-height: 1.5; color: rgba(234,230,223,.85);">6 个月从零到数万粉丝不靠投流，让我明白：增长不是一次性的流量采买，而是持续地观察人、理解人、用户想要的是"被看见"。</div>
+                </div>
+                <div class="card-desc">增长实践 · 内容策略 · 用户心理 · 人性洞察 · 市场敏感度</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+            <a href="gamer.html" class="card-entry">
+                <div class="card-lbl">
+                    <svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><line x1="14" y1="12" x2="18" y2="12" stroke-width="1.2"/><line x1="16" y1="10" x2="16" y2="14" stroke-width="1.2"/><circle cx="12.5" cy="15.5" r=".6" fill="currentColor"/><circle cx="14.5" cy="13.5" r=".6" fill="currentColor"/></svg>
+                    游戏爱好者/AI Native
+                </div>
+                <div class="card-tagline" style="position: relative; padding: 0.5rem 0; margin-bottom: 0.8rem;">
+                    <span style="position: absolute; top: -15px; left: -12px; font-size: 80px; font-family: Georgia, serif; color: rgba(234,230,223,0.08); line-height: 1; pointer-events: none;"> " </span>
+                    <div style="position: relative; z-index: 1; font-size: clamp(.95rem, 1.6vw, 1.1rem); line-height: 1.5; color: rgba(234,230,223,.85);">游戏教会我拆解系统、在复杂局面中定位关键变量；AI 让我把想法直接变成现实——你正在看的这个网站，就是我设计+AI 落地的作品。</div>
+                </div>
+                <div class="card-desc">50+款游戏经历 · 系统拆解思维 · Vibe Coding</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+        </div>
+        <div class="card-core">
+            <div class="core-left">
+                <div class="core-lbl">Letty Lyu</div>
+                <div class="mini-mark">
+                    <svg viewBox="0 0 100 100" width="72" height="72"><g clip-path="url(#mark-clip)"><rect x="0" y="0" width="100" height="100" fill="#EAE6DF"/><rect x="0" y="0" width="100" height="100" fill="url(#dither-driver)" filter="url(#analog-dither)"/><path d="M 50,0 C 75,25 25,75 50,100 L 0,100 L 0,0 Z" fill="#0d0d0d"/></g></svg>
+                </div>
+                <div class="overview-stats">
+                    <div class="os-item"><div class="os-val">7 YEARS</div><div class="os-key">工作经验</div></div>
+                    <div class="os-item"><div class="os-val" style="font-size: 0.82rem; white-space: nowrap;">金融 · 内容 · 电商 · 零售</div><div class="os-key">行业背景</div></div>
+                    <div class="os-item"><div class="os-val" style="font-size: 0.82rem; white-space: nowrap;">AI应用 · 游戏 · 新兴</div><div class="os-key">目标赛道</div></div>
+                </div>
+            </div>
+            <div class="core-right">
+                <div class="core-sub">
+                    <p style="margin-bottom: 2rem;">Hi，我叫 Letty —— 我是一名资深商业分析师、内容创作者、游戏深度玩家，也是一个灵修者。如果你对某一个身份的我感兴趣，可以点击上面的 VIEW →</p>
+                    <p style="margin-bottom: 2rem;">走到这个阶段，我不再追求更响亮的 Title 或大厂螺丝钉的身份，而是加入一个同频的团队。我希望这不仅仅是一份工作，而是一次能让我投入热情的"作品创作"。如果你所在的团队正处于开拓新市场、或者产品处于从 0 到 1 的突破期，我想我们会有很多共同话题。</p>
+                    <div class="manifesto-section">
+                        <p><strong>关于未来的工作，我更期待在这样的土壤中生长：</strong></p>
+                        <div class="manifesto-item"><strong>平等与尊重：</strong> 尊重是高效协作的底色。我向往基于个体价值认同的平等对话，我更看重彼此作为合作伙伴的诚意，而非机械的层级服从。</div>
+                        <div class="manifesto-item"><strong>目标导向：</strong> 偏好去中心化的沟通，让精力聚焦在"解决问题"本身，拒绝为了忙碌而忙碌的形式主义。</div>
+                    </div>
+                    <p style="margin-top: 2rem; color: var(--cream);">如果你觉得我们同频，期待一场 Coffee Chat。</p>
+                </div>
+                <div class="core-footer">
+                    <a href="mailto:lettylvdong@hotmail.com" class="core-btn">☕ COFFEE CHAT ⊕</a>
+                    <span class="core-email"><a href="mailto:lettylvdong@hotmail.com">lettylvdong@hotmail.com</a></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    (function() {
+        // ══════════════════════ ENHANCED STARFIELD ══════════════════════
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [], shootingStars = [];
+        let W, H;
+
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function initStars() {
+            stars = Array.from({ length: 220 }, () => ({
+                x: Math.random() * W, y: Math.random() * H,
+                r: Math.random() * 1.2 + 0.15,
+                baseA: Math.random() * 0.5 + 0.1,
+                twinkleSpeed: Math.random() * 2 + 0.5,
+                twinkleOffset: Math.random() * Math.PI * 2,
+                driftX: (Math.random() - 0.5) * 0.08,
+                driftY: (Math.random() - 0.5) * 0.04,
+                tint: Math.random() < 0.15 ? [180,200,255] :
+                      Math.random() < 0.1  ? [255,230,200] : [234,230,223]
+            }));
+        }
+        function spawnShootingStar() {
+            if (shootingStars.length > 2) return;
+            const angle = Math.random() * 0.4 + 0.2;
+            const speed = Math.random() * 6 + 4;
+            shootingStars.push({
+                x: Math.random() * W * 0.7, y: Math.random() * H * 0.4,
+                vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                life: 1, decay: Math.random() * 0.015 + 0.008,
+                len: Math.random() * 40 + 20
+            });
+        }
+        let t = 0;
+        function drawStars() {
+            ctx.clearRect(0, 0, W, H); t += 0.016;
+            stars.forEach(s => {
+                const tw = 0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset);
+                const a = s.baseA * (0.3 + 0.7 * tw);
+                s.x += s.driftX; s.y += s.driftY;
+                if (s.x < -5) s.x = W + 5; if (s.x > W + 5) s.x = -5;
+                if (s.y < -5) s.y = H + 5; if (s.y > H + 5) s.y = -5;
+                const [r,g,b] = s.tint;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
+                if (s.r > 0.9 && tw > 0.85) {
+                    ctx.strokeStyle = `rgba(${r},${g},${b},${a*0.3})`;
+                    ctx.lineWidth = 0.5; const l = s.r*3;
+                    ctx.beginPath(); ctx.moveTo(s.x-l,s.y); ctx.lineTo(s.x+l,s.y);
+                    ctx.moveTo(s.x,s.y-l); ctx.lineTo(s.x,s.y+l); ctx.stroke();
+                }
+            });
+            for (let i = shootingStars.length-1; i >= 0; i--) {
+                const ss = shootingStars[i];
+                const mag = Math.sqrt(ss.vx*ss.vx+ss.vy*ss.vy);
+                const tx = ss.x-ss.vx*(ss.len/mag), ty = ss.y-ss.vy*(ss.len/mag);
+                const g = ctx.createLinearGradient(tx,ty,ss.x,ss.y);
+                g.addColorStop(0,`rgba(234,230,223,0)`);
+                g.addColorStop(1,`rgba(234,230,223,${ss.life*0.7})`);
+                ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(ss.x,ss.y);
+                ctx.strokeStyle=g; ctx.lineWidth=1.2; ctx.stroke();
+                ctx.beginPath(); ctx.arc(ss.x,ss.y,1.5,0,Math.PI*2);
+                ctx.fillStyle=`rgba(234,230,223,${ss.life*0.9})`; ctx.fill();
+                ss.x+=ss.vx; ss.y+=ss.vy; ss.life-=ss.decay;
+                if(ss.life<=0||ss.x>W+50||ss.y>H+50) shootingStars.splice(i,1);
+            }
+            requestAnimationFrame(drawStars);
+        }
+        resize(); initStars(); drawStars();
+        window.addEventListener('resize',()=>{resize();initStars();});
+        setInterval(()=>{if(Math.random()<0.4)spawnShootingStar();},3000);
+        setTimeout(spawnShootingStar,2000);
+
+        // ══════════════════════ PUZZLE PIECE SYSTEM ══════════════════════
+        const piece = document.getElementById('puzzlePiece');
+        const taichiWrap = document.getElementById('taichiWrap');
+        const taichiSvg = document.getElementById('taichiSvg');
+
+        /*
+         * The jigsaw hole in SVG viewBox coords:
+         *   Base square: (62,14) to (74,26) → 12×12
+         *   Top tab extends to y≈11.5, right tab extends to x≈76.5
+         *   Center of base square: (68, 20)
+         *
+         * The piece SVG viewBox is "59 11 18 17" to include the tabs with padding.
+         * We size the piece element so that 1 viewBox unit = taichiSize/100 px.
+         *
+         * The piece's rendered pixel size:
+         *   width  = 18 * (taichiSize/100)
+         *   height = 17 * (taichiSize/100)
+         *
+         * Target: the piece's top-left in viewport coords should be such that
+         *   the viewBox content aligns with the taichi's viewBox content.
+         *   i.e. piece.left = taichi.left + 59 * scale
+         *        piece.top  = taichi.top  + 11 * scale
+         *   (adjusted for taichi rotation)
+         */
+
+        // Hole center in viewBox coords, relative to taichi center (50,50)
+        const HOLE_CX = 68 - 50; // 18
+        const HOLE_CY = 20 - 50; // -30
+
+        // Piece viewBox origin offset from taichi viewBox origin
+        const PIECE_VB_X = 59;
+        const PIECE_VB_Y = 11;
+        const PIECE_VB_W = 18;
+        const PIECE_VB_H = 17;
+
+        let isDragging = false, isPlaced = false;
+        let pxLeft = -200, pxTop = -200; // off screen initially
+        let dragOffX = 0, dragOffY = 0;
+        let orbitAngle = Math.random() * Math.PI * 2;
+
+        // Layout values
+        let taichiRect, taichiSize, scale;
+        let piecePxW, piecePxH;
+        let orbitCX, orbitCY, orbitR;
+
+        function updateLayout() {
+            taichiRect = taichiWrap.getBoundingClientRect();
+            taichiSize = taichiRect.width;
+            scale = taichiSize / 100;
+            piecePxW = PIECE_VB_W * scale;
+            piecePxH = PIECE_VB_H * scale;
+
+            piece.style.width = piecePxW + 'px';
+            piece.style.height = piecePxH + 'px';
+
+            orbitCX = taichiRect.left + taichiSize / 2;
+            orbitCY = taichiRect.top + taichiSize / 2;
+            orbitR = taichiSize * 0.65;
+        }
+
+        function getTaichiRotation() {
+            const m = getComputedStyle(taichiSvg).transform;
+            if (!m || m === 'none') return 0;
+            const v = m.match(/matrix\((.+)\)/);
+            if (!v) return 0;
+            const p = v[1].split(',').map(Number);
+            return Math.atan2(p[1], p[0]);
+        }
+
+        // Where the piece top-left needs to be (in viewport px) to align with the hole
+        function getTargetPos() {
+            const rot = getTaichiRotation();
+            const cx = taichiRect.left + taichiSize / 2;
+            const cy = taichiRect.top + taichiSize / 2;
+            // Piece origin in viewBox coords relative to center: (59-50, 11-50) = (9, -39)
+            const ox = (PIECE_VB_X - 50) * scale;
+            const oy = (PIECE_VB_Y - 50) * scale;
+            // Rotate around center
+            const rx = ox * Math.cos(rot) - oy * Math.sin(rot);
+            const ry = ox * Math.sin(rot) + oy * Math.cos(rot);
+            return { x: cx + rx, y: cy + ry };
+        }
+
+        // Center of hole in viewport px
+        function getHoleCenter() {
+            const rot = getTaichiRotation();
+            const cx = taichiRect.left + taichiSize / 2;
+            const cy = taichiRect.top + taichiSize / 2;
+            const hx = HOLE_CX * scale;
+            const hy = HOLE_CY * scale;
+            return {
+                x: cx + hx * Math.cos(rot) - hy * Math.sin(rot),
+                y: cy + hx * Math.sin(rot) + hy * Math.cos(rot)
+            };
+        }
+
+        // Center of the piece in viewport px
+        function getPieceCenter() {
+            return { x: pxLeft + piecePxW / 2, y: pxTop + piecePxH / 2 };
+        }
+
+        updateLayout();
+        window.addEventListener('resize', updateLayout);
+        window.addEventListener('scroll', updateLayout);
+
+        // ── Orbit ──
+        function animateOrbit(now) {
+            if (isPlaced) return;
+            if (!isDragging) {
+                orbitAngle += 0.0028;
+                const wobX = Math.sin(now * 0.0007) * 5;
+                const wobY = Math.cos(now * 0.001) * 4;
+                const bob = Math.sin(now * 0.0018) * 3;
+
+                pxLeft = orbitCX + Math.cos(orbitAngle) * orbitR + wobX - piecePxW / 2;
+                pxTop = orbitCY + Math.sin(orbitAngle) * orbitR * 0.5 + wobY + bob - piecePxH / 2;
+
+                const rotDeg = Math.sin(orbitAngle * 0.4) * 12;
+                piece.style.left = pxLeft + 'px';
+                piece.style.top = pxTop + 'px';
+                piece.style.transform = `rotate(${rotDeg}deg)`;
+            }
+            requestAnimationFrame(animateOrbit);
+        }
+        requestAnimationFrame(animateOrbit);
+
+        // ── Drag ──
+        function startDrag(cx, cy) {
+            if (isPlaced) return;
+            isDragging = true;
+            piece.classList.add('dragging');
+            const r = piece.getBoundingClientRect();
+            dragOffX = cx - r.left;
+            dragOffY = cy - r.top;
+        }
+        function moveDrag(cx, cy) {
+            if (!isDragging || isPlaced) return;
+            pxLeft = cx - dragOffX;
+            pxTop = cy - dragOffY;
+            piece.style.left = pxLeft + 'px';
+            piece.style.top = pxTop + 'px';
+            piece.style.transform = 'rotate(0deg)';
+
+            // Proximity check against the rotating hole center
+            const hc = getHoleCenter();
+            const pc = getPieceCenter();
+            const dist = Math.sqrt((pc.x - hc.x) ** 2 + (pc.y - hc.y) ** 2);
+            const threshold = taichiSize * 0.12; // generous snap zone
+
+            if (dist < threshold) {
+                piece.classList.add('near-target');
+            } else {
+                piece.classList.remove('near-target');
+            }
+        }
+        function endDrag() {
+            if (!isDragging || isPlaced) return;
+            isDragging = false;
+            piece.classList.remove('dragging');
+
+            const hc = getHoleCenter();
+            const pc = getPieceCenter();
+            const dist = Math.sqrt((pc.x - hc.x) ** 2 + (pc.y - hc.y) ** 2);
+            const threshold = taichiSize * 0.12;
+
+            if (dist < threshold) {
+                snapPiece();
+            } else {
+                piece.classList.remove('near-target');
+                orbitAngle = Math.atan2(pxTop + piecePxH/2 - orbitCY, pxLeft + piecePxW/2 - orbitCX);
+            }
+        }
+
+        piece.addEventListener('mousedown', e => { e.preventDefault(); startDrag(e.clientX, e.clientY); });
+        window.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+        window.addEventListener('mouseup', endDrag);
+        piece.addEventListener('touchstart', e => { e.preventDefault(); startDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+        window.addEventListener('touchmove', e => { if (isDragging) moveDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+        window.addEventListener('touchend', endDrag);
+
+        // ── Snap & Success ──
+        function snapPiece() {
+            isPlaced = true;
+            piece.classList.remove('near-target', 'dragging');
+
+            // Freeze taichi rotation
+            const rot = getTaichiRotation();
+            taichiSvg.style.animation = 'none';
+            taichiSvg.style.transform = `rotate(${rot}rad)`;
+
+            // Animate piece to exact target position with matching rotation
+            const target = getTargetPos();
+            const rotDeg = rot * 180 / Math.PI;
+            piece.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+            piece.style.left = target.x + 'px';
+            piece.style.top = target.y + 'px';
+            piece.style.transform = `rotate(${rotDeg}deg)`;
+            piece.style.filter = 'none';
+
+            // Fill hole + hide piece
+            setTimeout(() => {
+                document.getElementById('puzzleHoleMask').querySelector('path').setAttribute('fill', 'white');
+                piece.style.opacity = '0';
+                // Resume spin
+                taichiSvg.style.animation = '';
+                taichiSvg.style.transform = '';
+            }, 400);
+
+            // Success effects
+            setTimeout(() => {
+                document.getElementById('successFlash').classList.add('active');
+                document.getElementById('successMsg').classList.add('active');
+                for (let i = 0; i < 5; i++) setTimeout(spawnShootingStar, i * 150);
+            }, 700);
+
+            // Navigate to secret page
+            setTimeout(() => { window.location.href = 'secret.html'; }, 3000);
+        }
+
+    })();
+    </script>
+</body>
+</html>
