@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letty — Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #030a03;
+            --dark: #081208;
+            --green: #00ff41;
+            --green-dim: #0a6e2a;
+            --green-glow: rgba(0,255,65,.12);
+            --green-text: #b4ffcb;
+            --green-muted: rgba(0,255,65,.35);
+            --green-faint: rgba(0,255,65,.08);
+            --border: rgba(0,255,65,.08);
+            --border-mid: rgba(0,255,65,.12);
+            --font-d: "Syne", sans-serif;
+            --font-s: "Syne", sans-serif;
+            --font-r: "Syne", serif;
+            --font-m: "Share Tech Mono", "JetBrains Mono", monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-s);
+            background: var(--black);
+            color: var(--green-text);
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #matrix-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,.03) 2px,
+                rgba(0,0,0,.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .page-nav, .page-header, .section-a, .section-b, .page-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 10;
+            background: rgba(3,10,3,.92);
+            backdrop-filter: blur(12px);
+        }
+        .nav-back {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: var(--green-muted); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .nav-back:hover { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.2); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .nav-link:hover { color: rgba(0,255,65,.6); }
+        .nav-link.active { color: var(--green); text-shadow: 0 0 6px var(--green-glow); }
+
+        .page-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: end;
+        }
+        .page-title {
+            font-family: var(--font-d);
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700; letter-spacing: -0.04em;
+            line-height: .9;
+            color: var(--green);
+            text-shadow: 0 0 30px rgba(0,255,65,.2), 0 0 60px rgba(0,255,65,.08);
+        }
+
+        .hud-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1px;
+            background: rgba(0,255,65,.06);
+            border: 1px solid rgba(0,255,65,.1);
+            font-family: var(--font-m);
+            position: relative;
+        }
+        .hud-area::before {
+            content: '[ OPERATOR TERMINAL ]';
+            position: absolute;
+            top: -8px; left: 12px;
+            background: var(--black);
+            padding: 0 6px;
+            font-size: .42rem;
+            letter-spacing: .12em;
+            color: var(--green-dim);
+            z-index: 1;
+        }
+
+        .hud-cell {
+            background: rgba(3,10,3,.75);
+            padding: .7rem .9rem;
+        }
+
+        .hud-profile {
+            display: flex;
+            gap: .8rem;
+            align-items: flex-start;
+        }
+        .avatar-frame {
+            width: 52px; height: 52px;
+            border: 1px solid rgba(0,255,65,.2);
+            position: relative;
+            flex-shrink: 0;
+            overflow: hidden;
+            background: rgba(0,255,65,.03);
+        }
+        .avatar-frame canvas { width: 100%; height: 100%; }
+        .avatar-frame::after {
+            content: '';
+            position: absolute;
+            top: 3px; right: 3px;
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: pulse-dot 1.5s ease infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+        .profile-info {
+            font-size: .5rem;
+            line-height: 1.7;
+            color: rgba(180,255,203,.5);
+            letter-spacing: .04em;
+        }
+        .profile-info .p-label { color: var(--green-dim); margin-right: .25rem; }
+        .profile-info .p-val { color: var(--green-text); }
+
+        .hud-telemetry .tel-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: .48rem;
+            margin-bottom: 3px;
+        }
+        .hud-telemetry .tel-label { color: var(--green-dim); }
+        .hud-telemetry .tel-val { color: var(--green-text); }
+        .hud-telemetry .tel-cyan { color: #00F0FF; text-shadow: 0 0 4px rgba(0,240,255,.3); }
+
+        .meter-row { margin-top: 5px; }
+        .meter-row .meter-label {
+            font-size: .42rem;
+            color: var(--green-dim);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        .meter-track {
+            height: 4px;
+            border: 1px solid rgba(0,255,65,.12);
+            background: rgba(0,255,65,.03);
+            margin-bottom: 5px;
+        }
+        .meter-fill {
+            height: 100%;
+            background: var(--green);
+            box-shadow: 0 0 6px rgba(0,255,65,.3);
+            transition: width .5s ease;
+        }
+
+        .hud-signal {
+            display: flex;
+            flex-direction: column;
+        }
+        .signal-header {
+            font-size: .42rem;
+            color: var(--green-dim);
+            letter-spacing: .1em;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .signal-live {
+            color: var(--green);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .signal-live::before {
+            content: '';
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 4px var(--green);
+            animation: pulse-dot 1.5s ease infinite;
+        }
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 20px;
+            flex-grow: 1;
+        }
+        .signal-bar .bar {
+            flex: 1;
+            height: 3px;
+            background: var(--green);
+            border-radius: 1px 1px 0 0;
+            opacity: .3;
+            transition: height .1s ease, opacity .1s ease;
+            max-width: 5px;
+        }
+
+        .hud-hex {
+            font-size: .4rem;
+            color: var(--green-dim);
+            line-height: 1.35;
+            word-break: break-all;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .hex-label {
+            font-size: .42rem;
+            color: var(--green-dim);
+            letter-spacing: .1em;
+            margin-bottom: 4px;
+        }
+        .hex-stream {
+            opacity: .6;
+            font-size: .38rem;
+        }
+
+        .section-heading {
+            font-family: var(--font-d);
+            font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(0,255,65,.15);
+            margin-bottom: 1.8rem;
+        }
+
+        .section-a {
+            padding: 2.2rem 2rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border-mid);
+            border: 1px solid var(--border-mid);
+        }
+
+        .card {
+            background: rgba(3,10,3,.85);
+            padding: 1.8rem 1.6rem 2rem;
+            display: flex; flex-direction: column;
+            position: relative;
+            transition: background .35s ease, box-shadow .35s ease;
+        }
+        .card:hover {
+            background: rgba(0,255,65,.03);
+            box-shadow: inset 0 0 30px rgba(0,255,65,.04);
+        }
+
+        .card-stage {
+            font-family: var(--font-m);
+            font-size: .58rem;
+            letter-spacing: .06em;
+            color: var(--green-dim);
+            margin-bottom: 1.2rem;
+        }
+
+        .card-title {
+            font-family: var(--font-d);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--green);
+            line-height: 1.3;
+            margin-bottom: .35rem;
+            text-shadow: 0 0 10px rgba(0,255,65,.15);
+        }
+
+        .card-body p {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.45);
+            margin-bottom: .7rem;
+            text-align: justify;
+        }
+        .card-body p:last-child { margin-bottom: 0; }
+        .card-body .hl { color: var(--green-text); font-weight: 500; }
+
+        .card-body .card-problem {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.32);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .card-item { margin-bottom: 1rem; }
+        .card-item:last-child { margin-bottom: 0; }
+
+        .card-item-title {
+            font-family: var(--font-s);
+            font-size: .78rem;
+            font-weight: 500;
+            color: rgba(180,255,203,.75);
+            margin-bottom: .25rem;
+            display: flex;
+            align-items: baseline;
+            gap: .45rem;
+        }
+        .card-item-title::before {
+            content: '>';
+            font-family: var(--font-m);
+            font-size: .65rem;
+            color: var(--green-dim);
+            flex-shrink: 0;
+        }
+
+        .card-item-desc {
+            font-weight: 300; font-size: .8rem;
+            line-height: 1.75; color: rgba(180,255,203,.4);
+            padding-left: 1.1rem;
+        }
+
+        .card-tags {
+            margin-top: auto;
+            padding-top: 1.3rem;
+            display: flex; flex-wrap: wrap; gap: .5rem;
+        }
+        .card-tag {
+            font-family: var(--font-m);
+            font-size: .6rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--green);
+            border: 1px solid rgba(0,255,65,.18);
+            padding: .35rem .7rem;
+            border-radius: 2px;
+            background: rgba(0,255,65,.04);
+            transition: color .2s, border-color .2s, box-shadow .2s, background .2s;
+        }
+        .card-tag:hover {
+            color: #fff;
+            border-color: rgba(0,255,65,.5);
+            background: rgba(0,255,65,.1);
+            box-shadow: 0 0 10px rgba(0,255,65,.15);
+        }
+
+        .section-b {
+            padding: 2.2rem 2rem 3.5rem;
+        }
+
+        .section-b-epigraph {
+            position: relative;
+            font-family: var(--font-r);
+            font-size: clamp(.88rem, 1.8vw, 1.05rem);
+            font-weight: 400;
+            line-height: 1.85;
+            color: rgba(180,255,203,.4);
+            padding-left: 2.8rem;
+            margin-bottom: 2.5rem;
+            max-width: 760px;
+        }
+        .section-b-epigraph::before {
+            content: '\201C';
+            position: absolute;
+            left: 0; top: -.1rem;
+            font-family: var(--font-r);
+            font-size: 3rem;
+            line-height: 1;
+            color: rgba(0,255,65,.1);
+            font-weight: 600;
+        }
+
+        .book-spread {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border-mid);
+            border: 1px solid var(--border-mid);
+        }
+
+        .book-page {
+            background: rgba(3,10,3,.85);
+            padding: 2rem 2.2rem;
+            transition: box-shadow .35s ease;
+        }
+        .book-page:hover {
+            box-shadow: inset 0 0 40px rgba(0,255,65,.03);
+        }
+
+        .book-page .page-label {
+            font-family: var(--font-m); font-size: .52rem;
+            letter-spacing: .08em; text-transform: uppercase;
+            color: var(--green-dim);
+            margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .book-page .page-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0,255,65,.06);
+        }
+
+        .book-page .page-title {
+            font-family: var(--font-d);
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--green);
+            letter-spacing: -0.02em;
+            margin-bottom: .8rem;
+            line-height: 1.3;
+            text-shadow: 0 0 10px rgba(0,255,65,.12);
+        }
+
+        .book-page p {
+            font-weight: 300; font-size: .83rem;
+            line-height: 1.8; color: rgba(180,255,203,.45);
+            margin-bottom: .8rem;
+            text-align: justify;
+        }
+        .book-page p:last-child { margin-bottom: 0; }
+        .book-page .hl { color: var(--green-text); font-weight: 500; }
+
+        .book-page .role-line {
+            font-family: var(--font-s);
+            font-size: .78rem;
+            font-weight: 400;
+            color: rgba(180,255,203,.55);
+            border-left: 2px solid var(--green-dim);
+            padding-left: .8rem;
+            margin-top: 1rem;
+            line-height: 1.7;
+        }
+
+        .page-footer {
+            border-top: 1px solid var(--border);
+            padding: 2.2rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 2rem; flex-wrap: wrap;
+        }
+        .footer-label {
+            font-family: var(--font-m); font-size: .6rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.18);
+        }
+        .footer-links { display: flex; gap: 2rem; }
+        .footer-link {
+            font-family: var(--font-m); font-size: .62rem;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(0,255,65,.28); text-decoration: none;
+            transition: color .2s, text-shadow .2s;
+        }
+        .footer-link:hover { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+        .footer-link::after { content: ' →'; }
+
+        .card, .section-heading, .section-b-epigraph, .book-page {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: fadeUp .5s ease forwards;
+        }
+        .card:nth-child(1) { animation-delay: .08s; }
+        .card:nth-child(2) { animation-delay: .18s; }
+        .card:nth-child(3) { animation-delay: .28s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            position: relative;
+            cursor: default;
+        }
+        .page-title:hover {
+            animation: glitch .3s ease;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); text-shadow: 2px 0 #ff0040, -2px 0 #00ff41; }
+            40% { transform: translate(2px, -1px); text-shadow: -2px 0 #ff0040, 2px 0 #00ff41; }
+            60% { transform: translate(-1px, 2px); text-shadow: 1px 0 #ff0040, -1px 0 #00ff41; }
+            80% { transform: translate(1px, -1px); }
+            100% { transform: translate(0); text-shadow: 0 0 30px rgba(0,255,65,.2), 0 0 60px rgba(0,255,65,.08); }
+        }
+
+        @media (max-width: 900px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .book-spread { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .page-header { padding: 1.5rem; grid-template-columns: 1fr; }
+            .hud-area { display: none; }
+            .section-a { padding: 1.8rem 1.5rem 2rem; }
+            .section-b { padding: 1.8rem 1.5rem 2.5rem; }
+            .nav-links { display: none; }
+            .card { padding: 1.5rem 1.2rem 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="matrix-bg"></canvas>
+
+<nav class="page-nav">
+    <a href="index.html" class="nav-back">← Return</a>
+    <div class="nav-links">
+        <a href="analyst.html" class="nav-link active">Analyst</a>
+        <a href="creator.html" class="nav-link">Creator</a>
+        <a href="gamer.html" class="nav-link">Gamer</a>
+    </div>
+</nav>
+
+<header class="page-header">
+    <div>
+        <h1 class="page-title">ANALYST</h1>
+    </div>
+    <div class="hud-area">
+        <div class="hud-cell hud-profile">
+            <div class="avatar-frame">
+                <canvas id="avatar-canvas" width="52" height="52"></canvas>
+            </div>
+            <div class="profile-info">
+                <div><span class="p-label">ID:</span> <span class="p-val">LETTY</span></div>
+                <div><span class="p-label">ROLE:</span> <span class="p-val">SR. ANALYST</span></div>
+                <div><span class="p-label">EXP:</span> <span class="p-val">8Y+ CROSS-INDUSTRY</span></div>
+                <div><span class="p-label">FIELD:</span> <span class="p-val">FINTECH / CONTENT / E-COM</span></div>
+            </div>
+        </div>
+        <div class="hud-cell hud-telemetry">
+            <div class="tel-row"><span class="tel-label">MEM_ADDR:</span><span class="tel-val" id="tel-mem">0xFA489B</span></div>
+            <div class="tel-row"><span class="tel-label">UPTIME:</span><span class="tel-val" id="tel-uptime">72:14:09</span></div>
+            <div class="tel-row"><span class="tel-label">ENC_PROTO:</span><span class="tel-cyan">AES-256-GCM</span></div>
+            <div class="tel-row"><span class="tel-label">PKT_LOSS:</span><span class="tel-val">0.003%</span></div>
+            <div class="meter-row">
+                <div class="meter-label"><span>CPU_LOAD</span><span id="cpu-val">45%</span></div>
+                <div class="meter-track"><div class="meter-fill" id="cpu-fill" style="width:45%"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label"><span>NET_TRAFFIC</span><span id="net-val">82%</span></div>
+                <div class="meter-track"><div class="meter-fill" id="net-fill" style="width:82%"></div></div>
+            </div>
+        </div>
+        <div class="hud-cell hud-signal">
+            <div class="signal-header">
+                <span>WAVEFORM_MONITOR</span>
+                <span class="signal-live">LIVE</span>
+            </div>
+            <div class="signal-bar" id="signal-bar"></div>
+        </div>
+        <div class="hud-cell hud-hex">
+            <div class="hex-label">DATA_STREAM // RAW</div>
+            <div class="hex-stream" id="hex-stream"></div>
+        </div>
+    </div>
+</header>
+
+
+<!-- ══════════ SECTION A ══════════ -->
+<section class="section-a">
+    <div class="section-heading">What I Do</div>
+
+    <div class="cards-grid">
+
+        <!-- 0 → 1 -->
+        <div class="card">
+            <div class="card-stage">0 → 1</div>
+            <div class="card-title">Define Users</div>
+            <div class="card-body">
+                <p class="card-problem">The problem: We don't know who to sell to. Who are the users? How do we find them? Why would they come?</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">User Persona Development</div>
+                    <div class="card-item-desc">Skilled at cross-validating quantitative data with qualitative interviews to build actionable persona frameworks. Built a platform's complete tagging system and persona taxonomy from scratch, turning vague "target users" into measurable, executable audience definitions.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">Seed User Identification & Channel Mapping</div>
+                    <div class="card-item-desc">Adept at extracting shared traits of high-activity, high-retention, high-advocacy users from behavioral data, locking down core audience profiles, and reverse-engineering the most efficient acquisition channels.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">User Research & Behavioral Attribution</div>
+                    <div class="card-item-desc">Skilled at combining user interviews with behavioral path analysis to see through surface-level data and identify the real motivations and decision drivers behind user actions. Not just "what happened" — but "why it happened."</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">SQL</span>
+                <span class="card-tag">Python/R</span>
+                <span class="card-tag">Survey & Interview Methods</span>
+                <span class="card-tag">Empathy</span>
+                <span class="card-tag">Root Cause Thinking</span>
+                <span class="card-tag">Communication</span>
+            </div>
+        </div>
+
+        <!-- 1 → N -->
+        <div class="card">
+            <div class="card-stage">1 → N</div>
+            <div class="card-title">Drive Growth</div>
+            <div class="card-body">
+                <p class="card-problem">The problem: Users are coming, but we don't know which actions actually work. Is the spend worth it? How do we get more users to stay longer?</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">Experimentation Framework & A/B Testing</div>
+                    <div class="card-item-desc">Experiment-driven by default: build standardized testing frameworks where every growth action has a hypothesis, a control group, and clear success metrics. Hands-on experience with full-funnel conversion optimization and onboarding flow iteration, ensuring every resource invested has a quantifiable return expectation.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">Channel Attribution & ROI Assessment</div>
+                    <div class="card-item-desc">Skilled at building multi-touch attribution models that distinguish between channels that produce "numbers" and channels that produce "real users." Core work over the past several years: identifying the highest-ROI growth path under budget constraints.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">Retention Diagnostics & Lifecycle Management</div>
+                    <div class="card-item-desc">Skilled at deconstructing the full registration → activation → retention pipeline, pinpointing drop-off stages and root causes, and delivering actionable intervention strategies — not just a "retention declined" report.</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">A/B Testing</span>
+                <span class="card-tag">Causal Inference</span>
+                <span class="card-tag">Channel Attribution</span>
+                <span class="card-tag">Metrics Design</span>
+            </div>
+        </div>
+
+        <!-- N → N+ -->
+        <div class="card">
+            <div class="card-stage">N → N+</div>
+            <div class="card-title">Scale & Systematize</div>
+            <div class="card-body">
+                <p class="card-problem">The problem: Growth is working, but it depends entirely on individuals. Remove one person and everything stalls. Where's the next curve? Why is the org so slow?</p>
+
+                <div class="card-item">
+                    <div class="card-item-title">Data Product Design & Self-Service Platforms</div>
+                    <div class="card-item-desc">End-to-end experience building user persona platforms and behavioral analytics platforms from zero — covering requirements, data architecture, interaction design, and delivery. Goal: enable business teams to self-serve data and decisions without waiting on analyst queues.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">Metrics Framework & Data Governance</div>
+                    <div class="card-item-desc">Skilled at defining company-wide unified core metrics — active users, retention, qualified acquisition — all teams on the same standard. Eliminates cross-team data conflicts and reduces decision friction.</div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-title">Data Storytelling & Decision Enablement</div>
+                    <div class="card-item-desc">Skilled at translating data logic into business language: present paths and opportunities to product teams, conclusions and priorities to leadership. Six months growing a content account from 0 to tens of thousands of followers — the core training was "delivering key messages in a way the audience can feel."</div>
+                </div>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">Data Products</span>
+                <span class="card-tag">Metrics Design</span>
+                <span class="card-tag">Cross-Functional</span>
+                <span class="card-tag">Data Storytelling</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ══════════ SECTION B ══════════ -->
+<section class="section-b">
+    <div class="section-heading">How I Think About Growth</div>
+
+    <div class="section-b-epigraph">Growth isn't a task for one stage — it's a continuous thread across a product's entire lifecycle. Each stage has its own core tension and demands a completely different playbook. Knowing where you are matters more than moving faster.</div>
+
+    <div class="book-spread">
+
+        <div class="book-page">
+            <div class="page-label">Prerequisite</div>
+            <div class="page-title">The Perception Gap: Growth's Hidden Ceiling</div>
+            <p>Most products — especially early-stage ones — don't struggle with "not enough traffic." They struggle with a <span class="hl">perception gap</span>. A new product is often a new concept. Users have no frame of reference and can't grasp "this is useful to me" within 30 seconds.</p>
+            <p>Many teams misdiagnose this as an exposure problem, pouring resources into "getting the word out." But the real bottleneck is: they heard about it — then what? The first step isn't widening the funnel. It's <span class="hl">reducing the cost of understanding</span> — making the product's value intuitively obvious on first contact.</p>
+            <div class="role-line">Hands-on experience: Grew a content account from 0 to tens of thousands of followers in six months — essentially stress-testing "how to make someone perceive value in 3 seconds" in an information-overloaded environment. What this trained wasn't content tactics, but a sharp instinct for market sentiment: how to make a message spread organically among the right people.</div>
+        </div>
+
+        <div class="book-page">
+            <div class="page-label">0 → 1</div>
+            <div class="page-title">Finding Users Who "Get It" Immediately</div>
+            <p>Who will be the first to see the value in a new product? Usually people <span class="hl">already actively searching for a solution</span> — they have a clear need, have tried existing options, and remain unsatisfied. For them, your product isn't a concept that needs explaining. It's an answer they've been waiting for.</p>
+            <p>Early growth rarely comes from paid ads. It comes from <span class="hl">letting the product itself become the distribution channel.</span> Seed users are both users and channels — their usage naturally generates word-of-mouth.</p>
+            <div class="role-line">Hands-on experience: Built a platform's user tagging system and persona taxonomy from scratch, cross-validating behavioral data with user interviews to transform vague "target users" into measurable audience definitions, precisely identifying seed user traits and highest-efficiency acquisition paths.</div>
+        </div>
+
+        <div class="book-page">
+            <div class="page-label">1 → N</div>
+            <div class="page-title">Replace Intuition with Experiments</div>
+            <p>Users are coming in, but you changed the landing page, adjusted ad spend, and launched a new feature all at once. Metrics went up — but who gets the credit? Without attribution, there's no replication.</p>
+            <p>This stage isn't about "doing more." It's about <span class="hl">figuring out what actually works</span>. The same budget placed across different channels, audiences, and timing can yield returns that vary by 10x. The key is identifying the real growth levers while avoiding spend on dead-end channels.</p>
+            <div class="role-line">Hands-on experience: Built standardized A/B testing frameworks and multi-touch attribution models, identifying the highest-ROI growth paths under constrained budgets. Every growth action has a hypothesis, a control group, and a conclusion — turning "feels effective" into "proven effective."</div>
+        </div>
+
+        <div class="book-page">
+            <div class="page-label">N → N+</div>
+            <div class="page-title">Making Growth Independent of Any Individual</div>
+            <p>Growth is working, but the knowledge lives in one person's head — when they leave, it resets to zero. Every decision waits for an analyst report, making the decision chain slow and inefficient. Product says DAU is up, ops says retention is down — because everyone defines "active user" differently.</p>
+            <p>The core tension: <span class="hl">individual capability can't support organizational scale.</span> Growth expertise needs to be embedded in processes and tools so the organization can make data-driven decisions on its own.</p>
+            <div class="role-line">Hands-on experience: End-to-end experience building user persona and behavioral analytics platforms from zero, designing company-wide unified core metrics, enabling business teams to self-serve data and decisions. Skilled at translating data logic into business language that different audiences can understand and act on.</div>
+        </div>
+
+    </div>
+</section>
+
+
+<footer class="page-footer">
+    <span class="footer-label">OTHER VIEWS</span>
+    <div class="footer-links">
+        <a href="creator.html" class="footer-link">CREATOR</a>
+        <a href="gamer.html" class="footer-link">GAMER</a>
+        <a href="index.html" class="footer-link">HOME</a>
+    </div>
+</footer>
+
+<script>
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.documentElement.scrollHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+const charArr = chars.split('');
+const fontSize = 14;
+const columns = Math.floor(canvas.width / fontSize);
+const drops = new Array(columns).fill(0).map(() => Math.random() * -100 | 0);
+
+function draw() {
+    ctx.fillStyle = 'rgba(3, 10, 3, 0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < drops.length; i++) {
+        const char = charArr[Math.floor(Math.random() * charArr.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        const brightness = Math.random();
+        if (brightness > 0.95) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00ff41';
+        } else {
+            ctx.fillStyle = `rgba(0, ${100 + Math.floor(Math.random() * 155)}, ${20 + Math.floor(Math.random() * 40)}, ${0.4 + Math.random() * 0.4})`;
+            ctx.shadowBlur = 0;
+        }
+        ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+        ctx.fillText(char, x, y);
+        ctx.shadowBlur = 0;
+        if (y > canvas.height && Math.random() > 0.98) { drops[i] = 0; }
+        drops[i]++;
+    }
+}
+setInterval(draw, 45);
+
+const observer = new ResizeObserver(() => resize());
+observer.observe(document.body);
+
+const avCanvas = document.getElementById('avatar-canvas');
+if (avCanvas) {
+    const ac = avCanvas.getContext('2d');
+    const aw = 52, ah = 52;
+    const face = [
+        [0,0,1,1,1,1,0,0],
+        [0,1,2,2,2,2,1,0],
+        [1,2,1,2,2,1,2,1],
+        [1,2,3,2,2,3,2,1],
+        [1,2,2,2,2,2,2,1],
+        [0,1,2,1,1,2,1,0],
+        [0,0,1,2,2,1,0,0],
+        [0,0,0,1,1,0,0,0],
+    ];
+    const avChars = '01ﾊﾐﾑﾒﾓ';
+    function drawAvatar() {
+        ac.fillStyle = 'rgba(3,10,3,0.3)';
+        ac.fillRect(0,0,aw,ah);
+        const cs = 6.5;
+        for (let r=0; r<8; r++) {
+            for (let c=0; c<8; c++) {
+                const v = face[r][c];
+                if (v === 0) continue;
+                const ch = avChars[Math.floor(Math.random()*avChars.length)];
+                const alpha = v === 3 ? (.7+Math.random()*.3) : v === 2 ? (.35+Math.random()*.25) : (.12+Math.random()*.1);
+                ac.fillStyle = `rgba(0,255,65,${alpha})`;
+                ac.font = `${cs}px "Share Tech Mono", monospace`;
+                ac.fillText(ch, c*cs, r*cs+cs-1);
+            }
+        }
+        if (Math.random() > .85) {
+            const gr = Math.floor(Math.random()*8);
+            ac.fillStyle = 'rgba(0,255,65,0.15)';
+            ac.fillRect(0, gr*6.5, aw, 6.5);
+        }
+    }
+    setInterval(drawAvatar, 200);
+}
+
+const sigBar = document.getElementById('signal-bar');
+if (sigBar) {
+    for (let i = 0; i < 40; i++) {
+        const b = document.createElement('div');
+        b.className = 'bar';
+        sigBar.appendChild(b);
+    }
+}
+const bars = document.querySelectorAll('.signal-bar .bar');
+function animateBars() {
+    bars.forEach(bar => {
+        const h = 2 + Math.random() * 18;
+        bar.style.height = h + 'px';
+        bar.style.opacity = 0.25 + (h / 20) * 0.65;
+    });
+}
+setInterval(animateBars, 120);
+
+const hexEl = document.getElementById('hex-stream');
+function updateHex() {
+    if (!hexEl) return;
+    let s = '';
+    for (let i = 0; i < 80; i++) {
+        s += Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase();
+        if (i % 16 === 15) s += '\n';
+        else s += ' ';
+    }
+    hexEl.textContent = s;
+}
+updateHex();
+setInterval(updateHex, 2000);
+
+function updateTelemetry() {
+    const mem = document.getElementById('tel-mem');
+    const uptime = document.getElementById('tel-uptime');
+    const cpuFill = document.getElementById('cpu-fill');
+    const cpuVal = document.getElementById('cpu-val');
+    const netFill = document.getElementById('net-fill');
+    const netVal = document.getElementById('net-val');
+    if (mem) mem.textContent = '0x' + Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6,'0');
+    if (uptime) {
+        const h = 72 + Math.floor(Math.random()*2);
+        const m = Math.floor(Math.random()*60);
+        const sec = Math.floor(Math.random()*60);
+        uptime.textContent = `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+    if (cpuFill && cpuVal) {
+        const cv = 30 + Math.floor(Math.random()*40);
+        cpuFill.style.width = cv + '%';
+        cpuVal.textContent = cv + '%';
+    }
+    if (netFill && netVal) {
+        const nv = 60 + Math.floor(Math.random()*30);
+        netFill.style.width = nv + '%';
+        netVal.textContent = nv + '%';
+    }
+}
+setInterval(updateTelemetry, 3000);
+</script>
+
+</body>
+</html>
