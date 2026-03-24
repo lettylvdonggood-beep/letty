@@ -172,6 +172,8 @@ body{font-family:var(--fp);background:var(--bg);color:var(--cream);-webkit-font-
 <div class="top-bar-dots"><span></span><span></span><span></span></div>
 </div></div>
 
+
+<nav style="max-width:1100px;margin:0 auto;padding:0 2rem .4rem;position:relative;z-index:10;"><a href="index.html" style="font-size:.5rem;letter-spacing:.08em;color:var(--neon-blue);text-decoration:none;text-shadow:0 0 6px rgba(106,180,255,0.3);">&larr; RETURN</a></nav>
 <!-- GAMER TITLE -->
 <div class="title-row"><h1 class="page-title">GAMER</h1></div>
 
@@ -327,12 +329,12 @@ tabs.forEach(t=>{t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.rem
 init();
 
 // === MOUSE FOLLOWER GLOW ===
-const glow = document.createElement('div');
-glow.style.cssText = 'position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(148,245,108,0.1) 0%,rgba(106,180,255,0.03) 30%,transparent 70%);transition:transform 0.15s ease-out;will-change:transform;';
-document.body.appendChild(glow);
+const glowEl = document.createElement('div');
+glowEl.style.cssText = 'position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(148,245,108,0.1) 0%,rgba(106,180,255,0.03) 30%,transparent 70%);transition:transform 0.15s ease-out;will-change:transform;';
+document.body.appendChild(glowEl);
 let mx=0,my=0,gx=0,gy=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-!function followMouse(){gx+=(mx-gx)*.08;gy+=(my-gy)*.08;glow.style.transform=`translate(${gx-150}px,${gy-150}px)`;requestAnimationFrame(followMouse);}();
+!function followMouse(){gx+=(mx-gx)*.08;gy+=(my-gy)*.08;glowEl.style.transform=`translate(${gx-150}px,${gy-150}px)`;requestAnimationFrame(followMouse);}();
 
 // === CARD TILT ON HOVER ===
 document.querySelectorAll('.card-front').forEach(front=>{
@@ -369,57 +371,5 @@ document.addEventListener('click',e=>{
 !function(){const c=document.getElementById('particles');const cl=['#94f56c','#e84fff','#6ab4ff','#c070d0','#fffb23'];for(let i=0;i<15;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'vw';p.style.background=cl[Math.floor(Math.random()*cl.length)];p.style.animationDelay=Math.random()*12+'s';p.style.animationDuration=(5+Math.random()*6)+'s';p.style.width=(2+Math.random()*2)+'px';p.style.height=p.style.width;c.appendChild(p);}}();
 </script>
 
-<div id="mouseGlow" style="position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(148,245,108,0.06) 0%,rgba(232,79,255,0.03) 40%,transparent 70%);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .15s ease,top .15s ease;display:none;"></div>
-<script>
-// Mouse glow follower
-const glow=document.getElementById('mouseGlow');
-let mx=0,my=0,showing=false;
-document.addEventListener('mousemove',e=>{
-    mx=e.clientX;my=e.clientY;
-    if(!showing){glow.style.display='block';showing=true;}
-    glow.style.left=mx+'px';glow.style.top=my+'px';
-});
-document.addEventListener('mouseleave',()=>{glow.style.display='none';showing=false;});
-
-// Card tilt on hover
-document.querySelectorAll('.card').forEach(card=>{
-    card.addEventListener('mousemove',e=>{
-        if(card.classList.contains('flipped'))return;
-        const r=card.getBoundingClientRect();
-        const x=(e.clientX-r.left)/r.width-.5;
-        const y=(e.clientY-r.top)/r.height-.5;
-        const front=card.querySelector('.card-front');
-        if(front)front.style.transform=`translateY(-6px) rotateY(${x*8}deg) rotateX(${-y*8}deg)`;
-    });
-    card.addEventListener('mouseleave',e=>{
-        const front=card.querySelector('.card-front');
-        if(front)front.style.transform='';
-    });
-});
-
-// Typing effect for top bar
-const tb=document.querySelector('.top-bar-text');
-if(tb){
-    const txt=tb.textContent;
-    tb.textContent='';
-    let i=0;
-    function typeChar(){
-        if(i<txt.length){tb.textContent+=txt[i];i++;setTimeout(typeChar,50);}
-    }
-    setTimeout(typeChar,300);
-}
-
-// Random glitch effect on title
-const title=document.querySelector('.page-title');
-if(title){
-    setInterval(()=>{
-        if(Math.random()>0.92){
-            title.style.transform=`translate(${(Math.random()-.5)*3}px,${(Math.random()-.5)*2}px)`;
-            title.style.textShadow='0 0 15px rgba(232,79,255,0.6),3px 3px 0 #3a1a6a,0 6px 0 #2a0a4a,-2px 0 var(--neon-green),2px 0 var(--neon-blue)';
-            setTimeout(()=>{title.style.transform='';title.style.textShadow='';},80);
-        }
-    },200);
-}
-</script>
 </body>
 </html>
