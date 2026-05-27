@@ -57,7 +57,7 @@
         .success-msg.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         .success-msg .sub { display: block; font-family: var(--font-m); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-top: 0.8rem; text-transform: uppercase; }
         .cards-section { background: var(--black); }
-        .cards-top { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+        .cards-top { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
         .card-entry { padding: 2.8rem 2.5rem; border-right: 1px solid var(--border); text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background .2s; }
         .card-entry:last-child { border-right: none; } .card-entry:hover { background: rgba(234,230,223,.025); }
         .card-lbl { font-family: var(--font-d); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; color: var(--cream); margin-bottom: 1.4rem; display: flex; align-items: center; gap: 10px; }
@@ -83,6 +83,10 @@
         .core-btn:hover { border-color: var(--cream); background: var(--cream); color: var(--black); }
         .copy-toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(234,230,223,0.95); color: var(--black); font-family: var(--font-m); font-size: .7rem; letter-spacing: .08em; padding: 10px 24px; border-radius: 999px; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 999; }
         .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @media (max-width: 1100px) {
+            .cards-top { grid-template-columns: repeat(2, 1fr); }
+            .card-entry:nth-child(2) { border-right: none; }
+        }
         @media (max-width: 900px) {
             .cards-top { grid-template-columns: 1fr; }
             .card-entry { border-right: none; border-bottom: 1px solid var(--border); }
@@ -191,12 +195,10 @@
                 </svg>
                 <div class="taichi-eye taichi-eye-r"></div>
                 <div class="taichi-eye taichi-eye-i"></div>
-                <div class="anno anno-r"><div class="anno-text">RATIONAL [ANALYST]</div><div class="anno-line"></div></div>
-                <div class="anno anno-i"><div class="anno-text">INTUITIVE [CREATOR/GAMER/AI NATIVE]</div><div class="anno-line"></div></div>
+                <div class="anno anno-r"><div class="anno-text">理性 [分析师/AI NATIVE]</div><div class="anno-line"></div></div>
+                <div class="anno anno-i"><div class="anno-text">直觉 [内容创作/营销者]</div><div class="anno-line"></div></div>
             </div>
             <div class="hero-title"><h1>Hi, I'm Letty</h1></div>
-            <p class="hero-hook">正在寻找 <em>增长/用户</em>方向 的「<em>商分/策略/运营/产品</em>」的任何机会</p>
-        </div>
     </section>
 
     <svg id="puzzlePiece" viewBox="59 11 18 17">
@@ -213,25 +215,55 @@
                     <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
                     <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">7年资深经验，用数据回答增长的核心问题：用户是谁、从哪来、为什么留、为什么走——找到对的人，比找到多的人重要。</div>
                 </div>
-                <div class="card-desc">SQL · Python · A/B测试 · 因果实验 · 用户分析 · AI工具落地 · Prompt设计</div>
+                <div class="card-desc">SQL · Python · A/B测试 · 因果实验 · 用户分析</div>
                 <div class="card-cta">VIEW</div>
             </a>
             <a href="creator.html" class="card-entry">
-                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14.5 2.5 L17.5 5.5" stroke-width="1.2"/><path d="M13 4l3 3-6 6H7v-3l6-6z" stroke-width="1.2"/></svg>内容创作者</div>
+                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M14.5 2.5 L17.5 5.5" stroke-width="1.2"/><path d="M13 4l3 3-6 6H7v-3l6-6z" stroke-width="1.2"/></svg>内容创作/营销者</div>
                 <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
                     <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
-                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">6 个月从零到数万粉丝不靠投流，让我明白：增长不是一次性的流量采买，而是持续地观察人、理解人、用户想要的是"被看见"。</div>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">6 个月从零到数万粉丝(不靠投流)，现为品牌客户制定内容营销策略。我做的不只是写好看的文案，更是让对的人看见、buy in。</div>
                 </div>
-                <div class="card-desc">增长实践 · 内容策略 · 用户心理 · 人性洞察 · 市场敏感度</div>
+                <div class="card-desc">内容策略 · 用户心理 · 人性洞察 · 市场敏感度</div>
                 <div class="card-cta">VIEW</div>
             </a>
-            <a href="gamer.html" class="card-entry">
-                <div class="card-lbl"><svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="3.5"/><path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/><line x1="14" y1="12" x2="18" y2="12" stroke-width="1.2"/><line x1="16" y1="10" x2="16" y2="14" stroke-width="1.2"/><circle cx="12.5" cy="15.5" r=".6" fill="currentColor"/><circle cx="14.5" cy="13.5" r=".6" fill="currentColor"/></svg>游戏爱好者/AI Native</div>
+            <a href="ai.html" class="card-entry">
+                <div class="card-lbl">
+                    <svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="10" cy="6" r="3.5"/>
+                        <path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>
+                        <path d="M6.5 3.5h7" stroke-width="1.2"/>
+                        <path d="M7.5 1.5h5" stroke-width="1.2"/>
+                        <circle cx="8.4" cy="6" r=".45" fill="currentColor" stroke="none"/>
+                        <circle cx="11.6" cy="6" r=".45" fill="currentColor" stroke="none"/>
+                        <path d="M8 8h4" stroke-width="1.2"/>
+                    </svg>
+                    AI Native
+                </div>
                 <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
                     <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
-                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">游戏教会我拆解系统、在复杂局面中定位关键变量；AI 让我把想法直接变成现实——你正在看的这个网站，就是我设计+AI 落地的作品。</div>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">AI让我把想法直接变成现实——无论是个人网站，还是Web app，都是我设计+ AI落地的作品。 </div>
                 </div>
-                <div class="card-desc">50+款游戏经历 · 系统拆解思维 · Vibe Coding</div>
+                <div class="card-desc">Vibe Coding · Prompt设计 · Claude · Codex</div>
+                <div class="card-cta">VIEW</div>
+            </a>
+                      <a href="gamer.html" class="card-entry">
+                <div class="card-lbl">
+                    <svg class="card-icon" viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="10" cy="6" r="3.5"/>
+                        <path d="M3 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>
+                        <line x1="14" y1="12" x2="18" y2="12" stroke-width="1.2"/>
+                        <line x1="16" y1="10" x2="16" y2="14" stroke-width="1.2"/>
+                        <circle cx="12.5" cy="15.5" r=".6" fill="currentColor"/>
+                        <circle cx="14.5" cy="13.5" r=".6" fill="currentColor"/>
+                    </svg>
+                    游戏爱好者
+                </div>
+                <div class="card-tagline" style="position:relative;padding:0.5rem 0;margin-bottom:0.8rem;">
+                    <span style="position:absolute;top:-15px;left:-12px;font-size:80px;font-family:Georgia,serif;color:rgba(234,230,223,0.08);line-height:1;pointer-events:none;"> " </span>
+                    <div style="position:relative;z-index:1;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:1.5;color:rgba(234,230,223,.85);">游戏教会我拆解系统、在复杂局面中定位关键变量。</div>
+                </div>
+                <div class="card-desc">50+款游戏经历 · 系统拆解思维</div>
                 <div class="card-cta">VIEW</div>
             </a>
         </div>
@@ -247,7 +279,7 @@
             </div>
             <div class="core-right">
                 <div class="core-sub">
-                    <p style="margin-bottom:2rem;">Hi，我叫 Letty —— 资深商业分析师、内容创作者、游戏深度玩家、AI Native。如果你对某个身份感兴趣，<strong>点击上方的 VIEW →</strong>。至于还有一个<span style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(234,230,223,0.35);">隐藏身份</span>……线索就在这个页面里。</p>
+                    <p style="margin-bottom:2rem;">Hi，我叫 Letty —— 资深商业分析师、内容创作/营销者、游戏深度玩家、AI Native。如果你对某个身份感兴趣，<strong>点击上方的 VIEW →</strong>。至于还有一个<span style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(234,230,223,0.35);">隐藏身份</span>……线索就在这个页面里。</p>
                     <p style="margin-bottom:2rem;">走到这个阶段，我不再追求更响亮的 Title 或大厂螺丝钉的身份，而是加入一个同频的团队。我希望这不仅仅是一份工作，而是一次能让我投入热情的"作品创作"。<strong>如果你所在的团队正处于开拓新市场、或者产品处于从 0 到 1 的突破期，我想我们会有很多共同话题。</strong></p>
                     <div class="manifesto-section">
                         <p><strong>关于未来的工作，我更期待在这样的土壤中生长：</strong></p>
