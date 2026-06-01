@@ -1,0 +1,335 @@
+import { useState } from "react";
+
+const C = {
+  paper: "#F2EBDD", paper2: "#EDE5D4", card: "#FBF7EF",
+  ink: "#1F1B14", inkSoft: "#5A5446", inkFaint: "#9A9180",
+  yellow: "#F4B621", rust: "#C8503A", receipt: "#D9D5CB",
+  receiptLine: "#B8B3A6", night: "#1C2438", teal: "#3FA89B",
+};
+
+const FONTS = `
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Courier+Prime:wght@400;700&family=Noto+Serif+SC:wght@400;500;600&display=swap');
+* { box-sizing: border-box; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes pulsering { 0% { box-shadow: 0 0 0 0 rgba(31,27,20,0.4); } 70% { box-shadow: 0 0 0 14px rgba(31,27,20,0); } 100% { box-shadow: 0 0 0 0 rgba(31,27,20,0); } }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
+@keyframes drift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+`;
+
+const Mouse = ({ c = C.ink }) => (
+  <svg width="56" height="36" viewBox="0 0 56 36" fill="none">
+    <ellipse cx="34" cy="14" rx="11" ry="8" fill={c} />
+    <circle cx="44" cy="9" r="4" fill={c} /><circle cx="40" cy="7" r="2.5" fill={c} />
+    <path d="M14 22 L34 22 M18 22 L16 30 M24 22 L23 31 M30 22 L31 30 M36 22 L38 29" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M14 22 Q6 20 4 14" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none" />
+  </svg>
+);
+const Stamp = ({ label, sub, c = C.inkFaint }) => (
+  <svg width="92" height="92" viewBox="0 0 92 92" style={{ opacity: 0.55 }}>
+    <circle cx="46" cy="46" r="42" fill="none" stroke={c} strokeWidth="1.2" strokeDasharray="2 3" />
+    <circle cx="46" cy="46" r="34" fill="none" stroke={c} strokeWidth="1" />
+    <text x="46" y="42" textAnchor="middle" fill={c} fontFamily="Courier Prime" fontSize="9" letterSpacing="1">{label}</text>
+    <text x="46" y="56" textAnchor="middle" fill={c} fontFamily="Courier Prime" fontSize="13" fontWeight="700">{sub}</text>
+  </svg>
+);
+const Waves = ({ c = C.teal }) => (
+  <svg width="60" height="28" viewBox="0 0 60 28" fill="none">
+    {[6, 14, 22, 30, 38, 46, 54].map((x, i) => {
+      const h = [10, 18, 26, 14, 22, 12, 8][i];
+      return <rect key={i} x={x} y={(28 - h) / 2} width="3" height={h} rx="1.5" fill={c} />;
+    })}
+  </svg>
+);
+const Spine = ({ text, c = C.inkFaint }) => (
+  <div style={{ writingMode: "vertical-rl", fontFamily: "'Courier Prime'", fontSize: 9, letterSpacing: "3px", color: c, opacity: 0.7, textTransform: "uppercase" }}>{text}</div>
+);
+function Grain() {
+  return <div style={{ position: "fixed", inset: 0, pointerEvents: "none", opacity: 0.05, zIndex: 1,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />;
+}
+function CircleBtn({ icon, bg = C.ink, fg = C.yellow }) {
+  return <div style={{ width: 44, height: 44, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center", color: fg, fontSize: 18, flexShrink: 0 }}>{icon}</div>;
+}
+
+function Desk({ open }) {
+  const [hov, setHov] = useState(null);
+  const wallets = [
+    { id: "agent", color: C.yellow, ink: C.ink, rot: -3, kicker: "PROJECT NO. 01", title: "小红书", titleIt: "AI Agent", meta: ["内容运营全链路", "Built on Dify", "2026"], tag: "WORKFLOW", doodle: <Mouse />, badge: "01",
+      capTags: ["AI AGENT", "DIFY", "内容运营"], capTitle: "小红书内容运营 AI Agent", accent: C.rust,
+      capDesc: "基于 Dify 独立搭建的端到端自动化工作流。输入企业信息即可生成封面方向、差异化标签、标题与正文,将原本依赖多角色协作的内容生产链路,收敛为单人可执行的标准化流程。" },
+    { id: "noise", color: C.night, ink: "#F2ECDE", rot: 2.5, kicker: "PROJECT NO. 02", title: "Noise", titleIt: "Mirror", meta: ["上海噪音查询平台", "noisemirrow.asia", "2026"], tag: "WEB APP", doodle: <Waves />, badge: "02",
+      capTags: ["WEB APP", "VIBE CODING", "数据产品"], capTitle: "吵不吵 · NoiseMirror", accent: C.teal,
+      capDesc: "通过 Vibe Coding 独立开发并上线的噪音数据查询平台。面向上海租房群体提供小区真实噪音评分与用户反馈,从需求定义、产品设计到开发部署全流程独立交付。" },
+  ];
+  return (
+    <div style={{ minHeight: "100vh", background: C.paper, position: "relative", padding: "72px 24px 80px" }}>
+      <Grain />
+      <div style={{ maxWidth: 1080, margin: "0 auto 8px", position: "relative", zIndex: 2 }}>
+        <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: "3px", color: C.inkSoft }}>LETTY · AI BUILDER</div>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 400, color: C.ink, fontSize: "clamp(40px, 7vw, 84px)", lineHeight: 0.95, margin: "12px 0 0", letterSpacing: "-0.02em" }}>
+          On the <span style={{ fontStyle: "italic", fontWeight: 500 }}>Desk</span>
+        </h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 20, flexWrap: "wrap" }}>
+          <p style={{ fontFamily: "'Noto Serif SC', serif", color: C.inkSoft, fontSize: 15, margin: 0 }}>
+            两份独立交付的项目档案 — 一个 AI Agent,一个 Web App。
+          </p>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8, background: C.ink, color: C.paper,
+            borderRadius: 30, padding: "7px 16px", fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 1,
+          }}>
+            <span style={{ display: "inline-block", animation: "bob 1.6s ease-in-out infinite" }}>👆</span>
+            点开任意一份翻翻看
+            <span style={{ display: "inline-block", color: C.yellow, animation: "drift 1.6s ease-in-out infinite" }}>→</span>
+          </div>
+        </div>
+      </div>
+      <div style={{ maxWidth: 1080, margin: "56px auto 0", display: "flex", flexWrap: "wrap", gap: 56, justifyContent: "center", position: "relative", zIndex: 2 }}>
+        {wallets.map((w, i) => (
+          <div key={w.id} style={{ width: 420 }}>
+            {/* floating wallet */}
+            <div style={{ animation: `floaty 5s ease-in-out infinite`, animationDelay: `${i * 0.8}s` }}>
+              <div onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)} onClick={() => open(w.id)}
+                style={{ cursor: "pointer", position: "relative", width: 420, height: 420, transform: hov === i ? "translateY(-10px) rotate(0deg)" : `rotate(${w.rot}deg)`, transition: "transform 0.55s cubic-bezier(.2,1,.3,1)" }}>
+                <div style={{ position: "absolute", right: -18, top: 30, width: 200, height: 340, background: C.receipt, borderRadius: 6, transform: "rotate(5deg)", boxShadow: "0 14px 34px rgba(40,30,15,0.18)", padding: "20px 16px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ alignSelf: "flex-end" }}><Stamp label="OFFICIAL" sub={"NO. " + (992 - i)} /></div>
+                  <div style={{ marginTop: "auto", borderTop: `1px dashed ${C.receiptLine}`, paddingTop: 8 }}>
+                    <div style={{ fontFamily: "'Courier Prime'", fontSize: 8, letterSpacing: 1, color: C.inkFaint }}>TEAR HERE ✂</div>
+                  </div>
+                  <div style={{ position: "absolute", left: 8, top: 24 }}><Spine text="LETTY · AI BUILDER" /></div>
+                </div>
+                <div style={{ position: "absolute", left: 0, top: 0, width: 300, height: 392, background: w.color, borderRadius: 10, overflow: "hidden", boxShadow: hov === i ? "0 26px 60px rgba(40,30,15,0.28)" : "0 16px 40px rgba(40,30,15,0.2)", transition: "box-shadow 0.5s ease", padding: 26, color: w.ink, display: "flex", flexDirection: "column" }}>
+                  <div style={{ position: "absolute", top: -28, left: "50%", transform: "translateX(-50%)", width: 78, height: 78, borderRadius: "50%", background: C.paper }} />
+                  <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 2, opacity: 0.7 }}>{w.kicker}</div>
+                  <div style={{ marginTop: 28 }}>
+                    <div style={{ fontFamily: "'Fraunces', serif", fontSize: 44, fontWeight: 500, lineHeight: 1 }}>{w.title}</div>
+                    <div style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 44, fontWeight: 400, lineHeight: 1.05 }}>{w.titleIt}</div>
+                  </div>
+                  <div style={{ margin: "26px 0", opacity: 0.85 }}>{w.doodle}</div>
+                  <div style={{ marginTop: "auto" }}>
+                    {w.meta.map((m, j) => <div key={j} style={{ fontFamily: "'Courier Prime'", fontSize: 11, opacity: 0.75, lineHeight: 1.7 }}>{m}</div>)}
+                  </div>
+                  <svg width="92" height="80" viewBox="0 0 92 80" style={{ position: "absolute", bottom: 18, right: 16, opacity: 0.9 }}>
+                    <path d="M46 6 L86 74 L6 74 Z" fill="none" stroke={w.ink} strokeWidth="1.3" strokeDasharray="3 3" />
+                    <text x="46" y="50" textAnchor="middle" fontFamily="'Courier Prime'" fontSize="9" fill={w.ink} opacity="0.7">{w.tag}</text>
+                    <text x="46" y="68" textAnchor="middle" fontFamily="'Fraunces',serif" fontWeight="600" fontSize="20" fill={w.ink}>{w.badge}</text>
+                  </svg>
+                </div>
+                <div style={{ position: "absolute", bottom: -14, left: 24, background: C.ink, color: C.paper, borderRadius: 30, padding: "8px 18px", fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 1, display: "flex", alignItems: "center", gap: 8, animation: hov === i ? "none" : "pulsering 2.2s ease-out infinite", animationDelay: `${i * 0.5}s` }}>
+                  OPEN FILE <span style={{ color: w.color === C.night ? C.teal : C.yellow }}>→</span>
+                </div>
+              </div>
+            </div>
+
+            {/* caption tag-card below */}
+            <div style={{ marginTop: 44, paddingLeft: 4 }}>
+              <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 12 }}>
+                {w.capTags.map((t, j) => (
+                  <span key={j} style={{
+                    fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 1, padding: "4px 10px",
+                    borderRadius: 4, color: j === 0 ? C.paper : w.accent,
+                    background: j === 0 ? w.accent : `${w.accent}14`,
+                    border: `1px solid ${w.accent}${j === 0 ? "" : "30"}`,
+                  }}>{t}</span>
+                ))}
+              </div>
+              <div style={{ fontFamily: "'Fraunces', serif", fontSize: 21, fontWeight: 500, color: C.ink, marginBottom: 8 }}>{w.capTitle}</div>
+              <p style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 13.5, lineHeight: 1.85, color: C.inkSoft, margin: 0 }}>{w.capDesc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Shell({ back, kicker, title, titleIt, est, nav, accent, children }) {
+  const [active, setActive] = useState(0);
+  return (
+    <div style={{ minHeight: "100vh", background: C.paper, position: "relative", display: "flex" }}>
+      <Grain />
+      <div style={{ width: 340, flexShrink: 0, padding: "40px 36px", position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", zIndex: 2, borderRight: `1px solid ${C.paper2}` }}>
+        <button onClick={back} style={{ background: "none", border: `1px solid ${C.inkFaint}55`, borderRadius: 30, padding: "8px 16px", cursor: "pointer", fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 1, color: C.ink, display: "flex", alignItems: "center", gap: 8, alignSelf: "flex-start" }}>
+          <span style={{ fontSize: 14 }}>←</span> BACK TO DESK
+        </button>
+        <div style={{ marginTop: 48 }}>
+          <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 2, color: C.inkSoft }}>{kicker}</div>
+          <div style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 500, color: C.ink, lineHeight: 0.98, marginTop: 12 }}>{title}</div>
+          <div style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 52, fontWeight: 400, color: accent, lineHeight: 1.05 }}>{titleIt}</div>
+        </div>
+        <div style={{ marginTop: 28, fontFamily: "'Courier Prime'", fontSize: 12, color: C.inkSoft, lineHeight: 1.9 }}>
+          {est.map((e, i) => <div key={i}>{e}</div>)}
+        </div>
+        <div style={{ marginTop: "auto" }}>
+          {nav.map((n, i) => (
+            <div key={i} onClick={() => setActive(i)} style={{ fontFamily: "'Courier Prime'", fontSize: 13, letterSpacing: 1, padding: "6px 0", color: active === i ? C.ink : C.inkFaint, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+              {active === i && <span style={{ color: accent }}>●</span>}{n}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex: 1, position: "relative", zIndex: 2, padding: "48px 56px 80px", overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+}
+
+function Agent({ back }) {
+  const steps = [
+    { n: "01", icon: "🔍", t: "诊断", sub: "WHY", c: C.rust, story: "账号岗位帖一直跑不过。问题不在内容——平台把帖子推给了「想学方法」的人,而不是「正在找岗位」的人。标签错配,过不了初始流量池。", key: "火爆旧帖的共性:都在回答「我这种人能不能投?」而不是「这家公司多牛」" },
+    { n: "02", icon: "🎨", t: "封面", sub: "STOP", c: C.yellow, story: "封面不是传递信息,是讲故事。深底色 + 高饱和亮字在小红书暖白信息流里天然是「异类」,打断滚动节奏。画面要和内容完全共振。", key: "Agent 分析公司调性 → 输出 Pinterest 搜图关键词 → 给出视觉方向" },
+    { n: "03", icon: "🏷️", t: "标签", sub: "CLICK", c: C.teal, story: "三层钩子:公司钩子(小众外企/全员远程)引发好奇,利益钩子(门槛不高/女性友好)打消顾虑,行动暗示(大胆投/国内可申)推动行动。", key: "按公司知名度自动匹配模板:有名走品牌路线,没名走人群痛点路线" },
+    { n: "04", icon: "📝", t: "正文", sub: "TRUST", c: "#7C6FB0", story: "「挑战发1000个小而美」系列感 + 公司是干嘛的 + 为什么推 + 岗位方向 + 行动引导。信息全面但留钩子,让人想私信了解。", key: "从输入公司名到输出完整帖文,Agent 端到端完成,人只做最终审核" },
+  ];
+  return (
+    <Shell back={back} kicker="PROJECT NO. 01" title="小红书" titleIt="AI Agent" accent={C.rust} est={["EST. 2026.05.06", "账号:Joy不躺平", "Built on Dify", "udify.app ↗"]} nav={["THE STORY", "WORKFLOW", "OUTPUT"]}>
+      <div style={{ display: "flex", gap: 28, flexWrap: "wrap", marginBottom: 44 }}>
+        <div style={{ width: 360, minHeight: 300, background: C.yellow, borderRadius: 12, padding: 30, color: C.ink, position: "relative", boxShadow: "0 18px 40px rgba(40,30,15,0.18)", transform: "rotate(-1.5deg)" }}>
+          <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 2, opacity: 0.7 }}>CHALLENGE</div>
+          <div style={{ fontFamily: "'Fraunces',serif", fontSize: 34, fontWeight: 500, lineHeight: 1.05, marginTop: 14 }}>发 1000 个<br /><span style={{ fontStyle: "italic" }}>小而美</span></div>
+          <div style={{ margin: "22px 0" }}><Mouse /></div>
+          <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 13, lineHeight: 1.8, opacity: 0.82 }}>把内容运营全链路拆成可复用的 Agent——输入一家公司,自动产出封面方向、差异化标签、标题与正文。</p>
+          <div style={{ position: "absolute", bottom: 22, right: 22 }}><CircleBtn icon="↗" bg={C.ink} fg={C.yellow} /></div>
+        </div>
+        <div style={{ flex: 1, minWidth: 280, background: C.receipt, borderRadius: 8, padding: 28, transform: "rotate(1.5deg)", boxShadow: "0 14px 32px rgba(40,30,15,0.14)" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}><Stamp label="DIAGNOSED" sub="✓" c={C.rust} /></div>
+          {[["问题", "标签错配,岗位帖过不了流量池"], ["洞察", "用户要的是「我能不能投」,不是「公司多牛」"], ["方案", "Workflow 替代低效人工节点"]].map(([k, v], i) => (
+            <div key={i} style={{ borderTop: `1px dashed ${C.receiptLine}`, padding: "12px 0" }}>
+              <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 1, color: C.inkFaint }}>{k.toUpperCase()}</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 14, color: C.ink, marginTop: 4 }}>{v}</div>
+            </div>
+          ))}
+          <div style={{ fontFamily: "'Courier Prime'", fontSize: 9, color: C.inkFaint, marginTop: 8, letterSpacing: 1 }}>TEAR HERE FOR RECEIPT ✂</div>
+        </div>
+      </div>
+      <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 2, color: C.inkSoft, marginBottom: 20 }}>✦ THE BUILD STORY — 四步思考过程</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 20 }}>
+        {steps.map((s, i) => (
+          <div key={i} style={{ background: C.card, borderRadius: 10, padding: 26, position: "relative", boxShadow: "0 10px 26px rgba(40,30,15,0.1)", transform: `rotate(${i % 2 ? 1 : -1}deg)`, borderTop: `3px solid ${s.c}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <span style={{ fontSize: 30 }}>{s.icon}</span>
+              <span style={{ fontFamily: "'Fraunces',serif", fontSize: 40, fontWeight: 500, color: `${s.c}40`, lineHeight: 1 }}>{s.n}</span>
+            </div>
+            <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 2, color: s.c, marginTop: 10 }}>{s.sub}</div>
+            <div style={{ fontFamily: "'Fraunces',serif", fontSize: 26, fontWeight: 500, color: C.ink, marginTop: 2 }}>{s.t}</div>
+            <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 13, lineHeight: 1.85, color: C.inkSoft, margin: "12px 0 16px" }}>{s.story}</p>
+            <div style={{ background: `${s.c}12`, borderLeft: `2px solid ${s.c}`, padding: "10px 12px", borderRadius: 4 }}>
+              <div style={{ fontFamily: "'Courier Prime'", fontSize: 9, letterSpacing: 1, color: s.c, marginBottom: 4 }}>💡 AGENT DOES</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 12, lineHeight: 1.7, color: C.ink }}>{s.key}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 44, background: C.card, borderRadius: 12, padding: 32, boxShadow: "0 10px 26px rgba(40,30,15,0.1)" }}>
+        <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 2, color: C.rust, marginBottom: 18 }}>⚙ WORKFLOW ARCHITECTURE</div>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+          {["⌨️ 输入公司", "🔍 诊断", "🎨 封面方向", "🏷️ 差异化标签", "📝 标题×5", "📄 正文"].map((x, i, a) => (
+            <span key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 13, color: C.ink, background: C.paper2, padding: "8px 14px", borderRadius: 6, whiteSpace: "nowrap" }}>{x}</span>
+              {i < a.length - 1 && <span style={{ color: C.rust }}>→</span>}
+            </span>
+          ))}
+        </div>
+        <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, color: C.inkFaint, marginTop: 16, letterSpacing: 1 }}>END-TO-END AUTOMATED · HUMAN REVIEW AT FINAL STEP ONLY</div>
+      </div>
+      <BottomRow accent={C.rust} items={[
+        { icon: "i", t: "项目背景", d: "接手账号 Joy不躺平,主推岗位/公司推荐内容" },
+        { icon: "→", t: "核心打法", d: "70% 岗位推荐 + 求职方法 + 情绪陪伴" },
+        { icon: "✦", t: "我的角色", d: "定义问题 + 亲手 Build,而非只给方案" },
+      ]} />
+    </Shell>
+  );
+}
+
+function Noise({ back }) {
+  const feats = [
+    ["🔍", "搜索小区", "按名称/区域,浦东·徐汇·静安筛选"],
+    ["📊", "噪音评分", "交通/施工/商业/邻居/建筑/环境 6类"],
+    ["💬", "用户评论", "真实住户主观感受 + 高峰时段"],
+    ["📝", "提交反馈", "选类型·时段,1-5分安静度打分"],
+    ["🗺️", "地图视图", "地图上查看小区位置与综合评分"],
+    ["🔓", "解锁机制", "提交评价后解锁完整报告,驱动 UGC"],
+  ];
+  return (
+    <Shell back={back} kicker="PROJECT NO. 02" title="Noise" titleIt="Mirror" accent={C.teal} est={["EST. 2026", "noisemirrow.asia", "仅开放上海区域", "Web App ↗"]} nav={["THE PROBLEM", "FEATURES", "OPERATIONS"]}>
+      <div style={{ display: "flex", gap: 28, flexWrap: "wrap", marginBottom: 44 }}>
+        <div style={{ width: 360, minHeight: 300, background: C.night, borderRadius: 12, padding: 30, color: "#F2ECDE", position: "relative", boxShadow: "0 18px 40px rgba(40,30,15,0.22)", transform: "rotate(-1.5deg)", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 18, right: 22, fontSize: 22 }}>🌙</div>
+          <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 2, opacity: 0.6 }}>吵不吵 · NOISEMIRROR</div>
+          <div style={{ fontFamily: "'Fraunces',serif", fontSize: 32, fontWeight: 500, lineHeight: 1.1, marginTop: 16 }}>这小区<br /><span style={{ fontStyle: "italic", color: C.teal }}>到底吵不吵?</span></div>
+          <div style={{ margin: "22px 0" }}><Waves /></div>
+          <p style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 13, lineHeight: 1.8, opacity: 0.8 }}>帮在上海租房/买房的人,提前了解目标小区的真实噪音。中介不会告诉你,体验后又来不及。</p>
+          <div style={{ position: "absolute", bottom: 22, right: 22 }}><CircleBtn icon="↗" bg={C.teal} fg={C.night} /></div>
+        </div>
+        <div style={{ flex: 1, minWidth: 280, background: C.receipt, borderRadius: 8, padding: 28, transform: "rotate(1.5deg)", boxShadow: "0 14px 32px rgba(40,30,15,0.14)" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}><Stamp label="SHANGHAI" sub="ONLY" c={C.teal} /></div>
+          {[["痛点", "因噪音搬家,回回踩雷,中介不说"], ["人设", "噪音受害者 → 开发平台 → 避雷博主"], ["本质", "数据采集 → 信息差变现"]].map(([k, v], i) => (
+            <div key={i} style={{ borderTop: `1px dashed ${C.receiptLine}`, padding: "12px 0" }}>
+              <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, letterSpacing: 1, color: C.inkFaint }}>{k.toUpperCase()}</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 14, color: C.ink, marginTop: 4 }}>{v}</div>
+            </div>
+          ))}
+          <div style={{ fontFamily: "'Courier Prime'", fontSize: 9, color: C.inkFaint, marginTop: 8, letterSpacing: 1 }}>TEAR HERE FOR RECEIPT ✂</div>
+        </div>
+      </div>
+      <div style={{ background: C.card, border: `1px dashed ${C.receiptLine}`, borderRadius: 12, padding: 40, textAlign: "center", marginBottom: 44 }}>
+        <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 1, color: C.inkFaint }}>📷 产品截图位 — 发我 noisemirrow.asia 截图即可填入</div>
+      </div>
+      <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 2, color: C.inkSoft, marginBottom: 20 }}>✦ CORE FEATURES</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
+        {feats.map(([ic, t, d], i) => (
+          <div key={i} style={{ background: C.card, borderRadius: 10, padding: 22, boxShadow: "0 8px 20px rgba(40,30,15,0.08)", borderTop: `3px solid ${C.teal}`, transform: `rotate(${i % 2 ? 0.6 : -0.6}deg)` }}>
+            <div style={{ fontSize: 24, marginBottom: 10 }}>{ic}</div>
+            <div style={{ fontFamily: "'Fraunces',serif", fontSize: 18, fontWeight: 500, color: C.ink }}>{t}</div>
+            <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 12, lineHeight: 1.7, color: C.inkSoft, marginTop: 6 }}>{d}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 44, background: C.card, borderRadius: 12, padding: 32, boxShadow: "0 10px 26px rgba(40,30,15,0.1)" }}>
+        <div style={{ fontFamily: "'Courier Prime'", fontSize: 11, letterSpacing: 2, color: C.teal, marginBottom: 18 }}>🐱 OPERATIONS — 四类内容</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+          {[["🥇", "推销平台帖", "收集信息"], ["🏕", "小区评测帖", "实用·小区加密"], ["📌", "求推荐帖", "收集+引流"], ["💡", "吐槽帖", "共鸣+引流"]].map(([e, t, d], i) => (
+            <div key={i} style={{ flex: "1 1 160px", background: C.paper2, borderRadius: 8, padding: "16px 18px", textAlign: "center" }}>
+              <div style={{ fontSize: 22 }}>{e}</div>
+              <div style={{ fontFamily: "'Fraunces',serif", fontSize: 15, fontWeight: 500, color: C.ink, marginTop: 6 }}>{t}</div>
+              <div style={{ fontFamily: "'Courier Prime'", fontSize: 10, color: C.inkFaint, marginTop: 4 }}>{d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <BottomRow accent={C.teal} items={[
+        { icon: "i", t: "目标用户", d: "上海租房年轻人 + 被噪音困扰的居民" },
+        { icon: "→", t: "用户流程", d: "浏览→筛选→详情 / 选小区→打分→反馈" },
+        { icon: "✦", t: "封面策略", d: "固定模板:统一底色+小区名+噪音等级标签" },
+      ]} />
+    </Shell>
+  );
+}
+
+function BottomRow({ items, accent }) {
+  return (
+    <div style={{ display: "flex", gap: 36, flexWrap: "wrap", marginTop: 48, paddingTop: 32, borderTop: `1px solid ${C.paper2}` }}>
+      {items.map((it, i) => (
+        <div key={i} style={{ flex: "1 1 200px" }}>
+          <CircleBtn icon={it.icon} bg={i === 1 ? accent : C.ink} fg={i === 1 ? "#fff" : C.paper} />
+          <div style={{ fontFamily: "'Fraunces',serif", fontSize: 18, fontWeight: 500, color: C.ink, marginTop: 12 }}>{it.t}</div>
+          <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 12, lineHeight: 1.7, color: C.inkSoft, marginTop: 4 }}>{it.d}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function App() {
+  const [view, setView] = useState("desk");
+  const [show, setShow] = useState(true);
+  const go = (v) => { setShow(false); setTimeout(() => { setView(v); window.scrollTo(0, 0); setShow(true); }, 280); };
+  return (
+    <>
+      <style>{FONTS}</style>
+      <div style={{ opacity: show ? 1 : 0, transition: "opacity 0.28s ease" }}>
+        {view === "desk" && <Desk open={(id) => go(id)} />}
+        {view === "agent" && <Agent back={() => go("desk")} />}
+        {view === "noise" && <Noise back={() => go("desk")} />}
+      </div>
+    </>
+  );
+}
