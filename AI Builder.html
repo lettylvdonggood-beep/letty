@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letty · AI Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Courier+Prime:wght@400;700&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2EBDD; --paper2:#EDE5D4; --card:#FBF7EF;
+  --ink:#1F1B14; --ink-soft:#5A5446; --ink-faint:#9A9180;
+  --yellow:#F4B621; --rust:#C8503A; --receipt:#D9D5CB;
+  --receipt-line:#B8B3A6; --night:#1C2438; --teal:#3FA89B;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);font-family:'Noto Serif SC',serif;-webkit-font-smoothing:antialiased;}
+.mono{font-family:'Courier Prime',monospace;}
+.serif{font-family:'Fraunces',serif;}
+a{text-decoration:none;}
+
+/* grain */
+.grain{position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* views */
+.view{display:none;opacity:0;transition:opacity .3s ease;min-height:100vh;position:relative;}
+.view.active{display:block;opacity:1;}
+.view.shell.active{display:flex;}
+
+/* animations */
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulsering{0%{box-shadow:0 0 0 0 rgba(31,27,20,.4)}70%{box-shadow:0 0 0 14px rgba(31,27,20,0)}100%{box-shadow:0 0 0 0 rgba(31,27,20,0)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+@keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+
+/* ---------- DESK ---------- */
+#desk{padding:72px 24px 100px;}
+.desk-head{max-width:1080px;margin:0 auto;position:relative;z-index:2;}
+.kicker{font-family:'Courier Prime';font-size:11px;letter-spacing:3px;color:var(--ink-soft);}
+.bigtitle{font-family:'Fraunces';font-weight:400;color:var(--ink);font-size:clamp(40px,7vw,84px);line-height:.95;margin:12px 0 0;letter-spacing:-.02em;}
+.bigtitle em{font-style:italic;font-weight:500;}
+.headrow{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap;}
+.headrow p{font-size:15px;color:var(--ink-soft);}
+.hint{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border-radius:30px;padding:7px 16px;font-family:'Courier Prime';font-size:11px;letter-spacing:1px;}
+.hint .h-up{display:inline-block;animation:bob 1.6s ease-in-out infinite;}
+.hint .h-ar{display:inline-block;color:var(--yellow);animation:drift 1.6s ease-in-out infinite;}
+
+.wallets{max-width:1080px;margin:56px auto 0;display:flex;flex-wrap:wrap;gap:56px;justify-content:center;position:relative;z-index:2;}
+.wcol{width:420px;}
+.wfloat{animation:floaty 5s ease-in-out infinite;}
+.wallet{cursor:pointer;position:relative;width:420px;height:420px;transition:transform .55s cubic-bezier(.2,1,.3,1);}
+.wallet.r1{transform:rotate(-3deg);} .wallet.r2{transform:rotate(2.5deg);}
+.wallet:hover{transform:translateY(-10px) rotate(0deg);}
+.receipt-bk{position:absolute;right:-18px;top:30px;width:200px;height:340px;background:var(--receipt);border-radius:6px;transform:rotate(5deg);box-shadow:0 14px 34px rgba(40,30,15,.18);padding:20px 16px;display:flex;flex-direction:column;}
+.sleeve{position:absolute;left:0;top:0;width:300px;height:392px;border-radius:10px;overflow:hidden;box-shadow:0 16px 40px rgba(40,30,15,.2);transition:box-shadow .5s ease;padding:26px;display:flex;flex-direction:column;}
+.wallet:hover .sleeve{box-shadow:0 26px 60px rgba(40,30,15,.28);}
+.sleeve.yellow{background:var(--yellow);color:var(--ink);}
+.sleeve.night{background:var(--night);color:#F2ECDE;}
+.notch{position:absolute;top:-28px;left:50%;transform:translateX(-50%);width:78px;height:78px;border-radius:50%;background:var(--paper);}
+.s-kicker{font-family:'Courier Prime';font-size:10px;letter-spacing:2px;opacity:.7;}
+.s-title{font-family:'Fraunces';font-size:44px;font-weight:500;line-height:1;}
+.s-title-it{font-family:'Fraunces';font-style:italic;font-size:44px;font-weight:400;line-height:1.05;}
+.s-doodle{margin:26px 0;opacity:.85;}
+.s-meta{margin-top:auto;}
+.s-meta div{font-family:'Courier Prime';font-size:11px;opacity:.75;line-height:1.7;}
+.tri{position:absolute;bottom:18px;right:16px;opacity:.9;}
+.open-chip{position:absolute;bottom:-14px;left:24px;background:var(--ink);color:var(--paper);border-radius:30px;padding:8px 18px;font-family:'Courier Prime';font-size:11px;letter-spacing:1px;display:flex;align-items:center;gap:8px;animation:pulsering 2.2s ease-out infinite;}
+.wallet:hover .open-chip{animation:none;}
+.open-chip .oa-y{color:var(--yellow);} .open-chip .oa-t{color:var(--teal);}
+
+.caption{margin-top:44px;padding-left:4px;}
+.cap-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+.cap-tags span{font-family:'Courier Prime';font-size:10px;letter-spacing:1px;padding:4px 10px;border-radius:4px;}
+.cap-title{font-family:'Fraunces';font-size:21px;font-weight:500;color:var(--ink);margin-bottom:8px;}
+.cap-desc{font-size:13.5px;line-height:1.85;color:var(--ink-soft);}
+
+/* tag color variants */
+.t-rust-fill{color:var(--paper);background:var(--rust);border:1px solid var(--rust);}
+.t-rust{color:var(--rust);background:rgba(200,80,58,.08);border:1px solid rgba(200,80,58,.3);}
+.t-teal-fill{color:var(--paper);background:var(--teal);border:1px solid var(--teal);}
+.t-teal{color:var(--teal);background:rgba(63,168,155,.08);border:1px solid rgba(63,168,155,.3);}
+
+/* ---------- SHELL (project detail) ---------- */
+.shell{position:relative;}
+.side{width:340px;flex-shrink:0;padding:40px 36px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:2;border-right:1px solid var(--paper2);}
+.back-btn{background:none;border:1px solid rgba(154,145,128,.5);border-radius:30px;padding:8px 16px;cursor:pointer;font-family:'Courier Prime';font-size:11px;letter-spacing:1px;color:var(--ink);display:flex;align-items:center;gap:8px;align-self:flex-start;}
+.back-btn span{font-size:14px;}
+.side-title{margin-top:48px;}
+.side-kicker{font-family:'Courier Prime';font-size:11px;letter-spacing:2px;color:var(--ink-soft);}
+.side-h1{font-family:'Fraunces';font-size:52px;font-weight:500;color:var(--ink);line-height:.98;margin-top:12px;}
+.side-h1-it{font-family:'Fraunces';font-style:italic;font-size:52px;font-weight:400;line-height:1.05;}
+.side-est{margin-top:28px;font-family:'Courier Prime';font-size:12px;color:var(--ink-soft);line-height:1.9;}
+.side-nav{margin-top:auto;}
+.side-nav a{display:flex;align-items:center;gap:8px;font-family:'Courier Prime';font-size:13px;letter-spacing:1px;padding:6px 0;color:var(--ink-faint);cursor:pointer;}
+.side-nav a.on{color:var(--ink);}
+.side-nav a .dot{opacity:0;}
+.side-nav a.on .dot{opacity:1;}
+.content{flex:1;position:relative;z-index:2;padding:48px 56px 80px;overflow:hidden;}
+
+.hero-row{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:44px;}
+.hero-card{width:360px;min-height:300px;border-radius:12px;padding:30px;position:relative;box-shadow:0 18px 40px rgba(40,30,15,.18);}
+.hero-card.yellow{background:var(--yellow);color:var(--ink);transform:rotate(-1.5deg);}
+.hero-card.night{background:var(--night);color:#F2ECDE;transform:rotate(-1.5deg);overflow:hidden;}
+.hero-k{font-family:'Courier Prime';font-size:10px;letter-spacing:2px;opacity:.7;}
+.hero-t{font-family:'Fraunces';font-size:34px;font-weight:500;line-height:1.05;margin-top:14px;}
+.hero-t em{font-style:italic;}
+.hero-p{font-size:13px;line-height:1.8;opacity:.82;margin-top:6px;}
+.circ{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.hero-circ{position:absolute;bottom:22px;right:22px;}
+
+.rcard{flex:1;min-width:280px;background:var(--receipt);border-radius:8px;padding:28px;transform:rotate(1.5deg);box-shadow:0 14px 32px rgba(40,30,15,.14);}
+.rcard .stamp-wrap{display:flex;justify-content:flex-end;}
+.rrow{border-top:1px dashed var(--receipt-line);padding:12px 0;}
+.rrow .rk{font-family:'Courier Prime';font-size:10px;letter-spacing:1px;color:var(--ink-faint);}
+.rrow .rv{font-size:14px;color:var(--ink);margin-top:4px;}
+.tear{font-family:'Courier Prime';font-size:9px;color:var(--ink-faint);margin-top:8px;letter-spacing:1px;}
+
+.sec-label{font-family:'Courier Prime';font-size:11px;letter-spacing:2px;color:var(--ink-soft);margin-bottom:20px;}
+.story-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.story-card{background:var(--card);border-radius:10px;padding:26px;position:relative;box-shadow:0 10px 26px rgba(40,30,15,.1);}
+.story-card:nth-child(odd){transform:rotate(-1deg);} .story-card:nth-child(even){transform:rotate(1deg);}
+.story-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.story-icon{font-size:30px;}
+.story-num{font-family:'Fraunces';font-size:40px;font-weight:500;line-height:1;}
+.story-sub{font-family:'Courier Prime';font-size:10px;letter-spacing:2px;margin-top:10px;}
+.story-t{font-family:'Fraunces';font-size:26px;font-weight:500;color:var(--ink);margin-top:2px;}
+.story-p{font-size:13px;line-height:1.85;color:var(--ink-soft);margin:12px 0 16px;}
+.story-key{padding:10px 12px;border-radius:4px;}
+.story-key .kl{font-family:'Courier Prime';font-size:9px;letter-spacing:1px;margin-bottom:4px;}
+.story-key .kv{font-size:12px;line-height:1.7;color:var(--ink);}
+
+.panel{margin-top:44px;background:var(--card);border-radius:12px;padding:32px;box-shadow:0 10px 26px rgba(40,30,15,.1);}
+.panel-label{font-family:'Courier Prime';font-size:11px;letter-spacing:2px;margin-bottom:18px;}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.flow .step{font-size:13px;color:var(--ink);background:var(--paper2);padding:8px 14px;border-radius:6px;white-space:nowrap;}
+.flow .arr{}
+.panel-foot{font-family:'Courier Prime';font-size:10px;color:var(--ink-faint);margin-top:16px;letter-spacing:1px;}
+
+.shot{background:var(--card);border:1px dashed var(--receipt-line);border-radius:12px;padding:40px;text-align:center;margin-bottom:44px;}
+.shot div{font-family:'Courier Prime';font-size:11px;letter-spacing:1px;color:var(--ink-faint);}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+.feat{background:var(--card);border-radius:10px;padding:22px;box-shadow:0 8px 20px rgba(40,30,15,.08);border-top:3px solid var(--teal);}
+.feat:nth-child(odd){transform:rotate(-.6deg);} .feat:nth-child(even){transform:rotate(.6deg);}
+.feat .fi{font-size:24px;margin-bottom:10px;}
+.feat .ft{font-family:'Fraunces';font-size:18px;font-weight:500;color:var(--ink);}
+.feat .fd{font-size:12px;line-height:1.7;color:var(--ink-soft);margin-top:6px;}
+
+.ops{display:flex;flex-wrap:wrap;gap:14px;}
+.ops .op{flex:1 1 160px;background:var(--paper2);border-radius:8px;padding:16px 18px;text-align:center;}
+.ops .op .oe{font-size:22px;}
+.ops .op .ot{font-family:'Fraunces';font-size:15px;font-weight:500;color:var(--ink);margin-top:6px;}
+.ops .op .od{font-family:'Courier Prime';font-size:10px;color:var(--ink-faint);margin-top:4px;}
+
+.bottom-row{display:flex;gap:36px;flex-wrap:wrap;margin-top:48px;padding-top:32px;border-top:1px solid var(--paper2);}
+.bottom-row .bi{flex:1 1 200px;}
+.bottom-row .bt{font-family:'Fraunces';font-size:18px;font-weight:500;color:var(--ink);margin-top:12px;}
+.bottom-row .bd{font-size:12px;line-height:1.7;color:var(--ink-soft);margin-top:4px;}
+
+@media(max-width:760px){
+  .side{width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--paper2);}
+  .shell.view.active{flex-direction:column;}
+  .content{padding:32px 22px 60px;}
+  .side-nav{margin-top:24px;}
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- ============ DESK ============ -->
+<section id="desk" class="view active">
+  <div class="desk-head">
+    <div class="kicker">LETTY · AI BUILDER</div>
+    <h1 class="bigtitle">On the <em>Desk</em></h1>
+    <div class="headrow">
+      <p>两份独立交付的项目档案 — 一个 AI Agent，一个 Web App。</p>
+      <div class="hint"><span class="h-up">👆</span> 点开任意一份翻翻看 <span class="h-ar">→</span></div>
+    </div>
+  </div>
+
+  <div class="wallets">
+    <!-- Project 01 -->
+    <div class="wcol">
+      <div class="wfloat" style="animation-delay:0s">
+        <div class="wallet r1" onclick="showView('agent')">
+          <div class="receipt-bk">
+            <div style="align-self:flex-end">
+              <svg width="92" height="92" viewBox="0 0 92 92" style="opacity:.55;color:var(--ink-faint)">
+                <circle cx="46" cy="46" r="42" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3"/>
+                <circle cx="46" cy="46" r="34" fill="none" stroke="currentColor" stroke-width="1"/>
+                <text x="46" y="42" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="9" letter-spacing="1">OFFICIAL</text>
+                <text x="46" y="56" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="13" font-weight="700">NO. 992</text>
+              </svg>
+            </div>
+            <div style="margin-top:auto;border-top:1px dashed var(--receipt-line);padding-top:8px">
+              <div class="mono" style="font-size:8px;letter-spacing:1px;color:var(--ink-faint)">TEAR HERE ✂</div>
+            </div>
+            <div style="position:absolute;left:8px;top:24px;writing-mode:vertical-rl;font-family:'Courier Prime';font-size:9px;letter-spacing:3px;color:var(--ink-faint);opacity:.7">LETTY · AI BUILDER</div>
+          </div>
+          <div class="sleeve yellow">
+            <div class="notch"></div>
+            <div class="s-kicker">PROJECT NO. 01</div>
+            <div style="margin-top:28px">
+              <div class="s-title">小红书</div>
+              <div class="s-title-it">AI Agent</div>
+            </div>
+            <div class="s-doodle" style="color:var(--ink)">
+              <svg width="56" height="36" viewBox="0 0 56 36" fill="none">
+                <ellipse cx="34" cy="14" rx="11" ry="8" fill="currentColor"/>
+                <circle cx="44" cy="9" r="4" fill="currentColor"/><circle cx="40" cy="7" r="2.5" fill="currentColor"/>
+                <path d="M14 22 L34 22 M18 22 L16 30 M24 22 L23 31 M30 22 L31 30 M36 22 L38 29" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M14 22 Q6 20 4 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <div class="s-meta"><div>内容运营全链路</div><div>Built on Dify</div><div>2026</div></div>
+            <svg class="tri" width="92" height="80" viewBox="0 0 92 80" style="color:var(--ink)">
+              <path d="M46 6 L86 74 L6 74 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 3"/>
+              <text x="46" y="50" text-anchor="middle" font-family="Courier Prime" font-size="9" fill="currentColor" opacity="0.7">WORKFLOW</text>
+              <text x="46" y="68" text-anchor="middle" font-family="Fraunces" font-weight="600" font-size="20" fill="currentColor">01</text>
+            </svg>
+          </div>
+          <div class="open-chip">OPEN FILE <span class="oa-y">→</span></div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="cap-tags">
+          <span class="t-rust-fill">AI AGENT</span><span class="t-rust">DIFY</span><span class="t-rust">内容运营</span>
+        </div>
+        <div class="cap-title">小红书内容运营 AI Agent</div>
+        <p class="cap-desc">基于 Dify 独立搭建的端到端自动化工作流。输入企业信息即可生成封面方向、差异化标签、标题与正文，将原本依赖多角色协作的内容生产链路，收敛为单人可执行的标准化流程。</p>
+      </div>
+    </div>
+
+    <!-- Project 02 -->
+    <div class="wcol">
+      <div class="wfloat" style="animation-delay:.8s">
+        <div class="wallet r2" onclick="showView('noise')">
+          <div class="receipt-bk">
+            <div style="align-self:flex-end">
+              <svg width="92" height="92" viewBox="0 0 92 92" style="opacity:.55;color:var(--ink-faint)">
+                <circle cx="46" cy="46" r="42" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3"/>
+                <circle cx="46" cy="46" r="34" fill="none" stroke="currentColor" stroke-width="1"/>
+                <text x="46" y="42" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="9" letter-spacing="1">OFFICIAL</text>
+                <text x="46" y="56" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="13" font-weight="700">NO. 991</text>
+              </svg>
+            </div>
+            <div style="margin-top:auto;border-top:1px dashed var(--receipt-line);padding-top:8px">
+              <div class="mono" style="font-size:8px;letter-spacing:1px;color:var(--ink-faint)">TEAR HERE ✂</div>
+            </div>
+            <div style="position:absolute;left:8px;top:24px;writing-mode:vertical-rl;font-family:'Courier Prime';font-size:9px;letter-spacing:3px;color:var(--ink-faint);opacity:.7">LETTY · AI BUILDER</div>
+          </div>
+          <div class="sleeve night">
+            <div class="notch"></div>
+            <div class="s-kicker">PROJECT NO. 02</div>
+            <div style="margin-top:28px">
+              <div class="s-title">Noise</div>
+              <div class="s-title-it">Mirror</div>
+            </div>
+            <div class="s-doodle" style="color:var(--teal)">
+              <svg width="60" height="28" viewBox="0 0 60 28" fill="none">
+                <rect x="6" y="9" width="3" height="10" rx="1.5" fill="currentColor"/>
+                <rect x="14" y="5" width="3" height="18" rx="1.5" fill="currentColor"/>
+                <rect x="22" y="1" width="3" height="26" rx="1.5" fill="currentColor"/>
+                <rect x="30" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
+                <rect x="38" y="3" width="3" height="22" rx="1.5" fill="currentColor"/>
+                <rect x="46" y="8" width="3" height="12" rx="1.5" fill="currentColor"/>
+                <rect x="54" y="10" width="3" height="8" rx="1.5" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="s-meta"><div>上海噪音查询平台</div><div>noisemirrow.asia</div><div>2026</div></div>
+            <svg class="tri" width="92" height="80" viewBox="0 0 92 80" style="color:#F2ECDE">
+              <path d="M46 6 L86 74 L6 74 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 3"/>
+              <text x="46" y="50" text-anchor="middle" font-family="Courier Prime" font-size="9" fill="currentColor" opacity="0.7">WEB APP</text>
+              <text x="46" y="68" text-anchor="middle" font-family="Fraunces" font-weight="600" font-size="20" fill="currentColor">02</text>
+            </svg>
+          </div>
+          <div class="open-chip">OPEN FILE <span class="oa-t">→</span></div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="cap-tags">
+          <span class="t-teal-fill">WEB APP</span><span class="t-teal">VIBE CODING</span><span class="t-teal">数据产品</span>
+        </div>
+        <div class="cap-title">吵不吵 · NoiseMirror</div>
+        <p class="cap-desc">通过 Vibe Coding 独立开发并上线的噪音数据查询平台。面向上海租房群体提供小区真实噪音评分与用户反馈，从需求定义、产品设计到开发部署全流程独立交付。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AGENT ============ -->
+<section id="agent" class="view shell">
+  <div class="side">
+    <button class="back-btn" onclick="showView('desk')"><span>←</span> BACK TO DESK</button>
+    <div class="side-title">
+      <div class="side-kicker">PROJECT NO. 01</div>
+      <div class="side-h1">小红书</div>
+      <div class="side-h1-it" style="color:var(--rust)">AI Agent</div>
+    </div>
+    <div class="side-est">
+      <div>EST. 2026.05.06</div><div>账号：Joy不躺平</div><div>Built on Dify</div>
+      <div><a href="https://udify.app/workflow/h1poO5oc5XPnYGyZ" target="_blank" style="color:var(--rust)">udify.app ↗</a></div>
+    </div>
+    <div class="side-nav" data-nav>
+      <a class="on"><span class="dot" style="color:var(--rust)">●</span> THE STORY</a>
+      <a><span class="dot" style="color:var(--rust)">●</span> WORKFLOW</a>
+      <a><span class="dot" style="color:var(--rust)">●</span> OUTPUT</a>
+    </div>
+  </div>
+  <div class="content">
+    <div class="hero-row">
+      <div class="hero-card yellow">
+        <div class="hero-k">CHALLENGE</div>
+        <div class="hero-t">发 1000 个<br><em>小而美</em></div>
+        <div style="margin:22px 0;color:var(--ink)">
+          <svg width="56" height="36" viewBox="0 0 56 36" fill="none">
+            <ellipse cx="34" cy="14" rx="11" ry="8" fill="currentColor"/>
+            <circle cx="44" cy="9" r="4" fill="currentColor"/><circle cx="40" cy="7" r="2.5" fill="currentColor"/>
+            <path d="M14 22 L34 22 M18 22 L16 30 M24 22 L23 31 M30 22 L31 30 M36 22 L38 29" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M14 22 Q6 20 4 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <p class="hero-p">把内容运营全链路拆成可复用的 Agent——输入一家公司，自动产出封面方向、差异化标签、标题与正文。</p>
+        <div class="circ hero-circ" style="background:var(--ink);color:var(--yellow)">↗</div>
+      </div>
+      <div class="rcard">
+        <div class="stamp-wrap">
+          <svg width="92" height="92" viewBox="0 0 92 92" style="opacity:.55;color:var(--rust)">
+            <circle cx="46" cy="46" r="42" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3"/>
+            <circle cx="46" cy="46" r="34" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="46" y="42" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="9" letter-spacing="1">DIAGNOSED</text>
+            <text x="46" y="56" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="13" font-weight="700">✓</text>
+          </svg>
+        </div>
+        <div class="rrow"><div class="rk">问题</div><div class="rv">标签错配，岗位帖过不了流量池</div></div>
+        <div class="rrow"><div class="rk">洞察</div><div class="rv">用户要的是「我能不能投」，不是「公司多牛」</div></div>
+        <div class="rrow"><div class="rk">方案</div><div class="rv">Workflow 替代低效人工节点</div></div>
+        <div class="tear">TEAR HERE FOR RECEIPT ✂</div>
+      </div>
+    </div>
+
+    <div class="sec-label">✦ THE BUILD STORY — 四步思考过程</div>
+    <div class="story-grid">
+      <div class="story-card" style="border-top:3px solid var(--rust)">
+        <div class="story-top"><span class="story-icon">🔍</span><span class="story-num" style="color:rgba(200,80,58,.25)">01</span></div>
+        <div class="story-sub" style="color:var(--rust)">WHY</div>
+        <div class="story-t">诊断</div>
+        <p class="story-p">账号岗位帖一直跑不过。问题不在内容——平台把帖子推给了「想学方法」的人，而不是「正在找岗位」的人。标签错配，过不了初始流量池。</p>
+        <div class="story-key" style="background:rgba(200,80,58,.07);border-left:2px solid var(--rust)">
+          <div class="kl" style="color:var(--rust)">💡 AGENT DOES</div>
+          <div class="kv">火爆旧帖的共性：都在回答「我这种人能不能投?」而不是「这家公司多牛」</div>
+        </div>
+      </div>
+      <div class="story-card" style="border-top:3px solid var(--yellow)">
+        <div class="story-top"><span class="story-icon">🎨</span><span class="story-num" style="color:rgba(244,182,33,.35)">02</span></div>
+        <div class="story-sub" style="color:#C8920E">STOP</div>
+        <div class="story-t">封面</div>
+        <p class="story-p">封面不是传递信息，是讲故事。深底色 + 高饱和亮字在小红书暖白信息流里天然是「异类」，打断滚动节奏。画面要和内容完全共振。</p>
+        <div class="story-key" style="background:rgba(244,182,33,.12);border-left:2px solid var(--yellow)">
+          <div class="kl" style="color:#C8920E">💡 AGENT DOES</div>
+          <div class="kv">Agent 分析公司调性 → 输出 Pinterest 搜图关键词 → 给出视觉方向</div>
+        </div>
+      </div>
+      <div class="story-card" style="border-top:3px solid var(--teal)">
+        <div class="story-top"><span class="story-icon">🏷️</span><span class="story-num" style="color:rgba(63,168,155,.3)">03</span></div>
+        <div class="story-sub" style="color:var(--teal)">CLICK</div>
+        <div class="story-t">标签</div>
+        <p class="story-p">三层钩子：公司钩子（小众外企/全员远程）引发好奇，利益钩子（门槛不高/女性友好）打消顾虑，行动暗示（大胆投/国内可申）推动行动。</p>
+        <div class="story-key" style="background:rgba(63,168,155,.1);border-left:2px solid var(--teal)">
+          <div class="kl" style="color:var(--teal)">💡 AGENT DOES</div>
+          <div class="kv">按公司知名度自动匹配模板：有名走品牌路线，没名走人群痛点路线</div>
+        </div>
+      </div>
+      <div class="story-card" style="border-top:3px solid #7C6FB0">
+        <div class="story-top"><span class="story-icon">📝</span><span class="story-num" style="color:rgba(124,111,176,.3)">04</span></div>
+        <div class="story-sub" style="color:#7C6FB0">TRUST</div>
+        <div class="story-t">正文</div>
+        <p class="story-p">「挑战发1000个小而美」系列感 + 公司是干嘛的 + 为什么推 + 岗位方向 + 行动引导。信息全面但留钩子，让人想私信了解。</p>
+        <div class="story-key" style="background:rgba(124,111,176,.1);border-left:2px solid #7C6FB0">
+          <div class="kl" style="color:#7C6FB0">💡 AGENT DOES</div>
+          <div class="kv">从输入公司名到输出完整帖文，Agent 端到端完成，人只做最终审核</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label" style="color:var(--rust)">⚙ WORKFLOW ARCHITECTURE</div>
+      <div class="flow">
+        <span class="step">⌨️ 输入公司</span><span class="arr" style="color:var(--rust)">→</span>
+        <span class="step">🔍 诊断</span><span class="arr" style="color:var(--rust)">→</span>
+        <span class="step">🎨 封面方向</span><span class="arr" style="color:var(--rust)">→</span>
+        <span class="step">🏷️ 差异化标签</span><span class="arr" style="color:var(--rust)">→</span>
+        <span class="step">📝 标题×5</span><span class="arr" style="color:var(--rust)">→</span>
+        <span class="step">📄 正文</span>
+      </div>
+      <div class="panel-foot">END-TO-END AUTOMATED · HUMAN REVIEW AT FINAL STEP ONLY</div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="bi"><div class="circ" style="background:var(--ink);color:var(--paper)">i</div><div class="bt">项目背景</div><div class="bd">接手账号 Joy不躺平，主推岗位/公司推荐内容</div></div>
+      <div class="bi"><div class="circ" style="background:var(--rust);color:#fff">→</div><div class="bt">核心打法</div><div class="bd">70% 岗位推荐 + 求职方法 + 情绪陪伴</div></div>
+      <div class="bi"><div class="circ" style="background:var(--ink);color:var(--paper)">✦</div><div class="bt">我的角色</div><div class="bd">定义问题 + 亲手 Build，而非只给方案</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NOISE ============ -->
+<section id="noise" class="view shell">
+  <div class="side">
+    <button class="back-btn" onclick="showView('desk')"><span>←</span> BACK TO DESK</button>
+    <div class="side-title">
+      <div class="side-kicker">PROJECT NO. 02</div>
+      <div class="side-h1">Noise</div>
+      <div class="side-h1-it" style="color:var(--teal)">Mirror</div>
+    </div>
+    <div class="side-est">
+      <div>EST. 2026</div>
+      <div><a href="https://noisemirrow.asia/" target="_blank" style="color:var(--teal)">noisemirrow.asia</a></div>
+      <div>仅开放上海区域</div><div>Web App ↗</div>
+    </div>
+    <div class="side-nav" data-nav>
+      <a class="on"><span class="dot" style="color:var(--teal)">●</span> THE PROBLEM</a>
+      <a><span class="dot" style="color:var(--teal)">●</span> FEATURES</a>
+      <a><span class="dot" style="color:var(--teal)">●</span> OPERATIONS</a>
+    </div>
+  </div>
+  <div class="content">
+    <div class="hero-row">
+      <div class="hero-card night">
+        <div style="position:absolute;top:18px;right:22px;font-size:22px">🌙</div>
+        <div class="hero-k">吵不吵 · NOISEMIRROR</div>
+        <div class="hero-t">这小区<br><em style="color:var(--teal)">到底吵不吵?</em></div>
+        <div style="margin:22px 0;color:var(--teal)">
+          <svg width="60" height="28" viewBox="0 0 60 28" fill="none">
+            <rect x="6" y="9" width="3" height="10" rx="1.5" fill="currentColor"/>
+            <rect x="14" y="5" width="3" height="18" rx="1.5" fill="currentColor"/>
+            <rect x="22" y="1" width="3" height="26" rx="1.5" fill="currentColor"/>
+            <rect x="30" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
+            <rect x="38" y="3" width="3" height="22" rx="1.5" fill="currentColor"/>
+            <rect x="46" y="8" width="3" height="12" rx="1.5" fill="currentColor"/>
+            <rect x="54" y="10" width="3" height="8" rx="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="hero-p">帮在上海租房/买房的人，提前了解目标小区的真实噪音。中介不会告诉你，体验后又来不及。</p>
+        <div class="circ hero-circ" style="background:var(--teal);color:var(--night)">↗</div>
+      </div>
+      <div class="rcard">
+        <div class="stamp-wrap">
+          <svg width="92" height="92" viewBox="0 0 92 92" style="opacity:.55;color:var(--teal)">
+            <circle cx="46" cy="46" r="42" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3"/>
+            <circle cx="46" cy="46" r="34" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="46" y="42" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="9" letter-spacing="1">SHANGHAI</text>
+            <text x="46" y="56" text-anchor="middle" fill="currentColor" font-family="Courier Prime" font-size="13" font-weight="700">ONLY</text>
+          </svg>
+        </div>
+        <div class="rrow"><div class="rk">痛点</div><div class="rv">因噪音搬家，回回踩雷，中介不说</div></div>
+        <div class="rrow"><div class="rk">人设</div><div class="rv">噪音受害者 → 开发平台 → 避雷博主</div></div>
+        <div class="rrow"><div class="rk">本质</div><div class="rv">数据采集 → 信息差变现</div></div>
+        <div class="tear">TEAR HERE FOR RECEIPT ✂</div>
+      </div>
+    </div>
+
+    <div class="shot"><div>📷 产品截图位 — 发我 noisemirrow.asia 截图即可填入</div></div>
+
+    <div class="sec-label">✦ CORE FEATURES</div>
+    <div class="feat-grid">
+      <div class="feat"><div class="fi">🔍</div><div class="ft">搜索小区</div><div class="fd">按名称/区域，浦东·徐汇·静安筛选</div></div>
+      <div class="feat"><div class="fi">📊</div><div class="ft">噪音评分</div><div class="fd">交通/施工/商业/邻居/建筑/环境 6类</div></div>
+      <div class="feat"><div class="fi">💬</div><div class="ft">用户评论</div><div class="fd">真实住户主观感受 + 高峰时段</div></div>
+      <div class="feat"><div class="fi">📝</div><div class="ft">提交反馈</div><div class="fd">选类型·时段，1-5分安静度打分</div></div>
+      <div class="feat"><div class="fi">🗺️</div><div class="ft">地图视图</div><div class="fd">地图上查看小区位置与综合评分</div></div>
+      <div class="feat"><div class="fi">🔓</div><div class="ft">解锁机制</div><div class="fd">提交评价后解锁完整报告，驱动 UGC</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label" style="color:var(--teal)">🐱 OPERATIONS — 四类内容</div>
+      <div class="ops">
+        <div class="op"><div class="oe">🥇</div><div class="ot">推销平台帖</div><div class="od">收集信息</div></div>
+        <div class="op"><div class="oe">🏕</div><div class="ot">小区评测帖</div><div class="od">实用·小区加密</div></div>
+        <div class="op"><div class="oe">📌</div><div class="ot">求推荐帖</div><div class="od">收集+引流</div></div>
+        <div class="op"><div class="oe">💡</div><div class="ot">吐槽帖</div><div class="od">共鸣+引流</div></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="bi"><div class="circ" style="background:var(--ink);color:var(--paper)">i</div><div class="bt">目标用户</div><div class="bd">上海租房年轻人 + 被噪音困扰的居民</div></div>
+      <div class="bi"><div class="circ" style="background:var(--teal);color:#fff">→</div><div class="bt">用户流程</div><div class="bd">浏览→筛选→详情 / 选小区→打分→反馈</div></div>
+      <div class="bi"><div class="circ" style="background:var(--ink);color:var(--paper)">✦</div><div class="bt">封面策略</div><div class="bd">固定模板：统一底色+小区名+噪音等级标签</div></div>
+    </div>
+  </div>
+</section>
+
+<script>
+function showView(id){
+  var views=document.querySelectorAll('.view');
+  views.forEach(function(v){ v.classList.remove('active'); });
+  var t=document.getElementById(id);
+  // force reflow for fade
+  requestAnimationFrame(function(){ t.classList.add('active'); });
+  window.scrollTo(0,0);
+}
+// sidebar nav active toggle (visual only)
+document.querySelectorAll('[data-nav] a').forEach(function(a){
+  a.addEventListener('click',function(){
+    var links=a.parentElement.querySelectorAll('a');
+    links.forEach(function(l){ l.classList.remove('on'); });
+    a.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
