@@ -146,15 +146,21 @@ a{text-decoration:none;}
 .feat .ft{font-family:'Fraunces';font-size:18px;font-weight:500;color:var(--ink);}
 .feat .fd{font-size:12px;line-height:1.7;color:var(--ink-soft);margin-top:6px;}
 
-.showcase-row{display:flex;gap:28px;align-items:stretch;margin-bottom:32px;}
-.showcase-row .showcase-img{flex:1 1 50%;min-width:0;}
-.showcase-row .showcase-img img{width:100%;max-width:420px;height:380px;object-fit:contain;object-position:center;background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.1);display:block;margin:0 auto;}
-.showcase-row .showcase-feats{flex:1 1 50%;display:flex;flex-direction:column;gap:14px;justify-content:center;}
-.showcase-row .feat{transform:none !important;}
+.showcase-row{--showcase-h:560px;display:flex;gap:28px;align-items:stretch;margin-bottom:32px;}
+.showcase-row .showcase-img{flex:1 1 50%;min-width:0;height:var(--showcase-h);display:flex;align-items:center;justify-content:center;}
+.showcase-row .showcase-img img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.1);display:block;cursor:zoom-in;}
+.showcase-row .showcase-feats{flex:1 1 50%;height:var(--showcase-h);display:flex;flex-direction:column;gap:14px;justify-content:stretch;}
+.showcase-row .feat{flex:1;transform:none !important;display:flex;flex-direction:column;justify-content:center;}
+.image-lightbox{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:32px;background:rgba(31,27,20,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.image-lightbox.active{display:flex;}
+.image-lightbox img{max-width:92vw;max-height:92vh;border-radius:14px;box-shadow:0 20px 70px rgba(0,0,0,.35);}
+.image-lightbox button{position:fixed;top:22px;right:26px;width:38px;height:38px;border:1px solid rgba(242,235,221,.45);border-radius:50%;background:rgba(31,27,20,.5);color:var(--paper);font-size:24px;line-height:1;cursor:pointer;}
 
 @media(max-width:760px){
   .showcase-row{flex-direction:column;}
   .showcase-row.reverse{flex-direction:column-reverse;}
+  .showcase-row .showcase-img,.showcase-row .showcase-feats{height:auto;}
+  .showcase-row .showcase-img img{max-height:70vh;}
 }
 
 .ops{display:flex;flex-wrap:wrap;gap:14px;}
@@ -507,6 +513,11 @@ a{text-decoration:none;}
   </div>
 </section>
 
+<div class="image-lightbox" id="imageLightbox" aria-hidden="true">
+  <button type="button" id="lightboxClose" aria-label="关闭">×</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
 <script>
 function showView(id){
   var views=document.querySelectorAll('.view');
@@ -523,6 +534,29 @@ document.querySelectorAll('[data-nav] a').forEach(function(a){
     links.forEach(function(l){ l.classList.remove('on'); });
     a.classList.add('on');
   });
+});
+var lightbox=document.getElementById('imageLightbox');
+var lightboxImg=document.getElementById('lightboxImg');
+var lightboxClose=document.getElementById('lightboxClose');
+document.querySelectorAll('.showcase-row .showcase-img img').forEach(function(img){
+  img.addEventListener('click',function(){
+    lightboxImg.src=img.src;
+    lightboxImg.alt=img.alt || '';
+    lightbox.classList.add('active');
+    lightbox.setAttribute('aria-hidden','false');
+  });
+});
+function closeLightbox(){
+  lightbox.classList.remove('active');
+  lightbox.setAttribute('aria-hidden','true');
+  lightboxImg.src='';
+}
+lightboxClose.addEventListener('click',closeLightbox);
+lightbox.addEventListener('click',function(e){
+  if(e.target===lightbox) closeLightbox();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape' && lightbox.classList.contains('active')) closeLightbox();
 });
 </script>
 </body>
