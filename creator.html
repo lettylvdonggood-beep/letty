@@ -61,6 +61,11 @@
   .img-row.single{grid-template-columns:1fr;}
   .img-row img{width:100%;border:1px solid rgba(255,0,0,.15);display:block;}
   .img-caption{font-size:9px;font-family:var(--fen);letter-spacing:1.5px;text-transform:uppercase;opacity:.35;margin-top:4px;text-align:center;}
+  .cover-sample-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .cover-sample-grid img{height:260px;object-fit:contain;background:#fff;}
+  .ai-conclusion-box{margin-top:14px;padding:14px 16px;border:1px solid rgba(255,0,0,.2);background:rgba(255,0,0,.06);font-size:12px;line-height:1.8;}
+  .ai-conclusion-box strong{font-weight:900;}
+  .ai-conclusion-box ul{margin:8px 0 0 18px;padding:0;}
 
   /* ========== OVERVIEW REDESIGN ========== */
   .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
@@ -86,6 +91,8 @@
     .conn-h{width:auto;min-width:0;height:30px;}.conn-h::after{width:1px;height:100%;}.conn-h .arr{right:auto;bottom:-1px;top:auto;border-left:3px solid transparent;border-right:3px solid transparent;border-top:6px solid var(--red);border-bottom:none;}
     .ov-grid{grid-template-columns:1fr;}
     .img-row{grid-template-columns:1fr;}
+    .cover-sample-grid{grid-template-columns:1fr 1fr;}
+    .cover-sample-grid img{height:220px;}
   }
 </style>
 </head>
@@ -140,14 +147,14 @@
           <div class="ov-split">
             <div class="ov-half">
               <div class="ov-half-label">🧠 人工</div>
-              定义思考问题：公司调性？在讲什么故事？加入后是什么画面？
+              发现“为什么有的封面会让人想点”，筛选封面样本 P1-P6，再定义公司调性与画面逻辑
             </div>
             <div class="ov-half">
               <div class="ov-half-label">🤖 Agent</div>
-              将抽象调性拆解为 Pinterest 可搜索的视觉关键词
+              分析样本共性，输出 P8 结论，并拆解为 Pinterest 可搜索的视觉关键词
             </div>
           </div>
-          <div class="ov-reason">AI 无法判断用什么画面表达「故事感」和「共振」——但擅长将调性拆解为可搜索关键词。人定方向，AI 出方案。</div>
+          <div class="ov-reason">AI 无法凭空知道哪类封面真正让目标用户停下——但擅长从样本中提炼规律。人发现问题并筛选样本，AI 分析特征并输出可执行方案。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
         <!-- 03 -->
@@ -413,10 +420,43 @@
       </div>
       <div class="conn-v"><span class="arr"></span></div>
       <div class="card">
-        <div class="card-top"><span class="card-phase">02 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
+        <div class="card-top"><span class="card-phase">02 // 封面点击欲研究</span><span><span class="badge badge-human">🧠 人工</span> <span class="badge badge-ai">🤖 Agent</span></span></div>
+        <h3>研究为什么有的封面会让人想点</h3>
+        <div class="desc">人先发现值得研究的问题并筛选样本，AI 再从样本中拆解可复用的视觉规律</div>
+        <div class="detail">
+          <strong>人的发现：</strong>同样是招聘封面，有些会让人下意识停下来、想点进去看；有些即使信息完整，也会被快速划走。<br><br>
+          <strong>人的动作：</strong>我把所有能吸引我继续研究的封面都截图下来，整理成封面样本 P1-P6。<br><br>
+          <strong>AI 的动作：</strong>把 P1-P6 抛给 AI，让它从颜色、场景、构图、文字层级、品牌气质和情绪氛围中分析共性，最后得到 P8 的结论。<br><br>
+          <strong>分工逻辑：</strong>人负责发现问题、判断哪些封面真的有点击欲；AI 负责把这些直觉样本结构化，提炼成后续可复用的封面特征。
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
+          <div style="font-size:12px;font-weight:900;margin-bottom:6px;">封面样本 P1-P6：让我产生点击欲的招聘封面</div>
+          <div class="img-row cover-sample-grid">
+            <div><img src="img/cover-p1.png" alt="封面样本 P1"><div class="img-caption">P1 · 强品牌识别 + 高利益点</div></div>
+            <div><img src="img/cover-p2.png" alt="封面样本 P2"><div class="img-caption">P2 · 明亮色块 + 加入邀请</div></div>
+            <div><img src="img/cover-p3.png" alt="封面样本 P3"><div class="img-caption">P3 · 低机位真实场景 + 故事感</div></div>
+            <div><img src="img/cover-p4.png" alt="封面样本 P4"><div class="img-caption">P4 · 自然场景 + 高饱和亮字</div></div>
+            <div><img src="img/cover-p5.png" alt="封面样本 P5"><div class="img-caption">P5 · 质感物件 + 岗位清晰</div></div>
+            <div><img src="img/cover-p6.png" alt="封面样本 P6"><div class="img-caption">P6 · 深底色 + 信息密度</div></div>
+          </div>
+          <div class="ai-conclusion-box">
+            <strong>P8：AI 输出的封面共性结论</strong>
+            <ul>
+              <li><strong>深底色 + 高饱和亮字 + 真实场景图</strong>最容易让用户在信息流里停下来。</li>
+              <li><strong>高饱和暖色最抢眼</strong>，红、橙、黄在视觉优先级上天然靠前。</li>
+              <li><strong>小红书招聘封面大多偏暖白、偏粉、偏浅色</strong>，深色或暗调背景天然更像“异类”，能打断滚动节奏。</li>
+              <li><strong>自然场景里的绿色和蓝色</strong>也很容易留住目光，因为它们有真实感、空间感和向往感。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="conn-v"><span class="arr"></span></div>
+      <div class="card">
+        <div class="card-top"><span class="card-phase">03 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义视觉逻辑</h3>
         <div class="detail">
           <strong>核心原则：</strong>画面能够代表内容在讲什么——用画面在讲故事，而不只是在传递信息；画面和内容完全共振。<br><br>
+          <strong>核心逻辑：</strong>封面先让人停下来，文案再让人点进去。视觉负责“停下”——用真实场景、高识别色彩、强情绪氛围和目标用户会共鸣的审美，在一秒内打断信息流；文案负责“点击”——回答用户心里的三个问题：我这种人也能看吗？这是什么类型的公司？它是不是我的 dream company / dream job？<br><br>
           <strong>封面公式：</strong>一张有质感/有故事的图 + 几个大字点明主题 + 1-2个差异化标签击中痛点 + 清晰的品牌标识<br><br>
           <strong>视觉规则：</strong><br>
           · 深底色 + 高饱和亮字 + 真实场景图<br>
@@ -426,16 +466,17 @@
       </div>
       <div class="conn-v"><span class="arr"></span></div>
       <div class="card">
-        <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
+        <div class="card-top"><span class="card-phase">04 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
         <h3>生成封面风格关键词</h3>
-        <div class="desc">Agent 根据公司信息 + 视觉逻辑，输出可执行的搜索关键词</div>
+        <div class="desc">Agent 根据公司信息 + P8 结论 + 视觉逻辑，输出可执行的搜索关键词</div>
         <div class="detail">
-          <strong>输入：</strong>公司名称<br>
+          <strong>输入：</strong>公司名称 + 封面点击欲研究结论 + 视觉逻辑<br>
           <strong>输出维度：</strong><br>
           ① 这家公司的调性关键词<br>
           ② 这家公司在讲什么故事<br>
           ③ 能够和这家公司共振的画面什么样子<br>
-          ④ 可以在 Pinterest 搜索图片的相关关键词
+          ④ 可以在 Pinterest 搜索图片的相关关键词<br>
+          ⑤ 封面如何先制造停留，再交给文案完成点击
         </div>
         <div class="conclusion"><strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面 → 流转至环节三</div>
       </div>
