@@ -1,685 +1,808 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Letty — Creator</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --black: #0d0d0d;
-            --cream: #EAE6DF;
-            --sage: #74B776;
-            --blush: #EBB1BA;
-            --lavender: #CDB5CD;
-            --gold: #FDE02F;
-            --border: rgba(234,230,223,0.10);
-            --brutal-shadow: 8px 8px 0 #000;
-            --brutal-shadow-sm: 5px 5px 0 #000;
-            --font-d: "Helvetica Neue", "DM Sans", Helvetica, Arial, sans-serif;
-            --font-s: "Inter", "Noto Sans SC", sans-serif;
-            --font-r: "Noto Serif SC", serif;
-            --font-m: "Space Mono", "JetBrains Mono", monospace;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Architecture — System Logic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;600;700&display=swap');
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: var(--font-s);
-            background: var(--black);
-            color: var(--cream);
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
+  :root {
+    --red: #FF0000;
+    --red-08: rgba(255,0,0,0.08);
+    --red-15: rgba(255,0,0,0.15);
+    --red-25: rgba(255,0,0,0.25);
+    --black: #111;
+    --white: #FAFAFA;
+    --font-en: 'Space Grotesk', sans-serif;
+    --font-cn: 'Noto Sans SC', sans-serif;
+    --font-serif: 'Noto Serif SC', serif;
+  }
 
-        /* ── Nav ── */
-        .page-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1.2rem 2rem; border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(13,13,13,.92); backdrop-filter: blur(12px);
-        }
-        .nav-back { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.45); text-decoration: none; transition: color .2s; }
-        .nav-back:hover { color: var(--cream); }
-        .nav-links { display: flex; gap: 2rem; }
-        .nav-link { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.28); text-decoration: none; transition: color .2s; }
-        .nav-link:hover { color: rgba(234,230,223,.7); }
-        .nav-link.active { color: var(--sage); }
+  body { font-family: var(--font-cn); background: var(--white); color: var(--red); overflow: hidden; height: 100vh; }
 
-        /* ══════════ HERO ══════════ */
-        .hero {
-            position: relative;
-            width: 100%;
-            /* Fixed aspect ratio via padding */
-            height: 0;
-            padding-bottom: min(100vh, 56.25%); /* 16:9 ish, but capped at viewport */
-            min-height: 0;
-            overflow: hidden;
-            background: var(--cream);
-        }
-        /* On shorter screens, use viewport height */
-        @media (max-aspect-ratio: 4/3) {
-            .hero {
-                height: 100vh;
-                padding-bottom: 0;
-            }
-        }
+  .layout { display: grid; grid-template-columns: 1fr 240px; grid-template-rows: auto 1fr; height: 100vh; }
 
-        .hero-inner {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  /* TOPBAR */
+  .topbar { grid-column: 1/-1; padding: 14px 32px; border-bottom: 2px solid var(--red); display: flex; justify-content: space-between; align-items: center; }
+  .topbar-brand { font-family: var(--font-serif); font-size: 13px; letter-spacing: 0.5px; }
+  .topbar-brand span { font-weight: 700; }
+  .topbar-status { font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; }
 
-        .hero-grid {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image:
-                linear-gradient(rgba(0,0,0,.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,.08) 1px, transparent 1px);
-            background-size: 80px 80px;
-            pointer-events: none;
-        }
+  /* MAIN */
+  .main { overflow-y: auto; padding: 40px 48px 80px; scrollbar-width: thin; scrollbar-color: var(--red) transparent; }
+  .main::-webkit-scrollbar { width: 3px; }
+  .main::-webkit-scrollbar-thumb { background: var(--red); }
 
-        /* Orbit cards */
-        .orbit-ring {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 0; height: 0;
-            z-index: 2;
-        }
+  /* HEADER */
+  .header { margin-bottom: 40px; }
+  .header h1 { font-family: var(--font-en); font-size: clamp(32px, 4.5vw, 56px); font-weight: 700; line-height: 0.95; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 12px; }
+  .header .subtitle { font-family: var(--font-cn); font-weight: 300; font-size: clamp(14px, 1.8vw, 19px); letter-spacing: 2px; opacity: 0.6; font-style: italic; }
 
-        .float-card {
-            position: absolute;
-            width: 150px; height: 94px;
-            border: 3px solid #000;
-            box-shadow: var(--brutal-shadow);
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column; gap: 4px;
-            cursor: default;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            margin-top: -47px; margin-left: -75px;
-            overflow: hidden;
-        }
+  /* SIDEBAR */
+  .sidebar { border-left: 2px solid var(--red); display: flex; flex-direction: column; overflow-y: auto; }
+  .nav-item { padding: 14px 20px; border-bottom: 1px solid rgba(255,0,0,0.15); font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; color: var(--red); }
+  .nav-item .cn { display: block; font-family: var(--font-cn); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: none; margin-top: 3px; }
+  .nav-item:hover { background: var(--red-08); padding-left: 26px; }
+  .nav-item.active { background: var(--red); color: var(--white); }
 
-        .float-card:hover {
-            z-index: 10;
-            box-shadow: 12px 12px 0 #000;
-        }
+  /* SECTIONS */
+  .sec { display: none; animation: fadeUp 0.35s ease; }
+  .sec.active { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        .float-card .card-label {
-            font-family: var(--font-d);
-            font-weight: 800;
-            font-size: .65rem;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: #000;
-        }
+  .sec-bar { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 36px; padding-bottom: 10px; border-bottom: 2px solid var(--red); }
+  .sec-bar h2 { font-family: var(--font-en); font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 400; }
+  .sec-bar .code { font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; opacity: 0.4; }
 
-        /* Card SVG illustrations */
-        .float-card svg {
-            width: 100%; height: 100%;
-            position: absolute; top: 0; left: 0;
-        }
-        .float-card svg * {
-            stroke: #000;
-            stroke-width: 3px;
-            stroke-linejoin: round;
-            stroke-linecap: round;
-        }
+  /* CARDS */
+  .card { border: 1px solid var(--red); padding: 24px 28px; position: relative; background: var(--white); transition: background 0.15s; }
+  .card:hover { background: var(--red-08); }
+  .card-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .card-phase { font-family: var(--font-en); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.45; }
+  .card h3 { font-family: var(--font-cn); font-size: 20px; font-weight: 900; line-height: 1.25; margin-bottom: 8px; }
+  .card .desc { font-family: var(--font-serif); font-size: 12px; font-style: italic; opacity: 0.6; line-height: 1.5; }
+  .card .detail { margin-top: 12px; font-size: 12px; line-height: 1.8; font-weight: 300; opacity: 0.8; }
+  .card .detail strong { font-weight: 700; }
+  .card .detail .tag { display: inline-block; background: var(--red-08); border: 1px solid var(--red-25); padding: 2px 8px; border-radius: 2px; font-size: 11px; margin: 2px 3px 2px 0; font-weight: 500; }
+  .card .example { margin-top: 8px; padding: 10px 14px; background: var(--red-08); border-left: 3px solid var(--red); font-size: 12px; line-height: 1.7; }
+  .card .example em { font-style: normal; opacity: 0.6; }
 
-        /* Card positions & colors — matching reference palette */
-        .fc-1 { background: var(--sage); transform: translate(0px, -260px) rotate(-10deg); }
-        .fc-2 { background: var(--blush); transform: translate(230px, -160px) rotate(14deg); }
-        .fc-3 { background: #fff; transform: translate(280px, 60px) rotate(-6deg); }
-        .fc-4 { background: var(--lavender); transform: translate(160px, 230px) rotate(18deg); }
-        .fc-5 { background: var(--blush); transform: translate(-60px, 260px) rotate(-13deg); }
-        .fc-6 { background: var(--gold); transform: translate(-240px, 140px) rotate(9deg); }
-        .fc-7 { background: var(--sage); transform: translate(-280px, -60px) rotate(-18deg); }
-        .fc-8 { background: #fff; transform: translate(-150px, -230px) rotate(7deg); }
+  /* FLOW CONNECTORS */
+  .flow-row { display: flex; gap: 0; }
+  .flow-row .card { flex: 1; }
+  .conn-h { width: 60px; min-width: 60px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .conn-h::after { content:''; width: 100%; height: 1px; background: var(--red); position: absolute; }
+  .conn-h .arr { position: absolute; right: -1px; width: 0; height: 0; border-left: 7px solid var(--red); border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
+  .conn-v { height: 40px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .conn-v::after { content:''; height: 100%; width: 1px; background: var(--red); position: absolute; }
+  .conn-v .arr { position: absolute; bottom: -1px; width: 0; height: 0; border-top: 7px solid var(--red); border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; }
 
-        .fc-1:hover { transform: translate(0px, -260px) rotate(0deg) scale(1.12); }
-        .fc-2:hover { transform: translate(230px, -160px) rotate(0deg) scale(1.12); }
-        .fc-3:hover { transform: translate(280px, 60px) rotate(0deg) scale(1.12); }
-        .fc-4:hover { transform: translate(160px, 230px) rotate(0deg) scale(1.12); }
-        .fc-5:hover { transform: translate(-60px, 260px) rotate(0deg) scale(1.12); }
-        .fc-6:hover { transform: translate(-240px, 140px) rotate(0deg) scale(1.12); }
-        .fc-7:hover { transform: translate(-280px, -60px) rotate(0deg) scale(1.12); }
-        .fc-8:hover { transform: translate(-150px, -230px) rotate(0deg) scale(1.12); }
+  .flow-center { display: flex; justify-content: center; }
 
-        /* Center title card */
-        .hero-center {
-            position: relative;
-            z-index: 5;
-            display: flex; flex-direction: column; align-items: center; gap: 1.8rem;
-            transform: translateY(-1vh);
-        }
+  /* OVERVIEW TABLE */
+  .overview-grid { display: grid; gap: 0; }
+  .ov-row { display: grid; grid-template-columns: 120px 1fr 1fr 1.3fr; border-bottom: 1px solid var(--red); }
+  .ov-row.header-row { background: var(--red); color: var(--white); font-weight: 700; font-size: 13px; }
+  .ov-row.header-row .ov-cell { padding: 14px 16px; border-right: 1px solid rgba(255,255,255,0.2); }
+  .ov-cell { padding: 16px; border-right: 1px solid rgba(255,0,0,0.15); font-size: 12.5px; line-height: 1.7; }
+  .ov-cell:last-child { border-right: none; }
+  .ov-cell .cell-title { font-weight: 900; font-size: 14px; margin-bottom: 2px; }
+  .ov-row:hover:not(.header-row) { background: var(--red-08); }
+  .ov-row:not(.header-row) { cursor: pointer; transition: background 0.15s; }
 
-        .title-card {
-            background: #fff;
-            border: 5px solid #000;
-            box-shadow: 12px 12px 0 #000;
-            padding: 1.8rem 2.4rem;
-            transform: rotate(-2deg);
-            display: inline-block;
-        }
+  /* ROLE BADGES */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+  .badge-human { background: var(--red); color: var(--white); }
+  .badge-ai { background: transparent; border: 1px solid var(--red); color: var(--red); }
 
-        .title-card h1 {
-            font-family: var(--font-d);
-            font-size: clamp(3.5rem, 8vw, 7rem);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-            color: #000;
-            text-transform: uppercase;
-            margin: 0;
-        }
+  /* TEMPLATE BOX */
+  .template-box { border: 1px dashed var(--red); padding: 16px 20px; margin-top: 12px; background: rgba(255,0,0,0.03); font-size: 12px; line-height: 1.8; }
+  .template-box .t-label { font-family: var(--font-en); font-size: 9px; letter-spacing: 2px; opacity: 0.4; margin-bottom: 6px; text-transform: uppercase; }
 
-        .hero-tagline {
-            font-family: var(--font-s);
-            font-size: .85rem;
-            color: rgba(0,0,0,.5);
-            max-width: 380px;
-            line-height: 1.65;
-            text-align: center;
-        }
+  /* CONCLUSION BOX */
+  .conclusion { border-left: 4px solid var(--red); background: var(--red-08); padding: 16px 20px; margin-top: 16px; font-size: 13px; line-height: 1.7; font-weight: 500; }
 
-        .hero-cta {
-            display: inline-block;
-            background: var(--gold);
-            color: #000;
-            font-family: var(--font-d);
-            font-size: 1rem;
-            font-weight: 800;
-            padding: .9rem 2.2rem;
-            border: 4px solid #000;
-            box-shadow: var(--brutal-shadow);
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.1s, box-shadow 0.1s, background 0.1s, color 0.1s;
-        }
-        .hero-cta:hover {
-            transform: translate(4px, 4px);
-            box-shadow: 4px 4px 0 #000;
-            background: #000;
-            color: var(--gold);
-        }
+  /* SPACER */
+  .sp-16 { height: 16px; }
+  .sp-24 { height: 24px; }
 
-        /* ══════════ STATS ══════════ */
-        .stats-strip {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            border-top: 3px solid var(--sage);
-            border-bottom: 3px solid var(--sage);
-        }
-
-        .stat-item {
-            flex: 1;
-            max-width: 300px;
-            text-align: center;
-            padding: 4rem 1.5rem;
-            border-right: 1px solid rgba(116,183,118,.2);
-            color: var(--cream);
-        }
-        .stat-item:last-child { border-right: none; }
-
-        .stat-num {
-            font-family: var(--font-d);
-            font-size: 2.8rem;
-            font-weight: 900;
-            line-height: 1.15;
-            margin-bottom: .8rem;
-            color: var(--sage);
-        }
-
-        .stat-label {
-            font-family: var(--font-s);
-            font-size: .75rem;
-            font-weight: 400;
-            letter-spacing: .06em;
-            color: rgba(234,230,223,.4);
-        }
-
-        /* ══════════ CONTENT ══════════ */
-        .content-area {
-            background: var(--black);
-            position: relative;
-            z-index: 5;
-        }
-
-        .block {
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 5rem 2rem;
-        }
-
-        .block + .block {
-            border-top: 1px solid var(--border);
-        }
-
-        .block-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 1.8rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .block-num {
-            font-family: var(--font-d);
-            font-size: 4.5rem;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--sage);
-            opacity: .2;
-            flex-shrink: 0;
-        }
-
-        .block-title-group { padding-top: .5rem; }
-
-        .block-label {
-            font-family: var(--font-m);
-            font-size: .56rem;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-            color: var(--sage);
-            opacity: .55;
-            margin-bottom: .5rem;
-        }
-
-        .block-title {
-            font-family: var(--font-d);
-            font-size: clamp(1.4rem, 3vw, 2rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--cream);
-            line-height: 1.25;
-        }
-
-        /* Quote cards — ALL BLACK TEXT */
-        .quote-card {
-            background: var(--sage);
-            color: #000;
-            padding: 1.8rem 2.2rem;
-            border: 3px solid rgba(234,230,223,.12);
-            box-shadow: 5px 5px 0px rgba(234,230,223,.06);
-            margin: 2rem 0;
-            position: relative;
-        }
-
-        .quote-card p,
-        .block .quote-card p {
-            font-family: var(--font-s) !important;
-            font-size: 1.05rem !important;
-            font-weight: 600 !important;
-            line-height: 1.75 !important;
-            color: #000 !important;
-            text-align: left !important;
-            margin: 0 !important;
-        }
-
-        .quote-card::before {
-            content: '✦';
-            position: absolute;
-            top: -11px; left: 14px;
-            font-size: 1.2rem;
-            color: var(--gold);
-            background: var(--black);
-            padding: 0 5px;
-        }
-
-        .alt-gold { background: var(--gold); }
-        .alt-blush { background: var(--blush); }
-        .alt-lavender { background: var(--lavender); }
-
-        /* Body text */
-        .block p {
-            font-weight: 300;
-            font-size: .92rem;
-            line-height: 2;
-            color: rgba(234,230,223,.58);
-            margin-bottom: 1.1rem;
-        }
-        .block p:last-child { margin-bottom: 0; }
-        .hl { color: rgba(234,230,223,.92); font-weight: 500; }
-
-        /* ══════════ METHOD GRID ══════════ */
-        .method-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin: 2.2rem 0;
-        }
-
-        .method-card {
-            background: rgba(234,230,223,.03);
-            border: 2px solid rgba(234,230,223,.07);
-            padding: 1.6rem 1.2rem;
-            transition: transform .2s, box-shadow .2s, border-color .2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .method-card:hover {
-            transform: translate(-3px, -3px);
-            box-shadow: 6px 6px 0px rgba(116,183,118,.15);
-            border-color: rgba(116,183,118,.3);
-        }
-
-        .method-card .mc-step {
-            font-family: var(--font-d);
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--sage);
-            opacity: .25;
-            margin-bottom: .8rem;
-        }
-
-        .method-card .mc-title {
-            font-family: var(--font-d);
-            font-size: .8rem;
-            font-weight: 700;
-            color: var(--cream);
-            margin-bottom: .5rem;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-        }
-
-        .method-card .mc-desc {
-            font-size: .76rem;
-            line-height: 1.75;
-            color: rgba(234,230,223,.42);
-            font-weight: 300;
-        }
-
-        .method-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 3px;
-            background: var(--sage);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform .3s;
-        }
-        .method-card:hover::after { transform: scaleX(1); }
-
-        /* ══════════ CROSS BANNER ══════════ */
-        .cross-banner {
-            background: var(--gold);
-            color: #000;
-            padding: 3.5rem 2rem;
-            text-align: center;
-            border-top: 3px solid #000;
-            border-bottom: 3px solid #000;
-        }
-
-        .cross-banner h3 {
-            font-family: var(--font-d);
-            font-size: clamp(1.3rem, 3.5vw, 2.4rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            text-transform: uppercase;
-            margin-bottom: .8rem;
-        }
-
-        .cross-banner p {
-            font-family: var(--font-s);
-            font-size: .85rem;
-            line-height: 1.8;
-            max-width: 540px;
-            margin: 0 auto;
-            opacity: .65;
-        }
-
-        /* ══════════ FOOTER ══════════ */
-        .page-footer {
-            border-top: 1px solid var(--border);
-            padding: 3rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            flex-wrap: wrap;
-            background: var(--black);
-        }
-        .footer-label { font-family: var(--font-m); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.25); }
-        .footer-links { display: flex; gap: 2rem; }
-        .footer-link { font-family: var(--font-m); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(234,230,223,.35); text-decoration: none; transition: color .2s; }
-        .footer-link:hover { color: var(--sage); }
-        .footer-link::after { content: ' →'; }
-
-        /* ══════════ ANIM ══════════ */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity .6s ease-out, transform .6s ease-out;
-        }
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ══════════ RESPONSIVE ══════════ */
-        @media (max-width: 900px) {
-            .orbit-ring { transform: scale(0.55); }
-            .method-grid { grid-template-columns: 1fr; }
-            .stats-strip { flex-direction: column; }
-            .stat-item { border-right: none; border-bottom: 1px solid rgba(116,183,118,.15); padding: 2rem 1.5rem; }
-            .stat-item:last-child { border-bottom: none; }
-            .title-card h1 { font-size: clamp(2.8rem, 7vw, 4.5rem); }
-            .title-card { padding: 1.4rem 1.8rem; }
-        }
-
-        @media (max-width: 600px) {
-            .orbit-ring { transform: scale(0.32); }
-            .hero { padding-bottom: 0; height: 100vh; height: 100svh; }
-            .title-card h1 { font-size: 2.5rem; }
-            .title-card { padding: 1.2rem 1.5rem; border-width: 4px; box-shadow: 8px 8px 0 #000; }
-            .block { padding: 3.5rem 1.5rem; }
-            .block-header { flex-direction: column; gap: .6rem; }
-            .block-num { font-size: 2.8rem; }
-            .nav-links { display: none; }
-            .quote-card { padding: 1.4rem 1.6rem; }
-        }
-    </style>
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+    .sidebar { flex-direction: row; overflow-x: auto; border-left: none; border-top: 2px solid var(--red); }
+    .nav-item { white-space: nowrap; padding: 10px 14px; border-bottom: none; border-right: 1px solid rgba(255,0,0,0.15); }
+    .nav-item .cn { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .flow-row { flex-direction: column; }
+    .conn-h { width: auto; min-width: 0; height: 36px; }
+    .conn-h::after { width: 1px; height: 100%; }
+    .conn-h .arr { right: auto; bottom: -1px; top: auto; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 7px solid var(--red); border-bottom: none; }
+    .ov-row { grid-template-columns: 1fr; }
+    .ov-row.header-row { display: none; }
+    .ov-cell { border-right: none; border-bottom: 1px solid rgba(255,0,0,0.1); padding: 10px 16px; }
+  }
+</style>
 </head>
 <body>
+<div class="layout">
+  <div class="topbar">
+    <div class="topbar-brand">Xiaohongshu <span>Content Operations</span> Agent</div>
+    <div class="topbar-status">SYSTEM ACTIVE · V2.0</div>
+  </div>
 
-<nav class="page-nav">
-    <a href="index.html" class="nav-back">← Return</a>
-    <div class="nav-links">
-        <a href="analyst.html" class="nav-link">Analyst</a>
-        <a href="creator.html" class="nav-link active">Creator</a>
-        <a href="gamer.html" class="nav-link">Gamer</a>
+  <div class="main" id="mainContent">
+    <div class="header">
+      <h1>WORKFLOW<br>ARCHITECTURE —<br>SYSTEM LOGIC</h1>
+      <div class="subtitle">如何搭建小红书内容运营 Agent — 全链路方法论</div>
     </div>
-</nav>
 
-<!-- ══════════ HERO ══════════ -->
-<section class="hero">
-    <div class="hero-inner">
-        <div class="hero-grid"></div>
+    <!-- ====== SEC 0: 链路拆解及路由 ====== -->
+    <div class="sec active" id="sec-0">
+      <div class="sec-bar">
+        <h2>00 // Overview · 链路拆解及路由</h2>
+        <span class="code">FULL PIPELINE</span>
+      </div>
 
-        <div class="orbit-ring">
-            <!-- 8 cards with SVG art, matching reference style -->
-            <div class="float-card fc-1">
-                <svg viewBox="0 0 150 94"><circle cx="75" cy="36" r="22" fill="none"/><circle cx="75" cy="36" r="8" fill="#000" stroke="none"/><path d="M50 70 Q75 55 100 70" fill="none"/><circle cx="40" cy="20" r="4" fill="#FDE02F" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">洞察</span>
-            </div>
-            <div class="float-card fc-2">
-                <svg viewBox="0 0 150 94"><rect x="35" y="25" width="30" height="30" rx="4" fill="#000" stroke="none"/><circle cx="100" cy="50" r="18" fill="none"/><line x1="65" y1="40" x2="82" y2="40"/><circle cx="115" cy="25" r="5" fill="#FDE02F" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">策略</span>
-            </div>
-            <div class="float-card fc-3">
-                <svg viewBox="0 0 150 94"><path d="M30 70 L75 20 L120 70 Z" fill="none"/><circle cx="75" cy="45" r="12" fill="#74B776" stroke="none"/><circle cx="45" cy="25" r="6" fill="#EBB1BA" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">增长</span>
-            </div>
-            <div class="float-card fc-4">
-                <svg viewBox="0 0 150 94"><circle cx="50" cy="47" r="24" fill="none"/><circle cx="95" cy="40" r="28" fill="none" opacity=".6"/><circle cx="70" cy="60" r="10" fill="#000" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">用户</span>
-            </div>
-            <div class="float-card fc-5">
-                <svg viewBox="0 0 150 94"><path d="M20 50 Q55 15 75 50 T130 50" fill="none"/><rect x="60" y="38" width="16" height="16" rx="2" fill="#FDE02F" stroke="none"/><circle cx="110" cy="65" r="6" fill="#000" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">迭代</span>
-            </div>
-            <div class="float-card fc-6">
-                <svg viewBox="0 0 150 94"><path d="M30 47 Q75 10 120 47 Q75 84 30 47" fill="none"/><circle cx="75" cy="47" r="14" fill="#fff" stroke="none"/><circle cx="75" cy="47" r="6" fill="#000" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">内容</span>
-            </div>
-            <div class="float-card fc-7">
-                <svg viewBox="0 0 150 94"><polygon points="40,25 110,25 95,70 55,70" fill="none"/><circle cx="75" cy="38" r="10" fill="#EBB1BA" stroke="none"/><line x1="55" y1="70" x2="50" y2="85"/><line x1="95" y1="70" x2="100" y2="85"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">测试</span>
-            </div>
-            <div class="float-card fc-8">
-                <svg viewBox="0 0 150 94"><circle cx="45" cy="45" r="18" fill="none"/><rect x="80" y="30" width="28" height="28" rx="14" fill="none"/><path d="M63 45 L80 44" stroke="#000"/><circle cx="30" cy="20" r="4" fill="#74B776" stroke="none"/></svg>
-                <span class="card-label" style="position:relative;z-index:2;">心理</span>
-            </div>
+      <div class="overview-grid">
+        <div class="ov-row header-row">
+          <div class="ov-cell">环节</div>
+          <div class="ov-cell">🧠 人工负责</div>
+          <div class="ov-cell">🤖 Agent 负责</div>
+          <div class="ov-cell">为什么这么分工？</div>
         </div>
 
-        <div class="hero-center">
-            <div class="title-card">
-                <h1>Creator</h1>
-            </div>
-            <div class="hero-tagline">一个人做完了产品增长的全链路——<br>只不过产品是我自己。</div>
-            <a href="#story" class="hero-cta">往下看故事 ↓</a>
+        <div class="ov-row" data-target="sec-1">
+          <div class="ov-cell"><div class="cell-title">账号分析</div></div>
+          <div class="ov-cell">挖掘业务问题：为什么岗位帖跑不动？为什么有些帖火了其余跑不过？</div>
+          <div class="ov-cell">从历史内容中提取共性规律，验证人提出的假设</div>
+          <div class="ov-cell">AI 无法凭空发现「岗位帖为什么没人买单」这类业务直觉——但 AI 擅长从大量帖子中提取数据共性，所以人负责提出问题，AI 负责在数据中验证假设。</div>
         </div>
-    </div>
-</section>
 
-<!-- ══════════ STATS ══════════ -->
-<div class="stats-strip">
-    <div class="stat-item">
-        <div class="stat-num">0 → 2万</div>
-        <div class="stat-label">粉丝增长</div>
+        <div class="ov-row" data-target="sec-2">
+          <div class="ov-cell"><div class="cell-title">封面风格<br>制作</div></div>
+          <div class="ov-cell">定义思考问题和逻辑：这家公司调性是什么？在讲什么故事？加入后是什么画面？</div>
+          <div class="ov-cell">将抽象调性拆解为可搜索的视觉关键词</div>
+          <div class="ov-cell">AI 无法判断一家公司应该用什么画面去表达「故事感」和「共振」——这是人的审美直觉。但 AI 擅长将调性拆解为 Pinterest 可搜索的关键词，所以人定方向，AI 出执行方案。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-3">
+          <div class="ov-cell"><div class="cell-title">封面文案<br>制作</div></div>
+          <div class="ov-cell">洞察用户心理：这类用户的 dream job 是什么样子？什么人害怕投递？</div>
+          <div class="ov-cell">从钩子库中组合差异化标签（2个公司钩子 + 2个利益钩子）</div>
+          <div class="ov-cell">AI 无法洞察目标用户内心的 dream job 画面和投递恐惧——这需要对用户心理的深度共情。但 AI 擅长从钩子库中组合出最优标签方案，所以人负责用户洞察，AI 负责标签生成。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-4">
+          <div class="ov-cell"><div class="cell-title">正文标题</div></div>
+          <div class="ov-cell">判断公司知名度，分析爆款标题公式，找到共性并输入模板</div>
+          <div class="ov-cell">基于模板批量生成 5 个标题变体，按推荐度排序</div>
+          <div class="ov-cell">AI 无法判断一家公司在目标人群中的知名度——这需要对赛道的认知。但 AI 擅长基于模板批量生成标题变体，所以人负责选路径和定模板，AI 负责填充和优化。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-5">
+          <div class="ov-cell"><div class="cell-title">文案制作</div></div>
+          <div class="ov-cell">定义正文目的和思考方式：目的是「展示全面信息」还是「建立用户信任」？</div>
+          <div class="ov-cell">按模板扩写、润色、生成 AI 认为的最优版本</div>
+          <div class="ov-cell">AI 无法理解正文的终极目的是什么——信息全面 vs 用户信任，这决定写法方向。但 AI 擅长按模板扩写和润色，所以人负责定义目的和框架，AI 负责执行生产。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-6">
+          <div class="ov-cell"><div class="cell-title">私域转化</div></div>
+          <div class="ov-cell">判断用户顾虑和信任缺口：像骗子？引导不够清晰？用户看到后可能的顾虑是什么？</div>
+          <div class="ov-cell">基于顾虑点优化话术、生成回复模板、AB 测试</div>
+          <div class="ov-cell">AI 无法判断用户看到内容后的真实顾虑——「像骗子？」「引导太弱？」这需要一线体感。但 AI 擅长针对顾虑点批量生成话术变体，所以人诊断缺口，AI 生成解决方案。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-7">
+          <div class="ov-cell"><div class="cell-title">数据分析</div></div>
+          <div class="ov-cell">选择核心指标和判断优先级：优先提高私域转化？还是提高流量曝光？</div>
+          <div class="ov-cell">跨维度对比数据、识别异常波动、自动生成复盘报告</div>
+          <div class="ov-cell">AI 无法决定当前阶段应该优先提升哪个指标——这是战略判断。但 AI 擅长对比数据和识别异常，所以人定优先级，AI 跑数据出复盘。</div>
+        </div>
+
+        <div class="ov-row" data-target="sec-8">
+          <div class="ov-cell"><div class="cell-title">增长优化</div></div>
+          <div class="ov-cell">不断挖掘竞品和爆款，分析和拆解「谁突然跑起来了」</div>
+          <div class="ov-cell">执行结构化拆解，找到共性规律，不断 update 知识库</div>
+          <div class="ov-cell">AI 无法主动发现值得研究的竞品和爆款——它不知道「谁突然跑起来了」。但 AI 擅长结构化拆解并提炼共性，所以人负责持续发现目标，AI 负责分析和更新。</div>
+        </div>
+      </div>
+
+      <div class="sp-24"></div>
+      <div style="font-size:12px;opacity:0.4;text-align:center;letter-spacing:1px;">↑ 点击任意行查看该环节完整流程 ↑</div>
     </div>
-    <div class="stat-item">
-        <div class="stat-num">2 个月</div>
-        <div class="stat-label">冷启动周期</div>
+
+    <!-- ====== SEC 1: 账号分析 ====== -->
+    <div class="sec" id="sec-1">
+      <div class="sec-bar">
+        <h2>01 // Inception · 账号分析</h2>
+        <span class="code">NODE: 01.ANA</span>
+      </div>
+
+      <!-- Step 1: 人提出问题 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">01 // 问题发现</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>挖掘业务问题</h3>
+        <div class="desc">账号调性不只是文字风格——还包括品牌想成为什么、用户为什么信任你、哪些表达不能碰。先由人发现问题，再让 AI 验证。</div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- Problem 1 -->
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">问题一 // 人工发现</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>岗位帖为什么跑不动？</h3>
+          <div class="detail">
+            目前账号主推流仍然是【求职工具/模版】及【求职方法/渠道型】帖子，标签是 #领英 #简历模板 #职场干货。<br><br>
+            但当发【岗位推荐】帖给雇主做品牌宣传时，无人买单。<br><br>
+            <strong>人的直觉判断：</strong>平台对账号的强识别还是「求职工具 / LinkedIn / 简历面试」，而不是「岗位机会库 / 公司推荐 / 小众外企招聘」。
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">问题一 // AI 分析</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>分析这几类帖子的共性</h3>
+          <div class="detail">
+            <strong>输入：</strong>【求职工具/模版】及【求职方法/渠道型】历史帖子数据<br>
+            <strong>分析维度：</strong>标签分布、受众画像、互动模式<br>
+          </div>
+          <div class="conclusion">
+            <strong>AI 输出结论：</strong>发岗位帖时，很可能先被推给「想学方法、想看情绪共鸣」的人，而不是「正在找具体岗位的人」。这批人看到岗位帖，点击和互动弱，导致岗位帖过不了初始流量池。
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- Problem 2 -->
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">问题二 // 人工发现</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>为什么有些岗位帖🔥<br>但其余跑不过？</h3>
+          <div class="detail">
+            在岗位/公司发布的帖子中，也有几个火爆的岗位帖在跑。<br><br>
+            <strong>人的直觉判断：</strong>火的帖子和不火的帖子之间一定存在某种结构性差异，不只是运气。
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">问题二 // AI 分析</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>分析🔥帖子的共性</h3>
+          <div class="detail">
+            <strong>输入：</strong>火爆岗位帖 vs 普通岗位帖<br>
+            <strong>对比维度：</strong>标题结构、封面风格、切入角度<br>
+          </div>
+          <div class="conclusion">
+            <strong>AI 输出结论：</strong>火爆帖子都在回答「我这种人能不能投？」——<br>
+            · BuildHealth：英语不好、学历普通的人也能看<br>
+            · RealityHoliday：有生活想象 + 岗位明确 + remote 真实可投<br>
+            · 欧洲咨询公司：经验少的人也能进咨询公司<br><br>
+            而跑不动的帖子都在说「这家公司有什么福利？这家公司是不是不错？」——从「帮用户打消顾虑」变成了「展示公司福利/公司很牛」。
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- Human review -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">03 // 人工审核</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>审核分析逻辑，确认结论</h3>
+        <div class="detail">
+          核心洞察确认：用户原本以为自己不够格，但你告诉她「这类人也有机会」——这才是岗位帖的正确切入角度。<br><br>
+          <strong>行动决策：</strong><br>
+          · 不抛弃工具类和情绪类用户，而是把她们「养熟」成岗位用户<br>
+          · 不要强行改成纯岗位号，做成：求职方法带岗位、情绪痛点带岗位、公司推荐带路径<br>
+          · 内容比例调整：70% 岗位推荐 / 10% 工具方法 / 10% 情绪故事 / 10% 合集资源
+        </div>
+        <div class="conclusion">
+          <strong>最终输出：</strong>账号调性记忆文件，Agent 后续环节可调用 → 流转至环节二
+        </div>
+      </div>
     </div>
-    <div class="stat-item">
-        <div class="stat-num">1 个人</div>
-        <div class="stat-label">全链路操盘</div>
+
+    <!-- ====== SEC 2: 封面风格制作 ====== -->
+    <div class="sec" id="sec-2">
+      <div class="sec-bar">
+        <h2>02 // Visual · 封面风格制作</h2>
+        <span class="code">NODE: 02.CVR</span>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">01 // 前置思考</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>定义思考问题</h3>
+        <div class="desc">人在前期想好思考问题和逻辑，AI 无法替代这一步</div>
+        <div class="detail">
+          <strong>问题框架：</strong><br>
+          ① 这家公司调性是什么样子？<br>
+          ② 这家公司关键词是什么？<br>
+          ③ 这家公司在讲什么故事？<br>
+          ④ 这家公司加入后是什么样的画面？
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">02 // 思考逻辑</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>定义视觉逻辑</h3>
+        <div class="detail">
+          <strong>核心原则：</strong>画面能够代表内容在讲什么——用画面在讲故事，而不只是在传递信息；画面和内容完全共振。<br><br>
+          <strong>封面公式：</strong>一张有质感/有故事的图 + 几个大字点明主题 + 1-2个差异化标签击中痛点 + 清晰的品牌标识<br><br>
+          <strong>视觉规则：</strong><br>
+          · 深底色 + 高饱和亮字 + 真实场景图<br>
+          · 小红书大部分帖子偏暖偏白偏粉，深色/暗调背景天然是「异类」，会打断滚动节奏<br>
+          · 自然场景的绿色和蓝色也很能留住目光
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">03 // AI 输出</span>
+          <span class="badge badge-ai">🤖 Agent</span>
+        </div>
+        <h3>生成封面风格关键词</h3>
+        <div class="desc">Agent 根据公司信息 + 视觉逻辑，输出可执行的搜索关键词</div>
+        <div class="detail">
+          <strong>输入：</strong>公司名称<br>
+          <strong>输出维度：</strong><br>
+          ① 这家公司的调性关键词<br>
+          ② 这家公司在讲什么故事<br>
+          ③ 能够和这家公司共振的画面什么样子<br>
+          ④ 可以在 Pinterest 搜索图片的相关关键词
+        </div>
+        <div class="conclusion">
+          <strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面 → 流转至环节三
+        </div>
+      </div>
     </div>
-    <div class="stat-item">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">对用户的好奇</div>
+
+    <!-- ====== SEC 3: 封面文案制作 ====== -->
+    <div class="sec" id="sec-3">
+      <div class="sec-bar">
+        <h2>03 // Copy · 封面文案制作</h2>
+        <span class="code">NODE: 03.TAG</span>
+      </div>
+
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">01 // 思考问题</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>用户心理洞察</h3>
+          <div class="desc">人在前期想好思考问题和逻辑</div>
+          <div class="detail">
+            ① 这类用户的 dream job 到底是什么样子的？填写公司钩子，让人觉得加入这家公司是「我的 dream、是向往的」<br><br>
+            ② 要进行用户洞察和探测心理，推理出什么样的人害怕，填写打消这些人害怕的标签
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">02 // 思考逻辑</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>定义钩子体系</h3>
+          <div class="detail">
+            <strong>公司钩子（引发好奇心）：</strong><br>
+            <span class="tag">小众外企</span><span class="tag">宝藏外企</span><span class="tag">百年外企</span><span class="tag">独角兽</span><span class="tag">创始人/团队背景好</span><span class="tag">业务增长快</span><span class="tag">全球团队</span><span class="tag">Remote</span><span class="tag">全员远程</span><span class="tag">福利好</span><span class="tag">边旅行边工作</span><span class="tag">HC多</span>
+            <br><br>
+            <strong>利益钩子（打消顾虑）：</strong><br>
+            <span class="tag">门槛不高</span><span class="tag">普通人也能投</span><span class="tag">女性友好</span><span class="tag">初级友好</span><span class="tag">英语友好</span><span class="tag">适合转行</span><span class="tag">非技术岗</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="flow-center">
+        <div class="card" style="width:100%;max-width:600px;">
+          <div class="card-top">
+            <span class="card-phase">03 // AI 输出</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>生成封面差异化标签</h3>
+          <div class="detail">
+            <strong>输入：</strong>公司信息 + 钩子体系<br>
+            <strong>输出：</strong><br>
+            · 2 个最能引发人好奇心的差异化标签（公司钩子）<br>
+            · 2 个最能打消不敢投递顾虑的差异化标签（利益钩子）
+          </div>
+          <div class="conclusion">
+            <strong>产出：</strong>封面差异化标签方案 → 流转至环节四
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- ====== SEC 4: 正文标题 ====== -->
+    <div class="sec" id="sec-4">
+      <div class="sec-bar">
+        <h2>04 // Title · 正文标题</h2>
+        <span class="code">NODE: 04.TTL</span>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">01 // 前置判断</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>判断公司知名度</h3>
+        <div class="desc">人在前期想好思考问题和逻辑</div>
+        <div class="detail">
+          ① 需要判断这家公司是否有知名度<br>
+          ② 有知名度 → 直接按模版来<br>
+          ③ 没知名度 → 衡量哪种写法更击中人群<br><br>
+          <strong>核心规则：</strong>标题负责搜索+点击，达到搜索编辑效应最大化。必须按照模版，最好有人群钩子/公司钩子/利益钩子 + 行动暗示！
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">02 // 模板体系</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>定义标题模板</h3>
+        <div class="detail">
+          <strong>有知名度：</strong>【公司名】+【公司钩子】(开放X个岗位/有X个HC) +【可内推/可refer/国内可申】
+        </div>
+        <div class="example">
+          <em>例：</em>Canva + 开放6个远程岗<br>
+          <em>例：</em>Airbnb + 开放40+远程岗<br>
+          <em>例：</em>设计人的梦中情司Canva可画 + 有21个HC！
+        </div>
+        <div class="sp-16"></div>
+        <div class="detail">
+          <strong>没知名度 A：</strong>【人群钩子】+【可以试试这家】+【公司钩子】
+        </div>
+        <div class="example">
+          <em>例：</em>英语一般的 + 可以试试这家 + 小众外企👀<br>
+          <em>例：</em>英语一般的 + 可以试试这家 + 百年旅游外企🙋
+        </div>
+        <div class="sp-16"></div>
+        <div class="detail">
+          <strong>没知名度 B：</strong>【公司类型】+【正在捞人/招人中/正在远程岗】+【公司钩子/利益钩子】
+        </div>
+        <div class="example">
+          <em>例：</em>欧洲咨询公司 + 正在招人 + 初级友好<br>
+          <em>例：</em>北美AI外企 + 正在远程岗 + 非技术也有机会<br>
+          <em>例：</em>北美科技外企 + 招人中🙋 + 40+远程岗国内可申
+        </div>
+        <div class="sp-16"></div>
+        <div class="detail">
+          <strong>没知名度 C：</strong>【这家全员remote/远程的】+【公司钩子】+【公司钩子/利益钩子】
+        </div>
+        <div class="example">
+          <em>例：</em>这家全员remote的 + 小众外企 + 文科生大胆冲！<br>
+          <em>例：</em>这家全员远程的 + 宝藏外企 + 捞人啦2个HC
+        </div>
+        <div class="sp-16"></div>
+        <div class="detail">
+          <strong>没知名度 D：</strong>【人群钩子】+【公司类型】+ 大胆投 +【利益钩子】
+        </div>
+        <div class="example">
+          <em>例：</em>空窗期的姐妹 + 宠物外企 + 大胆投 + 女性友好
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">03 // AI 输出</span>
+          <span class="badge badge-ai">🤖 Agent</span>
+        </div>
+        <h3>生成正文标题</h3>
+        <div class="detail">
+          <strong>输入：</strong>公司信息 + 知名度判断 + 模板体系 + 钩子库<br>
+          <strong>输出：</strong>生成 5 个标题，按推荐程度降序排列<br><br>
+          <strong>行动暗示词库：</strong>
+          <span class="tag">可内推</span><span class="tag">国内可申</span><span class="tag">大胆投</span><span class="tag">大胆冲</span><span class="tag">招人中</span>
+        </div>
+        <div class="conclusion">
+          <strong>产出：</strong>5 个候选标题（已排序）→ 流转至环节五
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SEC 5: 文案制作 ====== -->
+    <div class="sec" id="sec-5">
+      <div class="sec-bar">
+        <h2>05 // Content · 文案制作</h2>
+        <span class="code">NODE: 05.CPY</span>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">01 // 目的定义</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>定义正文目的和思考逻辑</h3>
+        <div class="desc">人在前期想好思考问题和逻辑</div>
+        <div class="detail">
+          <strong>核心目的：</strong>让人有信任度，信息全面但也要留点钩子让人想要了解或者直接投递<br><br>
+          <strong>关键判断：</strong>正文不是信息罗列，而是「信任建设」——展示全面信息的同时，让用户觉得这个账号值得关注和私聊。
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">02 // 模板定义</span>
+          <span class="badge badge-human">🧠 人工</span>
+        </div>
+        <h3>输入正文模板</h3>
+        <div class="template-box">
+          <div class="t-label">TEMPLATE</div>
+          👩‍💻挑战发1000个小而美💼(x/1000)<br>
+          今天分享的是一家开源科技🏢——Supabase<br><br>
+          💻公司是干嘛的？<br>
+          🎁为什么推这家？<br>
+          🔍这次他们放了个40+remote roles，岗位方向蛮多的<br>
+          📩需要JD的可以dd我～
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-phase">03 // AI 输出</span>
+          <span class="badge badge-ai">🤖 Agent</span>
+        </div>
+        <h3>按模板生成最优正文</h3>
+        <div class="detail">
+          <strong>输入：</strong>公司信息 + 正文目的 + 模板结构<br>
+          <strong>执行：</strong>根据目的和思考方式对模板进行扩写、润色、生成 AI 认为的最优版本<br>
+          <strong>输出：</strong>成品正文（含 emoji + 分段 + 私域钩子）
+        </div>
+        <div class="conclusion">
+          <strong>产出：</strong>完整正文文案 → 流转至环节六
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SEC 6: 私域转化 ====== -->
+    <div class="sec" id="sec-6">
+      <div class="sec-bar">
+        <h2>06 // Conversion · 私域转化</h2>
+        <span class="code">NODE: 06.PVT</span>
+      </div>
+
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">01 // 诊断</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>判断用户顾虑<br>和信任缺口</h3>
+          <div class="detail">
+            <strong>诊断维度：</strong><br>
+            · 用户看到后可能的顾虑是什么？<br>
+            · 像骗子？引导不够清晰？<br>
+            · 信任缺口在哪一步？<br>
+            · 成交节奏是否合理？
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">02 // 执行</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>优化话术<br>生成回复</h3>
+          <div class="detail">
+            <strong>输入：</strong>顾虑诊断 + 信任缺口<br>
+            <strong>执行：</strong><br>
+            · 优化引导话术<br>
+            · 生成自动回复模板<br>
+            · AB 测试不同话术版本<br>
+            <strong>输出：</strong>话术方案 + 测试结果
+          </div>
+          <div class="conclusion">→ 流转至环节七</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SEC 7: 数据分析 ====== -->
+    <div class="sec" id="sec-7">
+      <div class="sec-bar">
+        <h2>07 // Analytics · 数据分析</h2>
+        <span class="code">NODE: 07.DAT</span>
+      </div>
+
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">01 // 定方向</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>选择核心指标<br>判断优先级</h3>
+          <div class="detail">
+            <strong>战略判断：</strong><br>
+            · 当前阶段优先提高什么？<br>
+            · 是提高私域转化率？<br>
+            · 还是提高流量曝光？<br>
+            · 有限资源先解决哪个问题？
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">02 // 跑数据</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>对比数据<br>识别异常</h3>
+          <div class="detail">
+            <strong>输入：</strong>核心指标 + 优先级<br>
+            <strong>执行：</strong><br>
+            · 跨维度对比数据<br>
+            · 识别异常波动<br>
+            · 自动生成复盘报告<br>
+            <strong>输出：</strong>数据复盘 + 优化建议
+          </div>
+          <div class="conclusion">→ 流转至环节八</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SEC 8: 增长优化 ====== -->
+    <div class="sec" id="sec-8">
+      <div class="sec-bar">
+        <h2>08 // Growth · 增长优化</h2>
+        <span class="code">NODE: 08.GRW</span>
+      </div>
+
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">01 // 持续发现</span>
+            <span class="badge badge-human">🧠 人工</span>
+          </div>
+          <h3>不断挖掘<br>竞品和爆款</h3>
+          <div class="detail">
+            <strong>持续动作：</strong><br>
+            · 发现「谁突然跑起来了」<br>
+            · 分析和拆解爆款结构<br>
+            · 监控赛道新玩法
+          </div>
+        </div>
+        <div class="conn-h"><span class="arr"></span></div>
+        <div class="card">
+          <div class="card-top">
+            <span class="card-phase">02 // 分析更新</span>
+            <span class="badge badge-ai">🤖 Agent</span>
+          </div>
+          <h3>执行分析<br>找到共性</h3>
+          <div class="detail">
+            <strong>输入：</strong>竞品/爆款样本<br>
+            <strong>执行：</strong><br>
+            · 结构化拆解<br>
+            · 提炼共性规律<br>
+            · 不断 update 知识库<br>
+            <strong>输出：</strong>更新后的规则库
+          </div>
+          <div class="conclusion">→ 闭环回到环节一：账号分析（持续正循环）</div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <div class="card" style="border-style:dashed;">
+        <div class="card-top">
+          <span class="card-phase">∞ // 增长飞轮</span>
+        </div>
+        <h3>闭环反馈至全链路</h3>
+        <div class="detail" style="text-align:center;">
+          增长优化 → 账号分析 → 封面风格 → 封面文案 → 正文标题 → 文案制作 → 私域转化 → 数据分析 → 增长优化 → ∞
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-item active" data-target="sec-0">
+      SYSTEM OVERVIEW
+      <span class="cn">链路拆解及路由</span>
+    </div>
+    <div class="nav-item" data-target="sec-1">
+      MODULE 01
+      <span class="cn">环节一：账号分析</span>
+    </div>
+    <div class="nav-item" data-target="sec-2">
+      MODULE 02
+      <span class="cn">环节二：封面风格制作</span>
+    </div>
+    <div class="nav-item" data-target="sec-3">
+      MODULE 03
+      <span class="cn">环节三：封面文案制作</span>
+    </div>
+    <div class="nav-item" data-target="sec-4">
+      MODULE 04
+      <span class="cn">环节四：正文标题</span>
+    </div>
+    <div class="nav-item" data-target="sec-5">
+      MODULE 05
+      <span class="cn">环节五：文案制作</span>
+    </div>
+    <div class="nav-item" data-target="sec-6">
+      MODULE 06
+      <span class="cn">环节六：私域转化</span>
+    </div>
+    <div class="nav-item" data-target="sec-7">
+      MODULE 07
+      <span class="cn">环节七：数据分析</span>
+    </div>
+    <div class="nav-item" data-target="sec-8">
+      MODULE 08
+      <span class="cn">环节八：增长优化</span>
+    </div>
+  </div>
 </div>
-
-<!-- ══════════ CONTENT ══════════ -->
-<div class="content-area" id="story">
-
-    <!-- 01 -->
-    <div class="block fade-up">
-        <div class="block-header">
-            <div class="block-num">01</div>
-            <div class="block-title-group">
-                <div class="block-label">Cold Start</div>
-                <div class="block-title">第一个月，涨了个位数</div>
-            </div>
-        </div>
-        <p>说出来不怕丢人——我刚开始做自媒体的时候，第一个月粉丝涨了个位数。不是因为不努力，恰恰相反，我做了<span class="hl">一大堆我自己觉得特别好的内容</span>。选题精心、文案反复打磨、排版漂漂亮亮。</p>
-        <p>然后发出去，安静得像往大海里扔了一颗石子。</p>
-        <div class="quote-card">
-            <p>后来我才明白：我一直在自说自话。我做的不是用户需要的内容，而是我想展示的内容。</p>
-        </div>
-        <p>这个感觉，做过产品的人应该很熟悉——<span class="hl">你觉得你的功能很棒，但用户根本不在意</span>。经典的"没有 PMF"状态。只不过在自媒体这个战场上，反馈来得更快、更残酷：数据不会给你面子。</p>
-    </div>
-
-    <!-- 02 -->
-    <div class="block fade-up">
-        <div class="block-header">
-            <div class="block-num">02</div>
-            <div class="block-title-group">
-                <div class="block-label">Listen → Iterate</div>
-                <div class="block-title">评论区教会我的事</div>
-            </div>
-        </div>
-        <p>转折发生在我开始<span class="hl">认真读评论和私信</span>的时候。不是扫一眼，是一条一条地看——看他们在抱怨什么、在期待什么、在什么样的措辞上停留得更久。</p>
-        <p>我发现用户关心的东西跟我预设的完全不一样。他们不在乎你的选题多新颖、观点多深刻。他们在意的是：<span class="hl">"这个东西，能不能让我在某个具体的困境里，感觉稍微好一点。"</span></p>
-        <div class="quote-card alt-gold">
-            <p>用户不是被你"吸引"来的，而是被你"对上了"。你说出了他们心里有、但没说出口的话——转化就在那一刻发生。</p>
-        </div>
-        <p>于是我把整个内容策略推翻重来：不再从"我想说什么"出发，而是从"他们正在经历什么"出发。标题怎么写、结构怎么排、情绪在哪里释放——每一个决定都变成了一次可以用数据验证的假设。</p>
-        <p>两个月之内，从零到两万。不是因为运气好，是因为<span class="hl">终于学会了听</span>。</p>
-    </div>
-
-    <!-- Cross Banner -->
-    <div class="cross-banner">
-        <h3>做自媒体 = 一个人跑通增长全链路</h3>
-        <p>用户调研、内容策略、A/B 测试、数据复盘、迭代优化——<br>只不过预算是零，团队是我自己。</p>
-    </div>
-
-    <!-- 03 -->
-    <div class="block fade-up">
-        <div class="block-header">
-            <div class="block-num">03</div>
-            <div class="block-title-group">
-                <div class="block-label">Career Impact</div>
-                <div class="block-title">这段经历，改变了我做分析的方式</div>
-            </div>
-        </div>
-        <p>很多分析师是从数据出发去理解用户。我多了一条路径——<span class="hl">我自己就当过那个"被增长"的对象，也当过那个想尽办法让别人留下来的人</span>。</p>
-        <p>这意味着当我看到一条转化率曲线下降的时候，我不只是想"哪个漏斗环节出了问题"，我会想："用户在那个环节的体验是什么？他心里在想什么？是什么让他决定离开的？"</p>
-        <div class="quote-card alt-blush">
-            <p>数据告诉你 what happened，但理解人才能告诉你 why——以及接下来该怎么办。</p>
-        </div>
-        <p>而且因为我自己也是各类 AI 工具和内容产品的深度用户，我对"用户体验"的判断不是抽象的——<span class="hl">是带着手感的</span>。我知道一个功能好不好用，不是因为我做了用户访谈，而是因为我昨天刚被它卡住过。</p>
-    </div>
-
-    <!-- 04 -->
-    <div class="block fade-up">
-        <div class="block-header">
-            <div class="block-num">04</div>
-            <div class="block-title-group">
-                <div class="block-label">Growth Framework</div>
-                <div class="block-title">我从中提炼的增长方法论</div>
-            </div>
-        </div>
-        <p>把做自媒体学到的东西抽象一层，其实就是一套<span class="hl">以用户为中心的增长循环</span>：</p>
-        <div class="method-grid">
-            <div class="method-card">
-                <div class="mc-step">01</div>
-                <div class="mc-title">找到真实处境</div>
-                <div class="mc-desc">不是"用户画像"，是一个活生生的人，在一个具体的处境里，有一个没被满足的需求。</div>
-            </div>
-            <div class="method-card">
-                <div class="mc-step">02</div>
-                <div class="mc-title">找到切入角度</div>
-                <div class="mc-desc">同一个需求可以有十种回应方式。好的切口，是用户看到的第一秒就觉得"这说的是我"。</div>
-            </div>
-            <div class="method-card">
-                <div class="mc-step">03</div>
-                <div class="mc-title">快速验证迭代</div>
-                <div class="mc-desc">发出去、看数据、听反馈、调整。不要在脑子里完善，要在真实世界里碰壁。</div>
-            </div>
-        </div>
-        <p>这套逻辑放在内容创作里叫"做选题"，放在产品增长里叫"跑实验"。<span class="hl">底层是同一件事：不要被自己的假设带跑，去找到真正驱动人做决策的那个东西。</span></p>
-    </div>
-
-</div>
-
-<!-- ══════════ FOOTER ══════════ -->
-<footer class="page-footer">
-    <span class="footer-label">OTHER VIEWS</span>
-    <div class="footer-links">
-        <a href="analyst.html" class="footer-link">ANALYST</a>
-        <a href="gamer.html" class="footer-link">GAMER</a>
-        <a href="index.html" class="footer-link">HOME</a>
-    </div>
-</footer>
 
 <script>
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-</script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = document.querySelectorAll('.sec');
+  const mainContent = document.getElementById('mainContent');
+  const ovRows = document.querySelectorAll('.ov-row[data-target]');
 
+  function showSection(targetId) {
+    navItems.forEach(n => n.classList.remove('active'));
+    const navMatch = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+    if (navMatch) navMatch.classList.add('active');
+    sections.forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.classList.add('active');
+      target.style.animation = 'none';
+      target.offsetHeight;
+      target.style.animation = '';
+    }
+    mainContent.scrollTop = 0;
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => showSection(item.dataset.target));
+  });
+
+  ovRows.forEach(row => {
+    row.addEventListener('click', () => showSection(row.dataset.target));
+  });
+</script>
 </body>
 </html>
