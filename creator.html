@@ -6,122 +6,86 @@
 <title>Workflow Architecture — System Logic</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--red:#FF0000;--r08:rgba(255,0,0,.06);--r15:rgba(255,0,0,.12);--r25:rgba(255,0,0,.22);--black:#111;--white:#FAFAFA;--fen:'Space Grotesk',sans-serif;--fcn:'Noto Sans SC',sans-serif;--fser:'Noto Serif SC',serif;}
+  body{font-family:var(--fcn);background:var(--white);color:var(--red);overflow:hidden;height:100vh;}
+  .layout{display:grid;grid-template-columns:1fr 220px;grid-template-rows:auto 1fr;height:100vh;}
+  .topbar{grid-column:1/-1;padding:12px 28px;border-bottom:2px solid var(--red);display:flex;justify-content:space-between;align-items:center;}
+  .topbar-brand{font-family:var(--fser);font-size:12px;letter-spacing:.5px;}.topbar-brand span{font-weight:700;}
+  .topbar-status{font-family:var(--fen);font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:.4;}
+  .main{overflow-y:auto;padding:36px 44px 80px;scrollbar-width:thin;scrollbar-color:var(--red) transparent;}
+  .main::-webkit-scrollbar{width:3px;}.main::-webkit-scrollbar-thumb{background:var(--red);}
+  .header{margin-bottom:32px;}
+  .header h1{font-family:var(--fen);font-size:clamp(28px,4vw,50px);font-weight:700;line-height:.95;letter-spacing:-2px;text-transform:uppercase;margin-bottom:10px;}
+  .header .subtitle{font-family:var(--fcn);font-weight:300;font-size:clamp(13px,1.6vw,17px);letter-spacing:2px;opacity:.55;font-style:italic;}
+  .sidebar{border-left:2px solid var(--red);display:flex;flex-direction:column;overflow-y:auto;}
+  .nav-item{padding:12px 16px;border-bottom:1px solid rgba(255,0,0,.12);font-family:var(--fen);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;color:var(--red);}
+  .nav-item .cn{display:block;font-family:var(--fcn);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:none;margin-top:2px;}
+  .nav-item:hover{background:var(--r08);padding-left:22px;}
+  .nav-item.active{background:var(--red);color:var(--white);}
+  .sec{display:none;animation:fadeUp .3s ease;}.sec.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .sec-bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:32px;padding-bottom:8px;border-bottom:2px solid var(--red);}
+  .sec-bar h2{font-family:var(--fen);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;}
+  .sec-bar .code{font-family:var(--fen);font-size:9px;letter-spacing:2px;opacity:.35;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* CARD */
+  .card{border:1px solid var(--red);padding:22px 24px;background:var(--white);transition:background .15s;}
+  .card:hover{background:var(--r08);}
+  .card-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .card-phase{font-family:var(--fen);font-size:8px;letter-spacing:2px;text-transform:uppercase;opacity:.4;}
+  .card h3{font-family:var(--fcn);font-size:18px;font-weight:900;line-height:1.25;margin-bottom:6px;}
+  .card .desc{font-family:var(--fser);font-size:11px;font-style:italic;opacity:.55;line-height:1.5;}
+  .card .detail{margin-top:10px;font-size:11.5px;line-height:1.8;font-weight:300;opacity:.8;}
+  .card .detail strong{font-weight:700;}
+  .card .tag{display:inline-block;background:var(--r08);border:1px solid var(--r25);padding:1px 7px;border-radius:2px;font-size:10px;margin:2px 2px 2px 0;font-weight:500;}
+  .card .example{margin-top:8px;padding:10px 14px;background:var(--r08);border-left:3px solid var(--red);font-size:11px;line-height:1.7;}
+  .card .example em{font-style:normal;opacity:.5;}
+  .conclusion{border-left:4px solid var(--red);background:var(--r08);padding:14px 18px;margin-top:14px;font-size:12px;line-height:1.7;font-weight:500;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:1px;}
+  .badge-human{background:var(--red);color:var(--white);}
+  .badge-ai{border:1px solid var(--red);color:var(--red);}
+  .template-box{border:1px dashed var(--red);padding:14px 18px;margin-top:10px;background:rgba(255,0,0,.02);font-size:11px;line-height:1.8;}
+  .template-box .t-label{font-family:var(--fen);font-size:8px;letter-spacing:2px;opacity:.35;margin-bottom:4px;text-transform:uppercase;}
+  .flow-row{display:flex;gap:0;}.flow-row .card{flex:1;}
+  .conn-h{width:50px;min-width:50px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .conn-h::after{content:'';width:100%;height:1px;background:var(--red);position:absolute;}
+  .conn-h .arr{position:absolute;right:-1px;width:0;height:0;border-left:6px solid var(--red);border-top:3px solid transparent;border-bottom:3px solid transparent;}
+  .conn-v{height:36px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .conn-v::after{content:'';height:100%;width:1px;background:var(--red);position:absolute;}
+  .conn-v .arr{position:absolute;bottom:-1px;width:0;height:0;border-top:6px solid var(--red);border-left:3px solid transparent;border-right:3px solid transparent;}
+  .flow-center{display:flex;justify-content:center;}
 
-  :root {
-    --red: #FF0000;
-    --red-08: rgba(255,0,0,0.08);
-    --red-15: rgba(255,0,0,0.15);
-    --red-25: rgba(255,0,0,0.25);
-    --black: #111;
-    --white: #FAFAFA;
-    --font-en: 'Space Grotesk', sans-serif;
-    --font-cn: 'Noto Sans SC', sans-serif;
-    --font-serif: 'Noto Serif SC', serif;
-  }
+  /* IMAGE GALLERY */
+  .img-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .img-row.single{grid-template-columns:1fr;}
+  .img-row img{width:100%;border:1px solid rgba(255,0,0,.15);display:block;}
+  .img-caption{font-size:9px;font-family:var(--fen);letter-spacing:1.5px;text-transform:uppercase;opacity:.35;margin-top:4px;text-align:center;}
 
-  body { font-family: var(--font-cn); background: var(--white); color: var(--red); overflow: hidden; height: 100vh; }
+  /* ========== OVERVIEW REDESIGN ========== */
+  .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .ov-card{border:1px solid var(--red);padding:0;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+  .ov-card:hover{background:var(--r08);transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,0,0,.08);}
+  .ov-card-inner{padding:24px 24px 20px;}
+  .ov-num{font-family:var(--fen);font-size:64px;font-weight:700;line-height:1;opacity:.07;position:absolute;top:8px;right:16px;pointer-events:none;}
+  .ov-label{font-family:var(--fen);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;opacity:.35;margin-bottom:6px;}
+  .ov-title{font-family:var(--fcn);font-size:20px;font-weight:900;line-height:1.2;margin-bottom:12px;}
+  .ov-split{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,0,0,.15);}
+  .ov-half{padding:14px 16px;font-size:10.5px;line-height:1.6;}
+  .ov-half:first-child{border-right:1px solid rgba(255,0,0,.1);}
+  .ov-half-label{font-family:var(--fen);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;opacity:.4;margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+  .ov-reason{border-top:1px solid rgba(255,0,0,.1);padding:12px 16px;font-size:10px;line-height:1.6;opacity:.6;font-style:italic;font-family:var(--fser);}
+  .ov-arrow{position:absolute;bottom:12px;right:16px;font-family:var(--fen);font-size:10px;opacity:.25;letter-spacing:1px;}
 
-  .layout { display: grid; grid-template-columns: 1fr 240px; grid-template-rows: auto 1fr; height: 100vh; }
-
-  /* TOPBAR */
-  .topbar { grid-column: 1/-1; padding: 14px 32px; border-bottom: 2px solid var(--red); display: flex; justify-content: space-between; align-items: center; }
-  .topbar-brand { font-family: var(--font-serif); font-size: 13px; letter-spacing: 0.5px; }
-  .topbar-brand span { font-weight: 700; }
-  .topbar-status { font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; }
-
-  /* MAIN */
-  .main { overflow-y: auto; padding: 40px 48px 80px; scrollbar-width: thin; scrollbar-color: var(--red) transparent; }
-  .main::-webkit-scrollbar { width: 3px; }
-  .main::-webkit-scrollbar-thumb { background: var(--red); }
-
-  /* HEADER */
-  .header { margin-bottom: 40px; }
-  .header h1 { font-family: var(--font-en); font-size: clamp(32px, 4.5vw, 56px); font-weight: 700; line-height: 0.95; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 12px; }
-  .header .subtitle { font-family: var(--font-cn); font-weight: 300; font-size: clamp(14px, 1.8vw, 19px); letter-spacing: 2px; opacity: 0.6; font-style: italic; }
-
-  /* SIDEBAR */
-  .sidebar { border-left: 2px solid var(--red); display: flex; flex-direction: column; overflow-y: auto; }
-  .nav-item { padding: 14px 20px; border-bottom: 1px solid rgba(255,0,0,0.15); font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; color: var(--red); }
-  .nav-item .cn { display: block; font-family: var(--font-cn); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: none; margin-top: 3px; }
-  .nav-item:hover { background: var(--red-08); padding-left: 26px; }
-  .nav-item.active { background: var(--red); color: var(--white); }
-
-  /* SECTIONS */
-  .sec { display: none; animation: fadeUp 0.35s ease; }
-  .sec.active { display: block; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
-  .sec-bar { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 36px; padding-bottom: 10px; border-bottom: 2px solid var(--red); }
-  .sec-bar h2 { font-family: var(--font-en); font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 400; }
-  .sec-bar .code { font-family: var(--font-en); font-size: 10px; letter-spacing: 2px; opacity: 0.4; }
-
-  /* CARDS */
-  .card { border: 1px solid var(--red); padding: 24px 28px; position: relative; background: var(--white); transition: background 0.15s; }
-  .card:hover { background: var(--red-08); }
-  .card-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
-  .card-phase { font-family: var(--font-en); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.45; }
-  .card h3 { font-family: var(--font-cn); font-size: 20px; font-weight: 900; line-height: 1.25; margin-bottom: 8px; }
-  .card .desc { font-family: var(--font-serif); font-size: 12px; font-style: italic; opacity: 0.6; line-height: 1.5; }
-  .card .detail { margin-top: 12px; font-size: 12px; line-height: 1.8; font-weight: 300; opacity: 0.8; }
-  .card .detail strong { font-weight: 700; }
-  .card .detail .tag { display: inline-block; background: var(--red-08); border: 1px solid var(--red-25); padding: 2px 8px; border-radius: 2px; font-size: 11px; margin: 2px 3px 2px 0; font-weight: 500; }
-  .card .example { margin-top: 8px; padding: 10px 14px; background: var(--red-08); border-left: 3px solid var(--red); font-size: 12px; line-height: 1.7; }
-  .card .example em { font-style: normal; opacity: 0.6; }
-
-  /* FLOW CONNECTORS */
-  .flow-row { display: flex; gap: 0; }
-  .flow-row .card { flex: 1; }
-  .conn-h { width: 60px; min-width: 60px; display: flex; align-items: center; justify-content: center; position: relative; }
-  .conn-h::after { content:''; width: 100%; height: 1px; background: var(--red); position: absolute; }
-  .conn-h .arr { position: absolute; right: -1px; width: 0; height: 0; border-left: 7px solid var(--red); border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
-  .conn-v { height: 40px; display: flex; align-items: center; justify-content: center; position: relative; }
-  .conn-v::after { content:''; height: 100%; width: 1px; background: var(--red); position: absolute; }
-  .conn-v .arr { position: absolute; bottom: -1px; width: 0; height: 0; border-top: 7px solid var(--red); border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; }
-
-  .flow-center { display: flex; justify-content: center; }
-
-  /* OVERVIEW TABLE */
-  .overview-grid { display: grid; gap: 0; }
-  .ov-row { display: grid; grid-template-columns: 120px 1fr 1fr 1.3fr; border-bottom: 1px solid var(--red); }
-  .ov-row.header-row { background: var(--red); color: var(--white); font-weight: 700; font-size: 13px; }
-  .ov-row.header-row .ov-cell { padding: 14px 16px; border-right: 1px solid rgba(255,255,255,0.2); }
-  .ov-cell { padding: 16px; border-right: 1px solid rgba(255,0,0,0.15); font-size: 12.5px; line-height: 1.7; }
-  .ov-cell:last-child { border-right: none; }
-  .ov-cell .cell-title { font-weight: 900; font-size: 14px; margin-bottom: 2px; }
-  .ov-row:hover:not(.header-row) { background: var(--red-08); }
-  .ov-row:not(.header-row) { cursor: pointer; transition: background 0.15s; }
-
-  /* ROLE BADGES */
-  .badge { display: inline-block; padding: 2px 10px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
-  .badge-human { background: var(--red); color: var(--white); }
-  .badge-ai { background: transparent; border: 1px solid var(--red); color: var(--red); }
-
-  /* TEMPLATE BOX */
-  .template-box { border: 1px dashed var(--red); padding: 16px 20px; margin-top: 12px; background: rgba(255,0,0,0.03); font-size: 12px; line-height: 1.8; }
-  .template-box .t-label { font-family: var(--font-en); font-size: 9px; letter-spacing: 2px; opacity: 0.4; margin-bottom: 6px; text-transform: uppercase; }
-
-  /* CONCLUSION BOX */
-  .conclusion { border-left: 4px solid var(--red); background: var(--red-08); padding: 16px 20px; margin-top: 16px; font-size: 13px; line-height: 1.7; font-weight: 500; }
-
-  /* SPACER */
-  .sp-16 { height: 16px; }
-  .sp-24 { height: 24px; }
-
-  @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
-    .sidebar { flex-direction: row; overflow-x: auto; border-left: none; border-top: 2px solid var(--red); }
-    .nav-item { white-space: nowrap; padding: 10px 14px; border-bottom: none; border-right: 1px solid rgba(255,0,0,0.15); }
-    .nav-item .cn { display: none; }
-    .main { padding: 24px 20px 60px; }
-    .flow-row { flex-direction: column; }
-    .conn-h { width: auto; min-width: 0; height: 36px; }
-    .conn-h::after { width: 1px; height: 100%; }
-    .conn-h .arr { right: auto; bottom: -1px; top: auto; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 7px solid var(--red); border-bottom: none; }
-    .ov-row { grid-template-columns: 1fr; }
-    .ov-row.header-row { display: none; }
-    .ov-cell { border-right: none; border-bottom: 1px solid rgba(255,0,0,0.1); padding: 10px 16px; }
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}
+    .sidebar{flex-direction:row;overflow-x:auto;border-left:none;border-top:2px solid var(--red);}
+    .nav-item{white-space:nowrap;padding:8px 12px;border-bottom:none;border-right:1px solid rgba(255,0,0,.12);}.nav-item .cn{display:none;}
+    .main{padding:20px 16px 60px;}
+    .flow-row{flex-direction:column;}
+    .conn-h{width:auto;min-width:0;height:30px;}.conn-h::after{width:1px;height:100%;}.conn-h .arr{right:auto;bottom:-1px;top:auto;border-left:3px solid transparent;border-right:3px solid transparent;border-top:6px solid var(--red);border-bottom:none;}
+    .ov-grid{grid-template-columns:1fr;}
+    .img-row{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -138,80 +102,175 @@
       <div class="subtitle">如何搭建小红书内容运营 Agent — 全链路方法论</div>
     </div>
 
-    <!-- ====== SEC 0: 链路拆解及路由 ====== -->
+    <!-- ====== SEC 0: OVERVIEW ====== -->
     <div class="sec active" id="sec-0">
       <div class="sec-bar">
         <h2>00 // Overview · 链路拆解及路由</h2>
         <span class="code">FULL PIPELINE</span>
       </div>
 
-      <div class="overview-grid">
-        <div class="ov-row header-row">
-          <div class="ov-cell">环节</div>
-          <div class="ov-cell">🧠 人工负责</div>
-          <div class="ov-cell">🤖 Agent 负责</div>
-          <div class="ov-cell">为什么这么分工？</div>
+      <div class="ov-grid">
+        <!-- 01 -->
+        <div class="ov-card" data-target="sec-1">
+          <span class="ov-num">01</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 01 · INCEPTION</div>
+            <div class="ov-title">账号分析</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              挖掘业务问题：为什么岗位帖跑不动？为什么有些帖火了其余跑不过？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              从历史内容中提取共性规律，验证人提出的假设
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法凭空发现「岗位帖为什么没人买单」这类业务直觉——但擅长从大量帖子中提取数据共性。人提问题，AI 验假设。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-1">
-          <div class="ov-cell"><div class="cell-title">账号分析</div></div>
-          <div class="ov-cell">挖掘业务问题：为什么岗位帖跑不动？为什么有些帖火了其余跑不过？</div>
-          <div class="ov-cell">从历史内容中提取共性规律，验证人提出的假设</div>
-          <div class="ov-cell">AI 无法凭空发现「岗位帖为什么没人买单」这类业务直觉——但 AI 擅长从大量帖子中提取数据共性，所以人负责提出问题，AI 负责在数据中验证假设。</div>
+        <!-- 02 -->
+        <div class="ov-card" data-target="sec-2">
+          <span class="ov-num">02</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 02 · VISUAL</div>
+            <div class="ov-title">封面风格制作</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              定义思考问题：公司调性？在讲什么故事？加入后是什么画面？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              将抽象调性拆解为 Pinterest 可搜索的视觉关键词
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法判断用什么画面表达「故事感」和「共振」——但擅长将调性拆解为可搜索关键词。人定方向，AI 出方案。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-2">
-          <div class="ov-cell"><div class="cell-title">封面风格<br>制作</div></div>
-          <div class="ov-cell">定义思考问题和逻辑：这家公司调性是什么？在讲什么故事？加入后是什么画面？</div>
-          <div class="ov-cell">将抽象调性拆解为可搜索的视觉关键词</div>
-          <div class="ov-cell">AI 无法判断一家公司应该用什么画面去表达「故事感」和「共振」——这是人的审美直觉。但 AI 擅长将调性拆解为 Pinterest 可搜索的关键词，所以人定方向，AI 出执行方案。</div>
+        <!-- 03 -->
+        <div class="ov-card" data-target="sec-3">
+          <span class="ov-num">03</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 03 · COPY</div>
+            <div class="ov-title">封面文案制作</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              洞察用户心理：dream job 是什么样？什么人害怕投递？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              从钩子库组合差异化标签（2个公司钩子 + 2个利益钩子）
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法洞察用户内心的 dream job 画面和投递恐惧——但擅长从钩子库组合最优标签。人做洞察，AI 做标签。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-3">
-          <div class="ov-cell"><div class="cell-title">封面文案<br>制作</div></div>
-          <div class="ov-cell">洞察用户心理：这类用户的 dream job 是什么样子？什么人害怕投递？</div>
-          <div class="ov-cell">从钩子库中组合差异化标签（2个公司钩子 + 2个利益钩子）</div>
-          <div class="ov-cell">AI 无法洞察目标用户内心的 dream job 画面和投递恐惧——这需要对用户心理的深度共情。但 AI 擅长从钩子库中组合出最优标签方案，所以人负责用户洞察，AI 负责标签生成。</div>
+        <!-- 04 -->
+        <div class="ov-card" data-target="sec-4">
+          <span class="ov-num">04</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 04 · TITLE</div>
+            <div class="ov-title">正文标题</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              判断公司知名度，分析爆款标题公式，找到共性并输入模板
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              基于模板批量生成 5 个标题变体，按推荐度排序
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法判断公司在目标人群中的知名度——但擅长基于模板批量生成变体。人选路径定模板，AI 填充优化。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-4">
-          <div class="ov-cell"><div class="cell-title">正文标题</div></div>
-          <div class="ov-cell">判断公司知名度，分析爆款标题公式，找到共性并输入模板</div>
-          <div class="ov-cell">基于模板批量生成 5 个标题变体，按推荐度排序</div>
-          <div class="ov-cell">AI 无法判断一家公司在目标人群中的知名度——这需要对赛道的认知。但 AI 擅长基于模板批量生成标题变体，所以人负责选路径和定模板，AI 负责填充和优化。</div>
+        <!-- 05 -->
+        <div class="ov-card" data-target="sec-5">
+          <span class="ov-num">05</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 05 · CONTENT</div>
+            <div class="ov-title">文案制作</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              定义正文目的：「展示全面信息」还是「建立用户信任」？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              按模板扩写、润色、生成 AI 认为的最优版本
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法理解正文的终极目的是什么——信息全面 vs 用户信任决定写法。人定目的和框架，AI 执行生产。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-5">
-          <div class="ov-cell"><div class="cell-title">文案制作</div></div>
-          <div class="ov-cell">定义正文目的和思考方式：目的是「展示全面信息」还是「建立用户信任」？</div>
-          <div class="ov-cell">按模板扩写、润色、生成 AI 认为的最优版本</div>
-          <div class="ov-cell">AI 无法理解正文的终极目的是什么——信息全面 vs 用户信任，这决定写法方向。但 AI 擅长按模板扩写和润色，所以人负责定义目的和框架，AI 负责执行生产。</div>
+        <!-- 06 -->
+        <div class="ov-card" data-target="sec-6">
+          <span class="ov-num">06</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 06 · CONVERSION</div>
+            <div class="ov-title">私域转化</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              判断用户顾虑和信任缺口：像骗子？引导不够清晰？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              基于顾虑点优化话术、生成回复、AB 测试
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法判断用户真实顾虑——「像骗子？」需要一线体感。但擅长针对顾虑批量生成话术变体。人诊断，AI 生成。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-6">
-          <div class="ov-cell"><div class="cell-title">私域转化</div></div>
-          <div class="ov-cell">判断用户顾虑和信任缺口：像骗子？引导不够清晰？用户看到后可能的顾虑是什么？</div>
-          <div class="ov-cell">基于顾虑点优化话术、生成回复模板、AB 测试</div>
-          <div class="ov-cell">AI 无法判断用户看到内容后的真实顾虑——「像骗子？」「引导太弱？」这需要一线体感。但 AI 擅长针对顾虑点批量生成话术变体，所以人诊断缺口，AI 生成解决方案。</div>
+        <!-- 07 -->
+        <div class="ov-card" data-target="sec-7">
+          <span class="ov-num">07</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 07 · ANALYTICS</div>
+            <div class="ov-title">数据分析</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              选择核心指标和优先级：优先私域转化还是流量曝光？
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              跨维度对比数据、识别异常、生成复盘报告
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法决定当前阶段应优先提升哪个指标——这是战略判断。但擅长对比数据识别异常。人定优先级，AI 跑数据。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
-
-        <div class="ov-row" data-target="sec-7">
-          <div class="ov-cell"><div class="cell-title">数据分析</div></div>
-          <div class="ov-cell">选择核心指标和判断优先级：优先提高私域转化？还是提高流量曝光？</div>
-          <div class="ov-cell">跨维度对比数据、识别异常波动、自动生成复盘报告</div>
-          <div class="ov-cell">AI 无法决定当前阶段应该优先提升哪个指标——这是战略判断。但 AI 擅长对比数据和识别异常，所以人定优先级，AI 跑数据出复盘。</div>
-        </div>
-
-        <div class="ov-row" data-target="sec-8">
-          <div class="ov-cell"><div class="cell-title">增长优化</div></div>
-          <div class="ov-cell">不断挖掘竞品和爆款，分析和拆解「谁突然跑起来了」</div>
-          <div class="ov-cell">执行结构化拆解，找到共性规律，不断 update 知识库</div>
-          <div class="ov-cell">AI 无法主动发现值得研究的竞品和爆款——它不知道「谁突然跑起来了」。但 AI 擅长结构化拆解并提炼共性，所以人负责持续发现目标，AI 负责分析和更新。</div>
+        <!-- 08 -->
+        <div class="ov-card" data-target="sec-8">
+          <span class="ov-num">08</span>
+          <div class="ov-card-inner">
+            <div class="ov-label">MODULE 08 · GROWTH</div>
+            <div class="ov-title">增长优化</div>
+          </div>
+          <div class="ov-split">
+            <div class="ov-half">
+              <div class="ov-half-label">🧠 人工</div>
+              不断挖掘竞品和爆款：「谁突然跑起来了」
+            </div>
+            <div class="ov-half">
+              <div class="ov-half-label">🤖 Agent</div>
+              执行结构化拆解，找到共性，不断 update 知识库
+            </div>
+          </div>
+          <div class="ov-reason">AI 无法主动发现值得研究的竞品和爆款——但擅长结构化拆解提炼共性。人持续发现目标，AI 分析更新。</div>
+          <span class="ov-arrow">EXPLORE →</span>
         </div>
       </div>
-
-      <div class="sp-24"></div>
-      <div style="font-size:12px;opacity:0.4;text-align:center;letter-spacing:1px;">↑ 点击任意行查看该环节完整流程 ↑</div>
     </div>
 
     <!-- ====== SEC 1: 账号分析 ====== -->
@@ -221,42 +280,45 @@
         <span class="code">NODE: 01.ANA</span>
       </div>
 
-      <!-- Step 1: 人提出问题 -->
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">01 // 问题发现</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">01 // 问题发现</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>挖掘业务问题</h3>
         <div class="desc">账号调性不只是文字风格——还包括品牌想成为什么、用户为什么信任你、哪些表达不能碰。先由人发现问题，再让 AI 验证。</div>
       </div>
 
       <div class="conn-v"><span class="arr"></span></div>
 
-      <!-- Problem 1 -->
+      <!-- PROBLEM 1 -->
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">问题一 // 人工发现</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">问题一 // 人工发现</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>岗位帖为什么跑不动？</h3>
           <div class="detail">
             目前账号主推流仍然是【求职工具/模版】及【求职方法/渠道型】帖子，标签是 #领英 #简历模板 #职场干货。<br><br>
             但当发【岗位推荐】帖给雇主做品牌宣传时，无人买单。<br><br>
             <strong>人的直觉判断：</strong>平台对账号的强识别还是「求职工具 / LinkedIn / 简历面试」，而不是「岗位机会库 / 公司推荐 / 小众外企招聘」。
           </div>
-        </div>
-        <div class="conn-h"><span class="arr"></span></div>
-        <div class="card">
-          <div class="card-top">
-            <span class="card-phase">问题一 // AI 分析</span>
-            <span class="badge badge-ai">🤖 Agent</span>
+
+          <!-- P2: 新增观看最多 -->
+          <div class="img-row single" style="margin-top:16px;">
+            <div><img src="img/p2-top-posts.png" alt="新增观看最多数据"><div class="img-caption">新增观看最多 · 统计周期 05-13 至 05-19</div></div>
           </div>
+
+          <!-- P3 & P4: 笔记诊断 -->
+          <div class="img-row" style="margin-top:8px;">
+            <div><img src="img/p3-linkedin-diag.png" alt="LinkedIn帖笔记诊断"><div class="img-caption">LinkedIn 养号帖 · 标签=#领英 #领英注册 #领英养号</div></div>
+            <div><img src="img/p4-resume-diag.png" alt="英文简历帖笔记诊断"><div class="img-caption">英文简历帖 · 标签=#简历模板 #英文简历 #求职</div></div>
+          </div>
+        </div>
+
+        <div class="conn-h"><span class="arr"></span></div>
+
+        <div class="card">
+          <div class="card-top"><span class="card-phase">问题一 // AI 分析</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>分析这几类帖子的共性</h3>
           <div class="detail">
             <strong>输入：</strong>【求职工具/模版】及【求职方法/渠道型】历史帖子数据<br>
-            <strong>分析维度：</strong>标签分布、受众画像、互动模式<br>
+            <strong>分析维度：</strong>标签分布、受众画像、互动模式
           </div>
           <div class="conclusion">
             <strong>AI 输出结论：</strong>发岗位帖时，很可能先被推给「想学方法、想看情绪共鸣」的人，而不是「正在找具体岗位的人」。这批人看到岗位帖，点击和互动弱，导致岗位帖过不了初始流量池。
@@ -266,51 +328,63 @@
 
       <div class="conn-v"><span class="arr"></span></div>
 
-      <!-- Problem 2 -->
+      <!-- PROBLEM 2 -->
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">问题二 // 人工发现</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">问题二 // 人工发现</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>为什么有些岗位帖🔥<br>但其余跑不过？</h3>
           <div class="detail">
             在岗位/公司发布的帖子中，也有几个火爆的岗位帖在跑。<br><br>
             <strong>人的直觉判断：</strong>火的帖子和不火的帖子之间一定存在某种结构性差异，不只是运气。
           </div>
-        </div>
-        <div class="conn-h"><span class="arr"></span></div>
-        <div class="card">
-          <div class="card-top">
-            <span class="card-phase">问题二 // AI 分析</span>
-            <span class="badge badge-ai">🤖 Agent</span>
+
+          <!-- P5: 数据表 -->
+          <div class="img-row single" style="margin-top:16px;">
+            <div><img src="img/p5-data-table.png" alt="笔记数据对比表"><div class="img-caption">笔记数据对比 · 「英语一般的姐妹可以看看这家」涨粉 104，远超同类</div></div>
           </div>
+        </div>
+
+        <div class="conn-h"><span class="arr"></span></div>
+
+        <div class="card">
+          <div class="card-top"><span class="card-phase">问题二 // AI 分析</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>分析🔥帖子的共性</h3>
           <div class="detail">
             <strong>输入：</strong>火爆岗位帖 vs 普通岗位帖<br>
-            <strong>对比维度：</strong>标题结构、封面风格、切入角度<br>
+            <strong>对比维度：</strong>标题结构、封面风格、切入角度
           </div>
-          <div class="conclusion">
-            <strong>AI 输出结论：</strong>火爆帖子都在回答「我这种人能不能投？」——<br>
-            · BuildHealth：英语不好、学历普通的人也能看<br>
-            · RealityHoliday：有生活想象 + 岗位明确 + remote 真实可投<br>
-            · 欧洲咨询公司：经验少的人也能进咨询公司<br><br>
-            而跑不动的帖子都在说「这家公司有什么福利？这家公司是不是不错？」——从「帮用户打消顾虑」变成了「展示公司福利/公司很牛」。
+
+          <!-- P6-P11: 三个火爆帖子 -->
+          <div style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
+            <div style="font-size:10px;font-family:var(--fen);letter-spacing:2px;text-transform:uppercase;opacity:.4;margin-bottom:10px;">CASE STUDY: 3 VIRAL POSTS</div>
+
+            <div style="font-size:12px;font-weight:700;margin-bottom:6px;">① BuildHealth — 打的是：英语不好、学历普通的人也能看</div>
+            <div class="img-row">
+              <div><img src="img/p6-buildhealth-post.png" alt="BuildHealth帖子"></div>
+              <div><img src="img/p7-buildhealth-diag.png" alt="BuildHealth笔记诊断"><div class="img-caption">涨粉 74 · 互动 971 · 超过99%同类</div></div>
+            </div>
+
+            <div style="font-size:12px;font-weight:700;margin:14px 0 6px;">② RealityHoliday — 打的是：有生活想象 + 岗位明确 + remote 真实可投</div>
+            <div class="img-row">
+              <div><img src="img/p8-reality-post.png" alt="RealityHoliday帖子"></div>
+              <div><img src="img/p9-reality-diag.png" alt="RealityHoliday笔记诊断"><div class="img-caption">涨粉 23 · 互动 426 · 超过96%同类</div></div>
+            </div>
+          </div>
+
+          <div class="conclusion" style="margin-top:14px;">
+            <strong>AI 输出结论：</strong>火爆帖子都在回答「我这种人能不能投？」<br><br>
+            而跑不动的帖子都在说「这家公司有什么福利？这家公司是不是不错？」——从「帮用户打消顾虑」变成了「展示公司福利/公司很牛」。<br><br>
+            <strong>核心洞察：</strong>用户原本以为自己不够格，但你告诉她「这类人也有机会」——这才是岗位帖的正确切入角度。
           </div>
         </div>
       </div>
 
       <div class="conn-v"><span class="arr"></span></div>
 
-      <!-- Human review -->
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">03 // 人工审核</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">03 // 人工审核</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>审核分析逻辑，确认结论</h3>
         <div class="detail">
-          核心洞察确认：用户原本以为自己不够格，但你告诉她「这类人也有机会」——这才是岗位帖的正确切入角度。<br><br>
           <strong>行动决策：</strong><br>
           · 不抛弃工具类和情绪类用户，而是把她们「养熟」成岗位用户<br>
           · 不要强行改成纯岗位号，做成：求职方法带岗位、情绪痛点带岗位、公司推荐带路径<br>
@@ -324,16 +398,9 @@
 
     <!-- ====== SEC 2: 封面风格制作 ====== -->
     <div class="sec" id="sec-2">
-      <div class="sec-bar">
-        <h2>02 // Visual · 封面风格制作</h2>
-        <span class="code">NODE: 02.CVR</span>
-      </div>
-
+      <div class="sec-bar"><h2>02 // Visual · 封面风格制作</h2><span class="code">NODE: 02.CVR</span></div>
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">01 // 前置思考</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">01 // 前置思考</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义思考问题</h3>
         <div class="desc">人在前期想好思考问题和逻辑，AI 无法替代这一步</div>
         <div class="detail">
@@ -344,14 +411,9 @@
           ④ 这家公司加入后是什么样的画面？
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">02 // 思考逻辑</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">02 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义视觉逻辑</h3>
         <div class="detail">
           <strong>核心原则：</strong>画面能够代表内容在讲什么——用画面在讲故事，而不只是在传递信息；画面和内容完全共振。<br><br>
@@ -362,14 +424,9 @@
           · 自然场景的绿色和蓝色也很能留住目光
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">03 // AI 输出</span>
-          <span class="badge badge-ai">🤖 Agent</span>
-        </div>
+        <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
         <h3>生成封面风格关键词</h3>
         <div class="desc">Agent 根据公司信息 + 视觉逻辑，输出可执行的搜索关键词</div>
         <div class="detail">
@@ -380,25 +437,16 @@
           ③ 能够和这家公司共振的画面什么样子<br>
           ④ 可以在 Pinterest 搜索图片的相关关键词
         </div>
-        <div class="conclusion">
-          <strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面 → 流转至环节三
-        </div>
+        <div class="conclusion"><strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面 → 流转至环节三</div>
       </div>
     </div>
 
     <!-- ====== SEC 3: 封面文案制作 ====== -->
     <div class="sec" id="sec-3">
-      <div class="sec-bar">
-        <h2>03 // Copy · 封面文案制作</h2>
-        <span class="code">NODE: 03.TAG</span>
-      </div>
-
+      <div class="sec-bar"><h2>03 // Copy · 封面文案制作</h2><span class="code">NODE: 03.TAG</span></div>
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">01 // 思考问题</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">01 // 思考问题</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>用户心理洞察</h3>
           <div class="desc">人在前期想好思考问题和逻辑</div>
           <div class="detail">
@@ -408,10 +456,7 @@
         </div>
         <div class="conn-h"><span class="arr"></span></div>
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">02 // 思考逻辑</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">02 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>定义钩子体系</h3>
           <div class="detail">
             <strong>公司钩子（引发好奇心）：</strong><br>
@@ -422,15 +467,10 @@
           </div>
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="flow-center">
-        <div class="card" style="width:100%;max-width:600px;">
-          <div class="card-top">
-            <span class="card-phase">03 // AI 输出</span>
-            <span class="badge badge-ai">🤖 Agent</span>
-          </div>
+        <div class="card" style="width:100%;max-width:580px;">
+          <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>生成封面差异化标签</h3>
           <div class="detail">
             <strong>输入：</strong>公司信息 + 钩子体系<br>
@@ -438,27 +478,17 @@
             · 2 个最能引发人好奇心的差异化标签（公司钩子）<br>
             · 2 个最能打消不敢投递顾虑的差异化标签（利益钩子）
           </div>
-          <div class="conclusion">
-            <strong>产出：</strong>封面差异化标签方案 → 流转至环节四
-          </div>
+          <div class="conclusion"><strong>产出：</strong>封面差异化标签方案 → 流转至环节四</div>
         </div>
       </div>
     </div>
 
     <!-- ====== SEC 4: 正文标题 ====== -->
     <div class="sec" id="sec-4">
-      <div class="sec-bar">
-        <h2>04 // Title · 正文标题</h2>
-        <span class="code">NODE: 04.TTL</span>
-      </div>
-
+      <div class="sec-bar"><h2>04 // Title · 正文标题</h2><span class="code">NODE: 04.TTL</span></div>
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">01 // 前置判断</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">01 // 前置判断</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>判断公司知名度</h3>
-        <div class="desc">人在前期想好思考问题和逻辑</div>
         <div class="detail">
           ① 需要判断这家公司是否有知名度<br>
           ② 有知名度 → 直接按模版来<br>
@@ -466,64 +496,24 @@
           <strong>核心规则：</strong>标题负责搜索+点击，达到搜索编辑效应最大化。必须按照模版，最好有人群钩子/公司钩子/利益钩子 + 行动暗示！
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">02 // 模板体系</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">02 // 模板体系</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义标题模板</h3>
-        <div class="detail">
-          <strong>有知名度：</strong>【公司名】+【公司钩子】(开放X个岗位/有X个HC) +【可内推/可refer/国内可申】
-        </div>
-        <div class="example">
-          <em>例：</em>Canva + 开放6个远程岗<br>
-          <em>例：</em>Airbnb + 开放40+远程岗<br>
-          <em>例：</em>设计人的梦中情司Canva可画 + 有21个HC！
-        </div>
-        <div class="sp-16"></div>
-        <div class="detail">
-          <strong>没知名度 A：</strong>【人群钩子】+【可以试试这家】+【公司钩子】
-        </div>
-        <div class="example">
-          <em>例：</em>英语一般的 + 可以试试这家 + 小众外企👀<br>
-          <em>例：</em>英语一般的 + 可以试试这家 + 百年旅游外企🙋
-        </div>
-        <div class="sp-16"></div>
-        <div class="detail">
-          <strong>没知名度 B：</strong>【公司类型】+【正在捞人/招人中/正在远程岗】+【公司钩子/利益钩子】
-        </div>
-        <div class="example">
-          <em>例：</em>欧洲咨询公司 + 正在招人 + 初级友好<br>
-          <em>例：</em>北美AI外企 + 正在远程岗 + 非技术也有机会<br>
-          <em>例：</em>北美科技外企 + 招人中🙋 + 40+远程岗国内可申
-        </div>
-        <div class="sp-16"></div>
-        <div class="detail">
-          <strong>没知名度 C：</strong>【这家全员remote/远程的】+【公司钩子】+【公司钩子/利益钩子】
-        </div>
-        <div class="example">
-          <em>例：</em>这家全员remote的 + 小众外企 + 文科生大胆冲！<br>
-          <em>例：</em>这家全员远程的 + 宝藏外企 + 捞人啦2个HC
-        </div>
-        <div class="sp-16"></div>
-        <div class="detail">
-          <strong>没知名度 D：</strong>【人群钩子】+【公司类型】+ 大胆投 +【利益钩子】
-        </div>
-        <div class="example">
-          <em>例：</em>空窗期的姐妹 + 宠物外企 + 大胆投 + 女性友好
-        </div>
+        <div class="detail"><strong>有知名度：</strong>【公司名】+【公司钩子】(开放X个岗位/有X个HC) +【可内推/可refer/国内可申】</div>
+        <div class="example"><em>例：</em>Canva + 开放6个远程岗<br><em>例：</em>设计人的梦中情司Canva可画 + 有21个HC！</div>
+        <div class="detail" style="margin-top:12px;"><strong>没知名度 A：</strong>【人群钩子】+【可以试试这家】+【公司钩子】</div>
+        <div class="example"><em>例：</em>英语一般的 + 可以试试这家 + 小众外企👀</div>
+        <div class="detail" style="margin-top:12px;"><strong>没知名度 B：</strong>【公司类型】+【正在捞人/招人中】+【公司钩子/利益钩子】</div>
+        <div class="example"><em>例：</em>欧洲咨询公司 + 正在招人 + 初级友好<br><em>例：</em>北美科技外企 + 招人中🙋 + 40+远程岗国内可申</div>
+        <div class="detail" style="margin-top:12px;"><strong>没知名度 C：</strong>【这家全员remote/远程的】+【公司钩子】+【利益钩子】</div>
+        <div class="example"><em>例：</em>这家全员remote的 + 小众外企 + 文科生大胆冲！</div>
+        <div class="detail" style="margin-top:12px;"><strong>没知名度 D：</strong>【人群钩子】+【公司类型】+ 大胆投 +【利益钩子】</div>
+        <div class="example"><em>例：</em>空窗期的姐妹 + 宠物外企 + 大胆投 + 女性友好</div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">03 // AI 输出</span>
-          <span class="badge badge-ai">🤖 Agent</span>
-        </div>
+        <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
         <h3>生成正文标题</h3>
         <div class="detail">
           <strong>输入：</strong>公司信息 + 知名度判断 + 模板体系 + 钩子库<br>
@@ -531,39 +521,24 @@
           <strong>行动暗示词库：</strong>
           <span class="tag">可内推</span><span class="tag">国内可申</span><span class="tag">大胆投</span><span class="tag">大胆冲</span><span class="tag">招人中</span>
         </div>
-        <div class="conclusion">
-          <strong>产出：</strong>5 个候选标题（已排序）→ 流转至环节五
-        </div>
+        <div class="conclusion"><strong>产出：</strong>5 个候选标题（已排序）→ 流转至环节五</div>
       </div>
     </div>
 
     <!-- ====== SEC 5: 文案制作 ====== -->
     <div class="sec" id="sec-5">
-      <div class="sec-bar">
-        <h2>05 // Content · 文案制作</h2>
-        <span class="code">NODE: 05.CPY</span>
-      </div>
-
+      <div class="sec-bar"><h2>05 // Content · 文案制作</h2><span class="code">NODE: 05.CPY</span></div>
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">01 // 目的定义</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">01 // 目的定义</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义正文目的和思考逻辑</h3>
-        <div class="desc">人在前期想好思考问题和逻辑</div>
         <div class="detail">
           <strong>核心目的：</strong>让人有信任度，信息全面但也要留点钩子让人想要了解或者直接投递<br><br>
           <strong>关键判断：</strong>正文不是信息罗列，而是「信任建设」——展示全面信息的同时，让用户觉得这个账号值得关注和私聊。
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">02 // 模板定义</span>
-          <span class="badge badge-human">🧠 人工</span>
-        </div>
+        <div class="card-top"><span class="card-phase">02 // 模板定义</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>输入正文模板</h3>
         <div class="template-box">
           <div class="t-label">TEMPLATE</div>
@@ -575,39 +550,25 @@
           📩需要JD的可以dd我～
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top">
-          <span class="card-phase">03 // AI 输出</span>
-          <span class="badge badge-ai">🤖 Agent</span>
-        </div>
+        <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
         <h3>按模板生成最优正文</h3>
         <div class="detail">
           <strong>输入：</strong>公司信息 + 正文目的 + 模板结构<br>
           <strong>执行：</strong>根据目的和思考方式对模板进行扩写、润色、生成 AI 认为的最优版本<br>
           <strong>输出：</strong>成品正文（含 emoji + 分段 + 私域钩子）
         </div>
-        <div class="conclusion">
-          <strong>产出：</strong>完整正文文案 → 流转至环节六
-        </div>
+        <div class="conclusion"><strong>产出：</strong>完整正文文案 → 流转至环节六</div>
       </div>
     </div>
 
     <!-- ====== SEC 6: 私域转化 ====== -->
     <div class="sec" id="sec-6">
-      <div class="sec-bar">
-        <h2>06 // Conversion · 私域转化</h2>
-        <span class="code">NODE: 06.PVT</span>
-      </div>
-
+      <div class="sec-bar"><h2>06 // Conversion · 私域转化</h2><span class="code">NODE: 06.PVT</span></div>
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">01 // 诊断</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">01 // 诊断</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>判断用户顾虑<br>和信任缺口</h3>
           <div class="detail">
             <strong>诊断维度：</strong><br>
@@ -619,17 +580,11 @@
         </div>
         <div class="conn-h"><span class="arr"></span></div>
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">02 // 执行</span>
-            <span class="badge badge-ai">🤖 Agent</span>
-          </div>
+          <div class="card-top"><span class="card-phase">02 // 执行</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>优化话术<br>生成回复</h3>
           <div class="detail">
             <strong>输入：</strong>顾虑诊断 + 信任缺口<br>
-            <strong>执行：</strong><br>
-            · 优化引导话术<br>
-            · 生成自动回复模板<br>
-            · AB 测试不同话术版本<br>
+            <strong>执行：</strong>优化引导话术 · 生成自动回复模板 · AB 测试不同话术版本<br>
             <strong>输出：</strong>话术方案 + 测试结果
           </div>
           <div class="conclusion">→ 流转至环节七</div>
@@ -639,17 +594,10 @@
 
     <!-- ====== SEC 7: 数据分析 ====== -->
     <div class="sec" id="sec-7">
-      <div class="sec-bar">
-        <h2>07 // Analytics · 数据分析</h2>
-        <span class="code">NODE: 07.DAT</span>
-      </div>
-
+      <div class="sec-bar"><h2>07 // Analytics · 数据分析</h2><span class="code">NODE: 07.DAT</span></div>
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">01 // 定方向</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">01 // 定方向</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>选择核心指标<br>判断优先级</h3>
           <div class="detail">
             <strong>战略判断：</strong><br>
@@ -661,17 +609,11 @@
         </div>
         <div class="conn-h"><span class="arr"></span></div>
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">02 // 跑数据</span>
-            <span class="badge badge-ai">🤖 Agent</span>
-          </div>
+          <div class="card-top"><span class="card-phase">02 // 跑数据</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>对比数据<br>识别异常</h3>
           <div class="detail">
             <strong>输入：</strong>核心指标 + 优先级<br>
-            <strong>执行：</strong><br>
-            · 跨维度对比数据<br>
-            · 识别异常波动<br>
-            · 自动生成复盘报告<br>
+            <strong>执行：</strong>跨维度对比数据 · 识别异常波动 · 生成复盘报告<br>
             <strong>输出：</strong>数据复盘 + 优化建议
           </div>
           <div class="conclusion">→ 流转至环节八</div>
@@ -681,17 +623,10 @@
 
     <!-- ====== SEC 8: 增长优化 ====== -->
     <div class="sec" id="sec-8">
-      <div class="sec-bar">
-        <h2>08 // Growth · 增长优化</h2>
-        <span class="code">NODE: 08.GRW</span>
-      </div>
-
+      <div class="sec-bar"><h2>08 // Growth · 增长优化</h2><span class="code">NODE: 08.GRW</span></div>
       <div class="flow-row">
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">01 // 持续发现</span>
-            <span class="badge badge-human">🧠 人工</span>
-          </div>
+          <div class="card-top"><span class="card-phase">01 // 持续发现</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>不断挖掘<br>竞品和爆款</h3>
           <div class="detail">
             <strong>持续动作：</strong><br>
@@ -702,29 +637,19 @@
         </div>
         <div class="conn-h"><span class="arr"></span></div>
         <div class="card">
-          <div class="card-top">
-            <span class="card-phase">02 // 分析更新</span>
-            <span class="badge badge-ai">🤖 Agent</span>
-          </div>
+          <div class="card-top"><span class="card-phase">02 // 分析更新</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>执行分析<br>找到共性</h3>
           <div class="detail">
             <strong>输入：</strong>竞品/爆款样本<br>
-            <strong>执行：</strong><br>
-            · 结构化拆解<br>
-            · 提炼共性规律<br>
-            · 不断 update 知识库<br>
+            <strong>执行：</strong>结构化拆解 · 提炼共性规律 · 不断 update 知识库<br>
             <strong>输出：</strong>更新后的规则库
           </div>
           <div class="conclusion">→ 闭环回到环节一：账号分析（持续正循环）</div>
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card" style="border-style:dashed;">
-        <div class="card-top">
-          <span class="card-phase">∞ // 增长飞轮</span>
-        </div>
+        <div class="card-top"><span class="card-phase">∞ // 增长飞轮</span></div>
         <h3>闭环反馈至全链路</h3>
         <div class="detail" style="text-align:center;">
           增长优化 → 账号分析 → 封面风格 → 封面文案 → 正文标题 → 文案制作 → 私域转化 → 数据分析 → 增长优化 → ∞
@@ -736,73 +661,23 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="nav-item active" data-target="sec-0">
-      SYSTEM OVERVIEW
-      <span class="cn">链路拆解及路由</span>
-    </div>
-    <div class="nav-item" data-target="sec-1">
-      MODULE 01
-      <span class="cn">环节一：账号分析</span>
-    </div>
-    <div class="nav-item" data-target="sec-2">
-      MODULE 02
-      <span class="cn">环节二：封面风格制作</span>
-    </div>
-    <div class="nav-item" data-target="sec-3">
-      MODULE 03
-      <span class="cn">环节三：封面文案制作</span>
-    </div>
-    <div class="nav-item" data-target="sec-4">
-      MODULE 04
-      <span class="cn">环节四：正文标题</span>
-    </div>
-    <div class="nav-item" data-target="sec-5">
-      MODULE 05
-      <span class="cn">环节五：文案制作</span>
-    </div>
-    <div class="nav-item" data-target="sec-6">
-      MODULE 06
-      <span class="cn">环节六：私域转化</span>
-    </div>
-    <div class="nav-item" data-target="sec-7">
-      MODULE 07
-      <span class="cn">环节七：数据分析</span>
-    </div>
-    <div class="nav-item" data-target="sec-8">
-      MODULE 08
-      <span class="cn">环节八：增长优化</span>
-    </div>
+    <div class="nav-item active" data-target="sec-0">SYSTEM OVERVIEW<span class="cn">链路拆解及路由</span></div>
+    <div class="nav-item" data-target="sec-1">MODULE 01<span class="cn">环节一：账号分析</span></div>
+    <div class="nav-item" data-target="sec-2">MODULE 02<span class="cn">环节二：封面风格制作</span></div>
+    <div class="nav-item" data-target="sec-3">MODULE 03<span class="cn">环节三：封面文案制作</span></div>
+    <div class="nav-item" data-target="sec-4">MODULE 04<span class="cn">环节四：正文标题</span></div>
+    <div class="nav-item" data-target="sec-5">MODULE 05<span class="cn">环节五：文案制作</span></div>
+    <div class="nav-item" data-target="sec-6">MODULE 06<span class="cn">环节六：私域转化</span></div>
+    <div class="nav-item" data-target="sec-7">MODULE 07<span class="cn">环节七：数据分析</span></div>
+    <div class="nav-item" data-target="sec-8">MODULE 08<span class="cn">环节八：增长优化</span></div>
   </div>
 </div>
 
 <script>
-  const navItems = document.querySelectorAll('.nav-item');
-  const sections = document.querySelectorAll('.sec');
-  const mainContent = document.getElementById('mainContent');
-  const ovRows = document.querySelectorAll('.ov-row[data-target]');
-
-  function showSection(targetId) {
-    navItems.forEach(n => n.classList.remove('active'));
-    const navMatch = document.querySelector(`.nav-item[data-target="${targetId}"]`);
-    if (navMatch) navMatch.classList.add('active');
-    sections.forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.classList.add('active');
-      target.style.animation = 'none';
-      target.offsetHeight;
-      target.style.animation = '';
-    }
-    mainContent.scrollTop = 0;
-  }
-
-  navItems.forEach(item => {
-    item.addEventListener('click', () => showSection(item.dataset.target));
-  });
-
-  ovRows.forEach(row => {
-    row.addEventListener('click', () => showSection(row.dataset.target));
-  });
+  const navs=document.querySelectorAll('.nav-item'),secs=document.querySelectorAll('.sec'),mc=document.getElementById('mainContent');
+  function go(id){navs.forEach(n=>n.classList.remove('active'));document.querySelector(`.nav-item[data-target="${id}"]`)?.classList.add('active');secs.forEach(s=>s.classList.remove('active'));const t=document.getElementById(id);if(t){t.classList.add('active');t.style.animation='none';t.offsetHeight;t.style.animation='';}mc.scrollTop=0;}
+  navs.forEach(n=>n.addEventListener('click',()=>go(n.dataset.target)));
+  document.querySelectorAll('.ov-card[data-target]').forEach(c=>c.addEventListener('click',()=>go(c.dataset.target)));
 </script>
 </body>
 </html>
