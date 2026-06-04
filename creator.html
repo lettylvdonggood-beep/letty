@@ -972,7 +972,9 @@
 <script>
   const navs=document.querySelectorAll('.nav-item'),secs=document.querySelectorAll('.sec'),mc=document.getElementById('mainContent');
   function go(id){navs.forEach(n=>n.classList.remove('active'));document.querySelector(`.nav-item[data-target="${id}"]`)?.classList.add('active');secs.forEach(s=>s.classList.remove('active'));const t=document.getElementById(id);if(t){t.classList.add('active');t.style.animation='none';t.offsetHeight;t.style.animation='';}mc.scrollTop=0;}
-  document.getElementById('returnBtn').addEventListener('click',()=>go('sec-0'));
+  document.getElementById('returnBtn').addEventListener('click',()=>{
+  window.location.href = 'index.html';
+});
   navs.forEach(n=>n.addEventListener('click',()=>go(n.dataset.target)));
   document.querySelectorAll('.ov-card[data-target]').forEach(c=>c.addEventListener('click',()=>go(c.dataset.target)));
 </script>
