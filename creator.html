@@ -28,8 +28,6 @@
   .sec-bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:32px;padding-bottom:8px;border-bottom:2px solid var(--red);}
   .sec-bar h2{font-family:var(--fen);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;}
   .sec-bar .code{font-family:var(--fen);font-size:9px;letter-spacing:2px;opacity:.35;}
-
-  /* CARD */
   .card{border:1px solid var(--red);padding:22px 24px;background:var(--white);transition:background .15s;}
   .card:hover{background:var(--r08);}
   .card-top{display:flex;justify-content:space-between;margin-bottom:8px;}
@@ -55,19 +53,53 @@
   .conn-v::after{content:'';height:100%;width:1px;background:var(--red);position:absolute;}
   .conn-v .arr{position:absolute;bottom:-1px;width:0;height:0;border-top:6px solid var(--red);border-left:3px solid transparent;border-right:3px solid transparent;}
   .flow-center{display:flex;justify-content:center;}
-
-  /* IMAGE GALLERY */
   .img-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
   .img-row.single{grid-template-columns:1fr;}
   .img-row img{width:100%;border:1px solid rgba(255,0,0,.15);display:block;}
   .img-caption{font-size:9px;font-family:var(--fen);letter-spacing:1.5px;text-transform:uppercase;opacity:.35;margin-top:4px;text-align:center;}
+  .img-row.compact{max-width:520px;}
+  .img-row.compact img{max-height:220px;object-fit:contain;background:var(--r08);padding:6px;}
+  .img-row.compact-sm img{max-height:180px;object-fit:contain;background:var(--r08);padding:4px;}
+  .case-img-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0;}
+  .case-img-pair img{max-height:200px;width:100%;object-fit:contain;background:var(--r08);border:1px solid rgba(255,0,0,.12);padding:4px;}
   .cover-sample-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
   .cover-sample-grid img{height:260px;object-fit:contain;background:#fff;}
   .ai-conclusion-box{margin-top:14px;padding:14px 16px;border:1px solid rgba(255,0,0,.2);background:rgba(255,0,0,.06);font-size:12px;line-height:1.8;}
   .ai-conclusion-box strong{font-weight:900;}
   .ai-conclusion-box ul{margin:8px 0 0 18px;padding:0;}
 
-  /* ========== OVERVIEW REDESIGN ========== */
+  /* PREMISE BOX */
+  .premise-box{border:2px solid var(--red);background:var(--r08);padding:20px 24px;position:relative;}
+  .premise-box .card-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .premise-box h3{font-family:var(--fcn);font-size:18px;font-weight:900;line-height:1.25;margin-bottom:8px;}
+  .premise-box .premise-detail{font-size:11.5px;line-height:1.8;opacity:.85;}
+  .premise-box .premise-detail strong{font-weight:700;}
+
+  /* DUAL PATH */
+  .dual-path{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:0;}
+  .path-col{position:relative;}
+  .path-col:first-child{border-right:2px dashed rgba(255,0,0,.2);padding-right:18px;}
+  .path-col:last-child{padding-left:18px;}
+  .path-label{font-family:var(--fen);font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.3;margin-bottom:12px;padding:6px 0;border-bottom:1px solid rgba(255,0,0,.1);}
+  .path-col .card{margin-bottom:0;}
+  .path-col .conn-v{height:28px;}
+
+  /* DERIVE BOX */
+  .derive-box{border:2px solid var(--red);background:linear-gradient(135deg,rgba(255,0,0,.04) 0%,rgba(255,0,0,.1) 100%);padding:20px 24px;position:relative;}
+  .derive-box .card-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .derive-box h3{font-family:var(--fcn);font-size:18px;font-weight:900;line-height:1.25;margin-bottom:10px;}
+  .derive-item{margin-bottom:14px;padding-bottom:14px;border-bottom:1px dashed rgba(255,0,0,.15);}
+  .derive-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+  .derive-label{font-family:var(--fen);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.4;margin-bottom:4px;}
+  .derive-conclusion{font-size:12px;font-weight:700;line-height:1.6;margin-bottom:4px;}
+  .derive-arrow{font-size:11px;opacity:.7;line-height:1.6;padding-left:12px;border-left:2px solid var(--red);}
+
+  /* FORK */
+  .fork-header{display:flex;align-items:center;gap:12px;margin:8px 0 4px;}
+  .fork-line{flex:1;height:1px;background:var(--red);}
+  .fork-label{font-family:var(--fen);font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:.35;white-space:nowrap;}
+
+  /* ========== OVERVIEW ========== */
   .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
   .ov-card{border:1px solid var(--red);padding:0;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
   .ov-card:hover{background:var(--r08);transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,0,0,.08);}
@@ -81,6 +113,37 @@
   .ov-half-label{font-family:var(--fen);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;opacity:.4;margin-bottom:4px;display:flex;align-items:center;gap:4px;}
   .ov-reason{border-top:1px solid rgba(255,0,0,.1);padding:12px 16px;font-size:10px;line-height:1.6;opacity:.6;font-style:italic;font-family:var(--fser);}
   .ov-arrow{position:absolute;bottom:12px;right:16px;font-family:var(--fen);font-size:10px;opacity:.25;letter-spacing:1px;}
+  /* single-wide card spanning full grid */
+  .ov-card.ov-wide{grid-column:1/-1;}
+
+  /* DATA VIZ */
+  .data-chart{margin:16px 0;}
+  .chart-title{font-family:var(--fen);font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:.35;margin-bottom:10px;}
+  .bar-group{margin-bottom:14px;}
+  .bar-group-label{font-size:11px;font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+  .bar-group-label .period{font-weight:300;font-size:10px;opacity:.5;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+  .bar-label{font-size:9px;font-family:var(--fen);letter-spacing:1px;width:32px;text-align:right;opacity:.5;}
+  .bar-track{flex:1;height:20px;background:rgba(255,0,0,.06);position:relative;overflow:hidden;}
+  .bar-fill{height:100%;transition:width .6s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-family:var(--fen);font-weight:700;letter-spacing:.5px;}
+  .bar-fill.fill-dim{background:rgba(255,0,0,.12);color:var(--red);}
+  .bar-fill.fill-mid{background:rgba(255,0,0,.2);color:var(--red);}
+  .bar-fill.fill-hot{background:var(--red);color:var(--white);}
+  .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0;}
+  .kpi-card{border:1px solid rgba(255,0,0,.2);padding:14px 16px;text-align:center;}
+  .kpi-num{font-family:var(--fen);font-size:28px;font-weight:700;line-height:1;}
+  .kpi-sub{font-size:10px;opacity:.5;margin-top:4px;}
+  .kpi-label{font-size:11px;font-weight:500;margin-top:6px;}
+  .kpi-card.kpi-highlight{background:var(--red);color:var(--white);}
+  .kpi-card.kpi-highlight .kpi-sub{opacity:.7;}
+  .delta{font-family:var(--fen);font-size:10px;font-weight:700;letter-spacing:.5px;}
+  .delta-up{color:var(--red);}
+  .delta-down{opacity:.4;}
+  .metric-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin:14px 0;align-items:stretch;}
+  .metric-box{border:1px solid rgba(255,0,0,.15);padding:16px;text-align:center;}
+  .metric-box .metric-val{font-family:var(--fen);font-size:32px;font-weight:700;line-height:1;}
+  .metric-box .metric-label{font-size:10px;opacity:.5;margin-top:6px;}
+  .metric-vs{display:flex;align-items:center;justify-content:center;padding:0 8px;font-family:var(--fen);font-size:9px;letter-spacing:2px;opacity:.25;}
 
   @media(max-width:900px){
     .layout{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}
@@ -93,6 +156,10 @@
     .img-row{grid-template-columns:1fr;}
     .cover-sample-grid{grid-template-columns:1fr 1fr;}
     .cover-sample-grid img{height:220px;}
+    .img-row.compact{max-width:100%;}
+    .dual-path{grid-template-columns:1fr;}
+    .path-col:first-child{border-right:none;padding-right:0;border-bottom:2px dashed rgba(255,0,0,.2);padding-bottom:18px;margin-bottom:18px;}
+    .path-col:last-child{padding-left:0;}
   }
 </style>
 </head>
@@ -111,168 +178,74 @@
 
     <!-- ====== SEC 0: OVERVIEW ====== -->
     <div class="sec active" id="sec-0">
-      <div class="sec-bar">
-        <h2>00 // Overview · 链路拆解及路由</h2>
-        <span class="code">FULL PIPELINE</span>
-      </div>
-
+      <div class="sec-bar"><h2>00 // Overview · 链路拆解及路由</h2><span class="code">FULL PIPELINE</span></div>
       <div class="ov-grid">
-        <!-- 01 -->
         <div class="ov-card" data-target="sec-1">
           <span class="ov-num">01</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 01 · INCEPTION</div>
-            <div class="ov-title">账号分析</div>
-          </div>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 01 · INCEPTION</div><div class="ov-title">账号分析</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              挖掘业务问题：为什么岗位帖跑不动？为什么有些帖火了其余跑不过？
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              从历史内容中提取共性规律，验证人提出的假设
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>挖掘业务问题：为什么同类型帖文有些火了有些没火？</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>从历史内容中提取共性规律，验证人提出的假设</div>
           </div>
           <div class="ov-reason">AI 无法凭空发现「岗位帖为什么没人买单」这类业务直觉——但擅长从大量帖子中提取数据共性。人提问题，AI 验假设。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 02 -->
-        <div class="ov-card" data-target="sec-2">
+        <div class="ov-card ov-wide" data-target="sec-2">
           <span class="ov-num">02</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 02 · VISUAL</div>
-            <div class="ov-title">封面风格制作</div>
-          </div>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 02 · COVER SYSTEM</div><div class="ov-title">封面制作（视觉风格 + 封面文案）</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              发现“为什么有的封面会让人想点”，筛选封面样本 P1-P6，再定义公司调性与画面逻辑
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              分析样本共性，输出 P8 结论，并拆解为 Pinterest 可搜索的视觉关键词
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>定义封面目的：「停下来」+「点进去」，研究样本、定义视觉逻辑与文案逻辑，设计 AI 推理框架</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>Path A：分析封面共性 → 输出视觉关键词<br>Path B：基于钩子体系 → 输出差异化标签</div>
           </div>
-          <div class="ov-reason">AI 无法凭空知道哪类封面真正让目标用户停下——但擅长从样本中提炼规律。人发现问题并筛选样本，AI 分析特征并输出可执行方案。</div>
+          <div class="ov-reason">AI 无法明白凭空明白封面的视觉逻辑和什么样的内容共振，所以需要人工定义视觉逻辑和思考框架，AI再进行执行。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 03 -->
         <div class="ov-card" data-target="sec-3">
           <span class="ov-num">03</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 03 · COPY</div>
-            <div class="ov-title">封面文案制作</div>
-          </div>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 03 · TITLE</div><div class="ov-title">标题输出</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              洞察用户心理：dream job 是什么样？什么人害怕投递？
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              从钩子库组合差异化标签（2个公司钩子 + 2个利益钩子）
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>定义标题目的与逻辑，设计 AI 判断路径，建立模板体系</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>基于模板批量生成 5 个标题变体，按推荐度排序</div>
           </div>
-          <div class="ov-reason">AI 无法洞察用户内心的 dream job 画面和投递恐惧——但擅长从钩子库组合最优标签。人做洞察，AI 做标签。</div>
+          <div class="ov-reason">AI 无法明白标题的目的，所以需要人工设计思考框架，随后基于人工输入的模板批量生成变体。人选路径定模板，AI再填充优化。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 04 -->
         <div class="ov-card" data-target="sec-4">
           <span class="ov-num">04</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 04 · TITLE</div>
-            <div class="ov-title">正文标题</div>
-          </div>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 04 · CONTENT</div><div class="ov-title">文案制作</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              判断公司知名度，分析爆款标题公式，找到共性并输入模板
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              基于模板批量生成 5 个标题变体，按推荐度排序
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>定义正文目的：「展示全面信息」还是「建立用户信任」？</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>按模板扩写、润色、生成 AI 认为的最优版本</div>
           </div>
-          <div class="ov-reason">AI 无法判断公司在目标人群中的知名度——但擅长基于模板批量生成变体。人选路径定模板，AI 填充优化。</div>
+          <div class="ov-reason">AI 无法理解正文的目的是什么——所以需要人工设计思考框架，AI 再执行生产。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 05 -->
         <div class="ov-card" data-target="sec-5">
           <span class="ov-num">05</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 05 · CONTENT</div>
-            <div class="ov-title">文案制作</div>
-          </div>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 05 · CONVERSION</div><div class="ov-title">私域转化</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              定义正文目的：「展示全面信息」还是「建立用户信任」？
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              按模板扩写、润色、生成 AI 认为的最优版本
-            </div>
-          </div>
-          <div class="ov-reason">AI 无法理解正文的终极目的是什么——信息全面 vs 用户信任决定写法。人定目的和框架，AI 执行生产。</div>
-          <span class="ov-arrow">EXPLORE →</span>
-        </div>
-        <!-- 06 -->
-        <div class="ov-card" data-target="sec-6">
-          <span class="ov-num">06</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 06 · CONVERSION</div>
-            <div class="ov-title">私域转化</div>
-          </div>
-          <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              判断用户顾虑和信任缺口：像骗子？引导不够清晰？
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              基于顾虑点优化话术、生成回复、AB 测试
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>判断用户顾虑和信任缺口：像骗子？引导不够清晰？</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>基于顾虑点优化话术、生成回复、AB 测试</div>
           </div>
           <div class="ov-reason">AI 无法判断用户真实顾虑——「像骗子？」需要一线体感。但擅长针对顾虑批量生成话术变体。人诊断，AI 生成。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 07 -->
-        <div class="ov-card" data-target="sec-7">
-          <span class="ov-num">07</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 07 · ANALYTICS</div>
-            <div class="ov-title">数据分析</div>
-          </div>
+        <div class="ov-card" data-target="sec-6">
+          <span class="ov-num">06</span>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 06 · ANALYTICS</div><div class="ov-title">数据分析</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              选择核心指标和优先级：优先私域转化还是流量曝光？
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              跨维度对比数据、识别异常、生成复盘报告
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>选择核心指标和优先级：优先私域转化还是流量曝光？</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>跨维度对比数据、识别异常、生成复盘报告</div>
           </div>
           <div class="ov-reason">AI 无法决定当前阶段应优先提升哪个指标——这是战略判断。但擅长对比数据识别异常。人定优先级，AI 跑数据。</div>
           <span class="ov-arrow">EXPLORE →</span>
         </div>
-        <!-- 08 -->
-        <div class="ov-card" data-target="sec-8">
-          <span class="ov-num">08</span>
-          <div class="ov-card-inner">
-            <div class="ov-label">MODULE 08 · GROWTH</div>
-            <div class="ov-title">增长优化</div>
-          </div>
+        <div class="ov-card" data-target="sec-7">
+          <span class="ov-num">07</span>
+          <div class="ov-card-inner"><div class="ov-label">MODULE 07 · GROWTH</div><div class="ov-title">增长优化</div></div>
           <div class="ov-split">
-            <div class="ov-half">
-              <div class="ov-half-label">🧠 人工</div>
-              不断挖掘竞品和爆款：「谁突然跑起来了」
-            </div>
-            <div class="ov-half">
-              <div class="ov-half-label">🤖 Agent</div>
-              执行结构化拆解，找到共性，不断 update 知识库
-            </div>
+            <div class="ov-half"><div class="ov-half-label">🧠 人工</div>不断挖掘竞品和爆款：「谁突然跑起来了」</div>
+            <div class="ov-half"><div class="ov-half-label">🤖 Agent</div>执行结构化拆解，找到共性，不断 update 知识库</div>
           </div>
           <div class="ov-reason">AI 无法主动发现值得研究的竞品和爆款——但擅长结构化拆解提炼共性。人持续发现目标，AI 分析更新。</div>
           <span class="ov-arrow">EXPLORE →</span>
@@ -282,264 +255,338 @@
 
     <!-- ====== SEC 1: 账号分析 ====== -->
     <div class="sec" id="sec-1">
-      <div class="sec-bar">
-        <h2>01 // Inception · 账号分析</h2>
-        <span class="code">NODE: 01.ANA</span>
-      </div>
-
+      <div class="sec-bar"><h2>01 // Inception · 账号分析</h2><span class="code">NODE: 01.ANA</span></div>
       <div class="card">
         <div class="card-top"><span class="card-phase">01 // 问题发现</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>挖掘业务问题</h3>
         <div class="desc">账号调性不只是文字风格——还包括品牌想成为什么、用户为什么信任你、哪些表达不能碰。先由人发现问题，再让 AI 验证。</div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
-      <!-- PROBLEM 1 -->
       <div class="flow-row">
         <div class="card">
-          <div class="card-top"><span class="card-phase">问题一 // 人工发现</span><span class="badge badge-human">🧠 人工</span></div>
+          <div class="card-top"><span class="card-phase">02 // 问题发现</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>岗位帖为什么跑不动？</h3>
           <div class="detail">
             目前账号主推流仍然是【求职工具/模版】及【求职方法/渠道型】帖子，标签是 #领英 #简历模板 #职场干货。<br><br>
             但当发【岗位推荐】帖给雇主做品牌宣传时，无人买单。<br><br>
             <strong>人的直觉判断：</strong>平台对账号的强识别还是「求职工具 / LinkedIn / 简历面试」，而不是「岗位机会库 / 公司推荐 / 小众外企招聘」。
           </div>
-
-          <!-- P2: 新增观看最多 -->
-          <div class="img-row single" style="margin-top:16px;">
+          <div class="img-row single compact" style="margin-top:16px;">
             <div><img src="img/p2-top-posts.png" alt="新增观看最多数据"><div class="img-caption">新增观看最多 · 统计周期 05-13 至 05-19</div></div>
           </div>
-
-          <!-- P3 & P4: 笔记诊断 -->
-          <div class="img-row" style="margin-top:8px;">
-            <div><img src="img/p3-linkedin-diag.png" alt="LinkedIn帖笔记诊断"><div class="img-caption">LinkedIn 养号帖 · 标签=#领英 #领英注册 #领英养号</div></div>
-            <div><img src="img/p4-resume-diag.png" alt="英文简历帖笔记诊断"><div class="img-caption">英文简历帖 · 标签=#简历模板 #英文简历 #求职</div></div>
+          <div class="img-row compact-sm" style="margin-top:8px;">
+            <div><img src="img/p3-linkedin-diag.png" alt="LinkedIn帖笔记诊断"><div class="img-caption">LinkedIn 养号帖 · #领英 #领英注册 #领英养号</div></div>
+            <div><img src="img/p4-resume-diag.png" alt="英文简历帖笔记诊断"><div class="img-caption">英文简历帖 · #简历模板 #英文简历 #求职</div></div>
           </div>
         </div>
-
         <div class="conn-h"><span class="arr"></span></div>
-
         <div class="card">
-          <div class="card-top"><span class="card-phase">问题一 // AI 分析</span><span class="badge badge-ai">🤖 Agent</span></div>
+          <div class="card-top"><span class="card-phase">02 // AI 验证</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>分析这几类帖子的共性</h3>
-          <div class="detail">
-            <strong>输入：</strong>【求职工具/模版】及【求职方法/渠道型】历史帖子数据<br>
-            <strong>分析维度：</strong>标签分布、受众画像、互动模式
-          </div>
-          <div class="conclusion">
-            <strong>AI 输出结论：</strong>发岗位帖时，很可能先被推给「想学方法、想看情绪共鸣」的人，而不是「正在找具体岗位的人」。这批人看到岗位帖，点击和互动弱，导致岗位帖过不了初始流量池。
-          </div>
+          <div class="detail"><strong>输入：</strong>【求职工具/模版】及【求职方法/渠道型】历史帖子数据<br><strong>分析维度：</strong>标签分布、受众画像、互动模式</div>
+          <div class="conclusion"><strong>AI 输出结论：</strong>发岗位帖时，很可能先被推给「想学方法、想看情绪共鸣」的人，而不是「正在找具体岗位的人」。这批人看到岗位帖，点击和互动弱，导致岗位帖过不了初始流量池。</div>
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
-      <!-- PROBLEM 2 -->
       <div class="flow-row">
         <div class="card">
-          <div class="card-top"><span class="card-phase">问题二 // 人工发现</span><span class="badge badge-human">🧠 人工</span></div>
+          <div class="card-top"><span class="card-phase">03 // 问题发现</span><span class="badge badge-human">🧠 人工</span></div>
           <h3>为什么有些岗位帖🔥<br>但其余跑不过？</h3>
           <div class="detail">
             在岗位/公司发布的帖子中，也有几个火爆的岗位帖在跑。<br><br>
             <strong>人的直觉判断：</strong>火的帖子和不火的帖子之间一定存在某种结构性差异，不只是运气。
           </div>
-
-          <!-- P5: 数据表 -->
-          <div class="img-row single" style="margin-top:16px;">
+          <div class="img-row single compact" style="margin-top:16px;">
             <div><img src="img/p5-data-table.png" alt="笔记数据对比表"><div class="img-caption">笔记数据对比 · 「英语一般的姐妹可以看看这家」涨粉 104，远超同类</div></div>
           </div>
         </div>
-
         <div class="conn-h"><span class="arr"></span></div>
-
         <div class="card">
-          <div class="card-top"><span class="card-phase">问题二 // AI 分析</span><span class="badge badge-ai">🤖 Agent</span></div>
+          <div class="card-top"><span class="card-phase">03 // AI 验证</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>分析🔥帖子的共性</h3>
-          <div class="detail">
-            <strong>输入：</strong>火爆岗位帖 vs 普通岗位帖<br>
-            <strong>对比维度：</strong>标题结构、封面风格、切入角度
-          </div>
-
-          <!-- P6-P11: 三个火爆帖子 -->
+          <div class="detail"><strong>输入：</strong>火爆岗位帖 vs 普通岗位帖<br><strong>对比维度：</strong>标题结构、封面风格、切入角度</div>
           <div style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
-            <div style="font-size:10px;font-family:var(--fen);letter-spacing:2px;text-transform:uppercase;opacity:.4;margin-bottom:10px;">CASE STUDY: 3 VIRAL POSTS</div>
-
+            <div style="font-size:10px;font-family:var(--fen);letter-spacing:2px;text-transform:uppercase;opacity:.4;margin-bottom:10px;">CASE STUDY: 2 VIRAL POSTS</div>
             <div style="font-size:12px;font-weight:700;margin-bottom:6px;">① BuildHealth — 打的是：英语不好、学历普通的人也能看</div>
-            <div class="img-row">
-              <div><img src="img/p6-buildhealth-post.png" alt="BuildHealth帖子"></div>
+            <div class="case-img-pair">
+              <img src="img/p6-buildhealth-post.png" alt="BuildHealth帖子">
               <div><img src="img/p7-buildhealth-diag.png" alt="BuildHealth笔记诊断"><div class="img-caption">涨粉 74 · 互动 971 · 超过99%同类</div></div>
             </div>
-
             <div style="font-size:12px;font-weight:700;margin:14px 0 6px;">② RealityHoliday — 打的是：有生活想象 + 岗位明确 + remote 真实可投</div>
-            <div class="img-row">
-              <div><img src="img/p8-reality-post.png" alt="RealityHoliday帖子"></div>
+            <div class="case-img-pair">
+              <img src="img/p8-reality-post.png" alt="RealityHoliday帖子">
               <div><img src="img/p9-reality-diag.png" alt="RealityHoliday笔记诊断"><div class="img-caption">涨粉 23 · 互动 426 · 超过96%同类</div></div>
             </div>
           </div>
-
           <div class="conclusion" style="margin-top:14px;">
             <strong>AI 输出结论：</strong>火爆帖子都在回答「我这种人能不能投？」<br><br>
-            而跑不动的帖子都在说「这家公司有什么福利？这家公司是不是不错？」——从「帮用户打消顾虑」变成了「展示公司福利/公司很牛」。<br><br>
+            而跑不动的帖子都在说「这家公司有什么福利？」——从「帮用户打消顾虑」变成了「展示公司福利/公司很牛」。<br><br>
             <strong>核心洞察：</strong>用户原本以为自己不够格，但你告诉她「这类人也有机会」——这才是岗位帖的正确切入角度。
           </div>
         </div>
       </div>
-
       <div class="conn-v"><span class="arr"></span></div>
-
       <div class="card">
-        <div class="card-top"><span class="card-phase">03 // 人工审核</span><span class="badge badge-human">🧠 人工</span></div>
+        <div class="card-top"><span class="card-phase">04 // 人工审核</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>审核分析逻辑，确认结论</h3>
         <div class="detail">
           <strong>行动决策：</strong><br>
           · 不抛弃工具类和情绪类用户，而是把她们「养熟」成岗位用户<br>
           · 不要强行改成纯岗位号，做成：求职方法带岗位、情绪痛点带岗位、公司推荐带路径<br>
-          · 内容比例调整：70% 岗位推荐 / 10% 工具方法 / 10% 情绪故事 / 10% 合集资源
+          · 内容比例调整：70% 岗位推荐 / 10% 工具方法 / 10% 情绪故事 / 10% 合集资源<br>
+          · 需要将流量较好的岗位帖文进行分析并收集特征，供AI Agent调用
         </div>
-        <div class="conclusion">
-          <strong>最终输出：</strong>账号调性记忆文件，Agent 后续环节可调用 → 流转至环节二
-        </div>
+        <div class="conclusion"><strong>最终输出：</strong>需要将流量较好的岗位帖文进行分析并收集特征，Agent 后续环节可调用 → 流转至环节二</div>
       </div>
     </div>
 
-    <!-- ====== SEC 2: 封面风格制作 ====== -->
+    <!-- ====== SEC 2: 封面制作（合并视觉风格 + 封面文案） ====== -->
     <div class="sec" id="sec-2">
-      <div class="sec-bar"><h2>02 // Visual · 封面风格制作</h2><span class="code">NODE: 02.CVR</span></div>
-      <div class="card">
-        <div class="card-top"><span class="card-phase">01 // 前置思考</span><span class="badge badge-human">🧠 人工</span></div>
-        <h3>定义思考问题</h3>
-        <div class="desc">人在前期想好思考问题和逻辑，AI 无法替代这一步</div>
-        <div class="detail">
-          <strong>问题框架：</strong><br>
-          ① 这家公司调性是什么样子？<br>
-          ② 这家公司关键词是什么？<br>
-          ③ 这家公司在讲什么故事？<br>
-          ④ 这家公司加入后是什么样的画面？
+      <div class="sec-bar"><h2>02 // Cover System · 封面制作</h2><span class="code">NODE: 02.CVR</span></div>
+
+      <!-- STEP 01: 定义封面的目的 -->
+      <div class="premise-box">
+        <div class="card-top"><span class="card-phase">01 // 目的定义</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>定义封面的作用</h3>
+        <div class="premise-detail">
+          目的：在让 AI Agent 产出封面之前，需要先想明白封面到底承担什么任务。封面不是装饰，而是信息流里的「拦截器」——它只有两个使命：<br><br>
+          <strong>A. 让人在刷信息流时抓住注意力、停下来</strong> — 视觉层面的拦截，靠画面、色彩、构图在一秒内让人下意识「打断滑动惯性」。<br><br>
+          <strong>B. 留适当的钩子引起让人点击的欲望</strong> — 文案层面的牵引，靠标签、文字、痛点回应让人觉得「这条跟我有关，我要点进去看」。<br><br>
+          逻辑：这两个使命对应两条并行路径：Path A 解决「视觉风格如何让人停下来」，Path B 解决「封面文案如何让人点进去」。
         </div>
       </div>
+
       <div class="conn-v"><span class="arr"></span></div>
-      <div class="card">
-        <div class="card-top"><span class="card-phase">02 // 封面点击欲研究</span><span><span class="badge badge-human">🧠 人工</span> <span class="badge badge-ai">🤖 Agent</span></span></div>
-        <h3>研究为什么有的封面会让人想点</h3>
-        <div class="desc">人先发现值得研究的问题并筛选样本，AI 再从样本中拆解可复用的视觉规律</div>
-        <div class="detail">
-          <strong>人的发现：</strong>同样是招聘封面，有些会让人下意识停下来、想点进去看；有些即使信息完整，也会被快速划走。<br><br>
-          <strong>人的动作：</strong>我把所有能吸引我继续研究的封面都截图下来，整理成封面样本 P1-P6。<br><br>
-          <strong>AI 的动作：</strong>把 P1-P6 抛给 AI，让它从颜色、场景、构图、文字层级、品牌气质和情绪氛围中分析共性，最后得到 P8 的结论。<br><br>
-          <strong>分工逻辑：</strong>人负责发现问题、判断哪些封面真的有点击欲；AI 负责把这些直觉样本结构化，提炼成后续可复用的封面特征。
+
+      <!-- ===== DUAL PATH ===== -->
+      <div class="fork-header">
+        <div class="fork-line"></div>
+        <div class="fork-label">PATH A · 视觉风格</div>
+        <div class="fork-line"></div>
+        <div class="fork-label" style="opacity:.2;">|</div>
+        <div class="fork-line"></div>
+        <div class="fork-label">PATH B · 封面文案</div>
+        <div class="fork-line"></div>
+      </div>
+
+      <div class="dual-path">
+
+        <!-- ===== PATH A: 视觉风格 ===== -->
+        <div class="path-col">
+
+          <!-- A-02: 什么样的封面可以吸引人 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">A-02 // 规律研究</span><span><span class="badge badge-human">🧠 人工</span> <span class="badge badge-ai">🤖 Agent</span></span></div>
+            <h3>什么样的封面可以吸引人的注意力让人停下来？</h3>
+            <div class="desc">人先发现值得研究的问题并筛选样本，AI 再从样本中拆解可复用的视觉规律</div>
+            <div class="detail">
+              <strong>人的发现：</strong>同样是招聘封面，有些会让人下意识停下来、想点进去看；有些即使信息完整，也会被快速划走。<br><br>
+              <strong>人的动作：</strong>我把所有能吸引我继续研究的封面都截图下来，整理成封面样本 P1-P6。<br><br>
+              <strong>AI 的动作：</strong>把 P1-P6 抛给 AI，让它从颜色、场景、构图、文字层级、品牌气质和情绪氛围中分析共性，最后得到 P8 的结论。<br><br>
+              <strong>分工逻辑：</strong>人负责发现问题、判断哪些封面真的有点击欲；AI 负责把直觉样本结构化，提炼成后续可复用的封面特征。
+            </div>
+            <div style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
+              <div style="font-size:12px;font-weight:900;margin-bottom:6px;">封面样本 P1-P6：让我产生点击欲的招聘封面</div>
+              <div class="img-row cover-sample-grid">
+                <div><img src="img/cover-p1.png" alt="P1"><div class="img-caption">P1 · 强品牌识别 + 高利益点</div></div>
+                <div><img src="img/cover-p2.png" alt="P2"><div class="img-caption">P2 · 明亮色块 + 加入邀请</div></div>
+                <div><img src="img/cover-p3.png" alt="P3"><div class="img-caption">P3 · 低机位真实场景 + 故事感</div></div>
+                <div><img src="img/cover-p4.png" alt="P4"><div class="img-caption">P4 · 自然场景 + 高饱和亮字</div></div>
+                <div><img src="img/cover-p5.png" alt="P5"><div class="img-caption">P5 · 质感物件 + 岗位清晰</div></div>
+                <div><img src="img/cover-p6.png" alt="P6"><div class="img-caption">P6 · 深底色 + 信息密度</div></div>
+              </div>
+              <div class="ai-conclusion-box">
+                <strong>P8：AI 输出的封面共性结论</strong>
+                <ul>
+                  <li><strong>深底色 + 高饱和亮字 + 真实场景图</strong>最容易让用户在信息流里停下来。</li>
+                  <li><strong>高饱和暖色最抢眼</strong>，红、橙、黄在视觉优先级上天然靠前。</li>
+                  <li><strong>小红书招聘封面大多偏暖白、偏粉、偏浅色</strong>，深色或暗调背景天然更像"异类"，能打断滚动节奏。</li>
+                  <li><strong>自然场景里的绿色和蓝色</strong>也很容易留住目光，因为它们有真实感、空间感和向往感。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- A-03: 定义视觉逻辑 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">A-03 // 逻辑定义</span><span class="badge badge-human">🧠 人工</span></div>
+            <h3>定义视觉逻辑</h3>
+            <div class="detail">
+              <strong>核心原则：</strong>画面能够代表内容在讲什么——用画面讲故事，而不只是传递信息；画面和内容完全共振。<br><br>
+              <strong>核心逻辑：</strong>封面先让人停下来，文案再让人点进去。视觉负责"停下"——用真实场景、高识别色彩、强情绪氛围和目标用户会共鸣的审美，在一秒内打断信息流。<br><br>
+              <strong>封面公式：</strong>一张有质感/有故事的图 + 几个大字点明主题 + 1-2个差异化标签击中痛点 + 清晰的品牌标识<br><br>
+              <strong>视觉规则：</strong><br>
+              · 深底色 + 高饱和亮字 + 真实场景图<br>
+              · 小红书大部分帖子偏暖偏白偏粉，深色/暗调背景天然是「异类」，会打断滚动节奏<br>
+              · 自然场景的绿色和蓝色也很能留住目光
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- A-04: 定义思考问题 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">A-04 // 问题设计</span><span class="badge badge-human">🧠 人工</span></div>
+            <h3>设计 AI 推理框架</h3>
+            <div class="desc">人为 AI 设计思考框架——AI 不知道该想什么，需要人告诉它应该回答哪些问题</div>
+            <div class="detail">
+              <strong>问题框架：</strong><br>
+              ① 这家公司调性是什么样子？<br>
+              ② 这家公司关键词是什么？<br>
+              ③ 这家公司在讲什么故事？<br>
+              ④ 这家公司加入后是什么样的画面？
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- A-05: AI 输出 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">A-05 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
+            <h3>生成封面风格关键词</h3>
+            <div class="desc">Agent 根据公司信息 + P8 结论 + 视觉逻辑，输出可执行的搜索关键词</div>
+            <div class="detail">
+              <strong>输入：</strong>公司名称 + 封面点击欲研究结论 + 视觉逻辑<br>
+              <strong>输出维度：</strong><br>
+              ① 这家公司的调性关键词<br>
+              ② 这家公司在讲什么故事<br>
+              ③ 能够和这家公司共振的画面什么样子<br>
+              ④ 可以在 Pinterest 搜索图片的相关关键词<br>
+              ⑤ 封面如何先制造停留，再交给文案完成点击
+            </div>
+            <div class="conclusion"><strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面</div>
+          </div>
         </div>
-        <div style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
-          <div style="font-size:12px;font-weight:900;margin-bottom:6px;">封面样本 P1-P6：让我产生点击欲的招聘封面</div>
+
+        <!-- ===== PATH B: 封面文案 ===== -->
+        <div class="path-col">
+
+          <!-- B-02: 定义思考逻辑 -->
+          <div class="derive-box">
+            <div class="card-top"><span class="card-phase">B-02 // 逻辑定义</span><span class="badge badge-human">🧠 人工</span></div>
+            <h3>定义思考逻辑</h3>
+            <div class="derive-item">
+              <div class="derive-label">FROM MODULE 01 · 结论一</div>
+              <div class="derive-conclusion">火爆帖子都在回答「我这种人能不能投？」— 所以需要在封面上就打消害怕投递的人的顾虑。</div>
+              <div class="derive-arrow">→ 推导出：<strong>进行用户洞察和心理探测</strong>，推理出什么样的人害怕投递、她们害怕什么，然后填写能打消恐惧的利益标签。</div>
+            </div>
+            <div class="derive-item">
+              <div class="derive-label">FROM MODULE 01 · 结论二</div>
+              <div class="derive-conclusion">让人有想象、有向往 — 用户不只是在找一份工作，而是在找一个「dream 的画面」。</div>
+              <div class="derive-arrow">→ 推导出：<strong>回答「这类用户的 dream job 到底长什么样？」</strong>，然后填写公司钩子，让人觉得加入这家公司是「我的 dream、是我向往的」。</div>
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- B-03: 设计 AI 推理框架 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">B-03 // 问题设计</span><span class="badge badge-human">🧠 人工</span></div>
+            <h3>设计 AI 推理框架</h3>
+            <div class="desc">AI 无法自行洞察用户心理——需要人设计它的推理路径，告诉它该从哪些维度思考</div>
+            <div class="detail">
+              ① 这类用户的 dream job 到底是什么样子的？填写公司钩子，让人觉得加入这家公司是「我的 dream、是向往的」<br><br>
+              ② 要进行用户洞察和探测心理，推理出什么样的人害怕，填写打消这些人害怕的标签
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- B-04: 定义钩子体系 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">B-04 // 体系定义</span><span class="badge badge-human">🧠 人工</span></div>
+            <h3>定义钩子体系</h3>
+            <div class="detail">
+              <strong>公司钩子（引发好奇心）：</strong><br>
+              <span class="tag">小众外企</span><span class="tag">宝藏外企</span><span class="tag">百年外企</span><span class="tag">独角兽</span><span class="tag">创始人/团队背景好</span><span class="tag">业务增长快</span><span class="tag">全球团队</span><span class="tag">Remote</span><span class="tag">全员远程</span><span class="tag">福利好</span><span class="tag">边旅行边工作</span><span class="tag">HC多</span>
+              <br><br>
+              <strong>利益钩子（打消顾虑）：</strong><br>
+              <span class="tag">门槛不高</span><span class="tag">普通人也能投</span><span class="tag">女性友好</span><span class="tag">初级友好</span><span class="tag">英语友好</span><span class="tag">适合转行</span><span class="tag">非技术岗</span>
+            </div>
+          </div>
+
+          <div class="conn-v"><span class="arr"></span></div>
+
+          <!-- B-05: AI 输出 -->
+          <div class="card">
+            <div class="card-top"><span class="card-phase">B-05 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
+            <h3>生成封面差异化标签</h3>
+            <div class="detail">
+              <strong>输入：</strong>公司信息 + 钩子体系<br>
+              <strong>输出：</strong><br>
+              · 2 个最能引发人好奇心的差异化标签（公司钩子）<br>
+              · 2 个最能打消不敢投递顾虑的差异化标签（利益钩子）
+            </div>
+            <div class="conclusion"><strong>产出：</strong>封面差异化标签方案</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+      <div class="card" style="border-style:dashed;">
+        <div class="card-top"><span class="card-phase">06 // 产出汇总</span></div>
+        <h3>Path A + Path B → 完整封面方案</h3>
+        <div class="detail" style="text-align:center;margin-bottom:14px;">
+          视觉风格关键词 + 封面差异化标签 = 可执行的封面制作方案 → 流转至环节三
+        </div>
+
+        <div style="border-top:1px solid rgba(255,0,0,.15);padding-top:14px;margin-top:14px;">
+          <div style="font-size:10px;font-family:var(--fen);letter-spacing:2px;text-transform:uppercase;opacity:.4;margin-bottom:10px;">OUTPUT SAMPLES · 实际产出封面及点击率</div>
           <div class="img-row cover-sample-grid">
-            <div><img src="img/cover-p1.png" alt="封面样本 P1"><div class="img-caption">P1 · 强品牌识别 + 高利益点</div></div>
-            <div><img src="img/cover-p2.png" alt="封面样本 P2"><div class="img-caption">P2 · 明亮色块 + 加入邀请</div></div>
-            <div><img src="img/cover-p3.png" alt="封面样本 P3"><div class="img-caption">P3 · 低机位真实场景 + 故事感</div></div>
-            <div><img src="img/cover-p4.png" alt="封面样本 P4"><div class="img-caption">P4 · 自然场景 + 高饱和亮字</div></div>
-            <div><img src="img/cover-p5.png" alt="封面样本 P5"><div class="img-caption">P5 · 质感物件 + 岗位清晰</div></div>
-            <div><img src="img/cover-p6.png" alt="封面样本 P6"><div class="img-caption">P6 · 深底色 + 信息密度</div></div>
+            <div>
+              <img src="img/cover-vorka.png" alt="Vorka 封面" style="height:280px;object-fit:contain;background:var(--r08);">
+              <div class="img-caption">Vorka · CTR 21.20%</div>
+            </div>
+            <div>
+              <img src="img/cover-ratehawk.png" alt="RateHawk 封面" style="height:280px;object-fit:contain;background:var(--r08);">
+              <div class="img-caption">RateHawk · CTR 21.00%</div>
+            </div>
+            <div>
+              <img src="img/cover-kuoni.png" alt="Kuoni Tumlare 封面" style="height:280px;object-fit:contain;background:var(--r08);">
+              <div class="img-caption">Kuoni Tumlare · CTR 19.90%</div>
+            </div>
           </div>
-          <div class="ai-conclusion-box">
-            <strong>P8：AI 输出的封面共性结论</strong>
-            <ul>
-              <li><strong>深底色 + 高饱和亮字 + 真实场景图</strong>最容易让用户在信息流里停下来。</li>
-              <li><strong>高饱和暖色最抢眼</strong>，红、橙、黄在视觉优先级上天然靠前。</li>
-              <li><strong>小红书招聘封面大多偏暖白、偏粉、偏浅色</strong>，深色或暗调背景天然更像“异类”，能打断滚动节奏。</li>
-              <li><strong>自然场景里的绿色和蓝色</strong>也很容易留住目光，因为它们有真实感、空间感和向往感。</li>
-            </ul>
+          <div class="ai-conclusion-box" style="margin-top:12px;">
+            <strong>封面点击率表现</strong><br>
+            三张封面点击率均显著高于平均水平，验证了 Path A 视觉逻辑 + Path B 文案标签的组合有效性。<br><br>
+            <strong>参考基准：</strong>平均 16.2% ｜ 最高 23.7% ｜ 最低 9.1%<br>
+            <strong>实际产出：</strong>Vorka 21.20% ｜ RateHawk 21.00% ｜ Kuoni Tumlare 19.90%<br><br>
+            三张封面均进入 <strong>Top 20%</strong> 区间，接近历史最高值。
           </div>
         </div>
-      </div>
-      <div class="conn-v"><span class="arr"></span></div>
-      <div class="card">
-        <div class="card-top"><span class="card-phase">03 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
-        <h3>定义视觉逻辑</h3>
-        <div class="detail">
-          <strong>核心原则：</strong>画面能够代表内容在讲什么——用画面在讲故事，而不只是在传递信息；画面和内容完全共振。<br><br>
-          <strong>核心逻辑：</strong>封面先让人停下来，文案再让人点进去。视觉负责“停下”——用真实场景、高识别色彩、强情绪氛围和目标用户会共鸣的审美，在一秒内打断信息流；文案负责“点击”——回答用户心里的三个问题：我这种人也能看吗？这是什么类型的公司？它是不是我的 dream company / dream job？<br><br>
-          <strong>封面公式：</strong>一张有质感/有故事的图 + 几个大字点明主题 + 1-2个差异化标签击中痛点 + 清晰的品牌标识<br><br>
-          <strong>视觉规则：</strong><br>
-          · 深底色 + 高饱和亮字 + 真实场景图<br>
-          · 小红书大部分帖子偏暖偏白偏粉，深色/暗调背景天然是「异类」，会打断滚动节奏<br>
-          · 自然场景的绿色和蓝色也很能留住目光
-        </div>
-      </div>
-      <div class="conn-v"><span class="arr"></span></div>
-      <div class="card">
-        <div class="card-top"><span class="card-phase">04 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
-        <h3>生成封面风格关键词</h3>
-        <div class="desc">Agent 根据公司信息 + P8 结论 + 视觉逻辑，输出可执行的搜索关键词</div>
-        <div class="detail">
-          <strong>输入：</strong>公司名称 + 封面点击欲研究结论 + 视觉逻辑<br>
-          <strong>输出维度：</strong><br>
-          ① 这家公司的调性关键词<br>
-          ② 这家公司在讲什么故事<br>
-          ③ 能够和这家公司共振的画面什么样子<br>
-          ④ 可以在 Pinterest 搜索图片的相关关键词<br>
-          ⑤ 封面如何先制造停留，再交给文案完成点击
-        </div>
-        <div class="conclusion"><strong>执行：</strong>拿到关键词后，在 Pinterest 寻找共振画面 → 流转至环节三</div>
       </div>
     </div>
 
-    <!-- ====== SEC 3: 封面文案制作 ====== -->
+    <!-- ====== SEC 3: 标题输出 ====== -->
     <div class="sec" id="sec-3">
-      <div class="sec-bar"><h2>03 // Copy · 封面文案制作</h2><span class="code">NODE: 03.TAG</span></div>
-      <div class="flow-row">
-        <div class="card">
-          <div class="card-top"><span class="card-phase">01 // 思考问题</span><span class="badge badge-human">🧠 人工</span></div>
-          <h3>用户心理洞察</h3>
-          <div class="desc">人在前期想好思考问题和逻辑</div>
-          <div class="detail">
-            ① 这类用户的 dream job 到底是什么样子的？填写公司钩子，让人觉得加入这家公司是「我的 dream、是向往的」<br><br>
-            ② 要进行用户洞察和探测心理，推理出什么样的人害怕，填写打消这些人害怕的标签
-          </div>
-        </div>
-        <div class="conn-h"><span class="arr"></span></div>
-        <div class="card">
-          <div class="card-top"><span class="card-phase">02 // 思考逻辑</span><span class="badge badge-human">🧠 人工</span></div>
-          <h3>定义钩子体系</h3>
-          <div class="detail">
-            <strong>公司钩子（引发好奇心）：</strong><br>
-            <span class="tag">小众外企</span><span class="tag">宝藏外企</span><span class="tag">百年外企</span><span class="tag">独角兽</span><span class="tag">创始人/团队背景好</span><span class="tag">业务增长快</span><span class="tag">全球团队</span><span class="tag">Remote</span><span class="tag">全员远程</span><span class="tag">福利好</span><span class="tag">边旅行边工作</span><span class="tag">HC多</span>
-            <br><br>
-            <strong>利益钩子（打消顾虑）：</strong><br>
-            <span class="tag">门槛不高</span><span class="tag">普通人也能投</span><span class="tag">女性友好</span><span class="tag">初级友好</span><span class="tag">英语友好</span><span class="tag">适合转行</span><span class="tag">非技术岗</span>
-          </div>
+      <div class="sec-bar"><h2>03 // Title · 标题输出</h2><span class="code">NODE: 03.TTL</span></div>
+
+      <div class="premise-box">
+        <div class="card-top"><span class="card-phase">01 // 目的定义</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>定义标题目的与思考逻辑</h3>
+        <div class="premise-detail">
+          目的：标题在小红书承担双重任务：<strong>搜索 + 点击</strong>。要让搜索编辑效应最大化，标题里必须包含能被搜到、又能引发点击的关键词——公司名、岗位名、行业词、内推/refer/国内可申/招人。<br><br>
+          逻辑：但这些关键词的组合方式取决于一个前提：<strong>用户认不认识这家公司</strong>。<br><br>
+                如果公司有知名度，「公司名」本身就是最大的搜索入口和点击钩子，直接按模版走就行；如果公司没知名度，「公司名」反而是噪音，需要用人群钩子、利益钩子或公司类型来替代它，让标题击中正确的人群。<br><br>
+                所以让 AI 在第一步就判断公司知名度，不是随意设计的——而是因为这个判断直接决定了后续标题公式的走向：用哪个模版、填什么关键词、怎么排列组合，都从这一步分叉。
         </div>
       </div>
       <div class="conn-v"><span class="arr"></span></div>
-      <div class="flow-center">
-        <div class="card" style="width:100%;max-width:580px;">
-          <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
-          <h3>生成封面差异化标签</h3>
-          <div class="detail">
-            <strong>输入：</strong>公司信息 + 钩子体系<br>
-            <strong>输出：</strong><br>
-            · 2 个最能引发人好奇心的差异化标签（公司钩子）<br>
-            · 2 个最能打消不敢投递顾虑的差异化标签（利益钩子）
-          </div>
-          <div class="conclusion"><strong>产出：</strong>封面差异化标签方案 → 流转至环节四</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====== SEC 4: 正文标题 ====== -->
-    <div class="sec" id="sec-4">
-      <div class="sec-bar"><h2>04 // Title · 正文标题</h2><span class="code">NODE: 04.TTL</span></div>
       <div class="card">
-        <div class="card-top"><span class="card-phase">01 // 前置判断</span><span class="badge badge-human">🧠 人工</span></div>
-        <h3>判断公司知名度</h3>
+        <div class="card-top"><span class="card-phase">02 // 问题设计</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>设计 AI 推理框架</h3>
+        <div class="desc">人为 AI 设计判断路径——AI 不知道「知名度」对标题有什么影响，需要人告诉它判断规则和分叉逻辑</div>
         <div class="detail">
           ① 需要判断这家公司是否有知名度<br>
           ② 有知名度 → 直接按模版来<br>
-          ③ 没知名度 → 衡量哪种写法更击中人群<br><br>
-          <strong>核心规则：</strong>标题负责搜索+点击，达到搜索编辑效应最大化。必须按照模版，最好有人群钩子/公司钩子/利益钩子 + 行动暗示！
+          ③ 没知名度 → 衡量哪种写法更击中人群
         </div>
       </div>
       <div class="conn-v"><span class="arr"></span></div>
       <div class="card">
-        <div class="card-top"><span class="card-phase">02 // 模板体系</span><span class="badge badge-human">🧠 人工</span></div>
+        <div class="card-top"><span class="card-phase">03 // 模板定义</span><span class="badge badge-human">🧠 人工</span></div>
         <h3>定义标题模板</h3>
         <div class="detail"><strong>有知名度：</strong>【公司名】+【公司钩子】(开放X个岗位/有X个HC) +【可内推/可refer/国内可申】</div>
         <div class="example"><em>例：</em>Canva + 开放6个远程岗<br><em>例：</em>设计人的梦中情司Canva可画 + 有21个HC！</div>
@@ -554,7 +601,7 @@
       </div>
       <div class="conn-v"><span class="arr"></span></div>
       <div class="card">
-        <div class="card-top"><span class="card-phase">03 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
+        <div class="card-top"><span class="card-phase">04 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
         <h3>生成正文标题</h3>
         <div class="detail">
           <strong>输入：</strong>公司信息 + 知名度判断 + 模板体系 + 钩子库<br>
@@ -562,19 +609,19 @@
           <strong>行动暗示词库：</strong>
           <span class="tag">可内推</span><span class="tag">国内可申</span><span class="tag">大胆投</span><span class="tag">大胆冲</span><span class="tag">招人中</span>
         </div>
-        <div class="conclusion"><strong>产出：</strong>5 个候选标题（已排序）→ 流转至环节五</div>
+        <div class="conclusion"><strong>产出：</strong>5 个候选标题（已排序）→ 流转至环节四</div>
       </div>
     </div>
 
-    <!-- ====== SEC 5: 文案制作 ====== -->
-    <div class="sec" id="sec-5">
-      <div class="sec-bar"><h2>05 // Content · 文案制作</h2><span class="code">NODE: 05.CPY</span></div>
+    <!-- ====== SEC 4: 文案制作（原环节五） ====== -->
+    <div class="sec" id="sec-4">
+      <div class="sec-bar"><h2>04 // Content · 文案制作</h2><span class="code">NODE: 04.CPY</span></div>
       <div class="card">
         <div class="card-top"><span class="card-phase">01 // 目的定义</span><span class="badge badge-human">🧠 人工</span></div>
-        <h3>定义正文目的和思考逻辑</h3>
+        <h3>定义正文目的与思考逻辑</h3>
         <div class="detail">
-          <strong>核心目的：</strong>让人有信任度，信息全面但也要留点钩子让人想要了解或者直接投递<br><br>
-          <strong>关键判断：</strong>正文不是信息罗列，而是「信任建设」——展示全面信息的同时，让用户觉得这个账号值得关注和私聊。
+          <strong>目的：</strong>让人有信任度，信息全面但也要留点钩子让人想要了解或者直接投递<br><br>
+          <strong>逻辑：</strong>正文不是信息罗列，而是「信任建设」——展示全面信息的同时，让用户觉得这个账号值得关注和私聊。
         </div>
       </div>
       <div class="conn-v"><span class="arr"></span></div>
@@ -600,71 +647,232 @@
           <strong>执行：</strong>根据目的和思考方式对模板进行扩写、润色、生成 AI 认为的最优版本<br>
           <strong>输出：</strong>成品正文（含 emoji + 分段 + 私域钩子）
         </div>
-        <div class="conclusion"><strong>产出：</strong>完整正文文案 → 流转至环节六</div>
+        <div class="conclusion"><strong>产出：</strong>完整正文文案 → 流转至环节五</div>
       </div>
     </div>
 
-    <!-- ====== SEC 6: 私域转化 ====== -->
+    <!-- ====== SEC 5: 私域转化（原环节六） ====== -->
+    <div class="sec" id="sec-5">
+      <div class="sec-bar"><h2>05 // Conversion · 私域转化</h2><span class="code">NODE: 05.PVT</span></div>
+
+      <!-- STEP 01: 问题发现 -->
+      <div class="card">
+        <div class="card-top"><span class="card-phase">01 // 问题发现</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>私域转化率低</h3>
+        <div class="detail">
+          <strong>诊断逻辑：</strong>是否存在用户顾虑和信任缺口？<br><br>
+          · 用户从帖子进入私信后，是否愿意按照引导完成动作？<br>
+          · 引导话术是否让用户产生不信任感？<br>
+          · 操作链路是否清晰，是否存在让用户觉得「太麻烦」而流失的环节？<br>
+          · 是否有同类账号的恶劣行为（骗钱、虚假岗位）导致用户对所有类似引导天然警惕？
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- STEP 02: 优化前后对比 -->
+      <div class="flow-row">
+        <div class="card">
+          <div class="card-top"><span class="card-phase">02 // 问题诊断</span><span class="badge badge-human">🧠 人工</span></div>
+          <h3>诊断原话术问题</h3>
+          <div class="desc">优化前的私信话术存在多处信任缺口，直接影响用户完成转化动作的意愿</div>
+
+          <div style="margin-top:12px;margin-bottom:14px;">
+            <img src="img/dm-before.jpg" alt="优化前话术" style="max-height:360px;width:auto;border:1px solid rgba(255,0,0,.15);display:block;border-radius:4px;">
+            <div class="img-caption" style="text-align:left;">优化前 · 原始私信话术</div>
+          </div>
+
+          <div class="detail">
+            <strong>诊断出的核心问题：</strong><br><br>
+            <strong>a) 跳过问题直接引导加群，触发用户防御心理。</strong>用户来私信通常带着具体问题（想了解远程岗位），但话术没有回应用户的问题，上来就让人加群——这种「不回答、先拉群」的模式和微商、诈骗账号的行为高度相似，会让用户下意识产生反感和不信任。<br><br>
+            <strong>b) 操作路径模糊，用户觉得麻烦而放弃。</strong>只说「进去看置顶找到我」，但没有说清楚每一步具体做什么。用户看到一团模糊的指令，觉得流程复杂、不确定结果，很容易直接放弃。<br><br>
+            <strong>c) 行业信任危机加剧用户警觉。</strong>小红书上存在大量类似操作模式的账号——也是引导加群、引导加微信，但最终目的是收费或骗取个人信息。用户在过去可能已经踩过坑，所以对任何「加群」「加微信」的引导都会本能地保持警惕。
+          </div>
+        </div>
+
+        <div class="conn-h"><span class="arr"></span></div>
+
+        <div class="card">
+          <div class="card-top"><span class="card-phase">02 // 话术优化</span><span><span class="badge badge-human">🧠 人工</span> <span class="badge badge-ai">🤖 Agent</span></span></div>
+          <h3>重新设计引导话术</h3>
+          <div class="desc">针对诊断出的三个问题，逐一设计对应的信任修复策略</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;margin-bottom:14px;">
+            <div>
+              <img src="img/dm-after-1.jpg" alt="优化后话术 1" style="max-height:360px;width:100%;object-fit:contain;border:1px solid rgba(255,0,0,.15);border-radius:4px;background:var(--r08);">
+              <div class="img-caption">优化后 · 版本 A</div>
+            </div>
+            <div>
+              <img src="img/dm-after-2.jpg" alt="优化后话术 2" style="max-height:360px;width:100%;object-fit:contain;border:1px solid rgba(255,0,0,.15);border-radius:4px;background:var(--r08);">
+              <div class="img-caption">优化后 · 版本 B</div>
+            </div>
+          </div>
+
+          <div class="detail">
+            <strong>优化策略与对应逻辑：</strong><br><br>
+            <strong>a) 先解释「为什么不能直接发链接」→ 主动打消用户顾虑。</strong>开头就说明「具体的 refer 链接这里发不了会被吞或者被封」——把「不直接给链接」这个反常行为的原因提前交代，让用户理解这是平台规则限制而不是故意隐藏，从根源上消除「为什么不直接给我」的疑虑。<br><br>
+            <strong>b) 用数字编号拆解每一步操作 → 缓解用户焦躁。</strong>把引导动作拆成 ①②③ 三步清晰指令，每一步都是一个简单动作。用户不需要猜「接下来做什么」，看到编号就知道流程短、步骤明确——降低「太麻烦了不想弄」的心理门槛。<br><br>
+            <strong>c) 加微信后直接展示具体操作关键词 → 即刻消除用户疑虑。</strong>话术里直接写明「发送【XX 内部招聘】」「发送【申请 XX】」——用户还没加微信就已经知道加了之后要做什么、会得到什么。这种「提前透明」让用户感知到这确实是一个正规的投递渠道，而不是加了微信之后才发现是另一回事。<br><br>
+            <strong>d) 主动声明免费且提醒防骗 → 直接击碎最大顾虑。</strong>话术末尾加上「我们只负责内推不收取任何费用，如其余账号投递岗位收取费用可能为虚假渠道请多注意辨别」——把用户最核心的担忧（会不会收钱、会不会被骗）提前说破，而不是等用户自己去猜。这种「先于用户开口打消顾虑」的写法，本身就是一种信任建设。
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- STEP 03: 效果验证 -->
+      <div class="card">
+        <div class="card-top"><span class="card-phase">03 // 效果验证</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>优化效果：私域转化率 No.1</h3>
+
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;margin-top:12px;">
+          <img src="img/dm-result.jpg" alt="转化率数据" style="max-height:380px;width:auto;border:1px solid rgba(255,0,0,.15);border-radius:4px;">
+          <div>
+            <div class="detail" style="margin-top:0;">
+              <strong>关键数据：</strong><br>
+              · 优化后单周引流至私域 <strong>92 条</strong><br>
+              · 私域转化率达到 <strong>0.5</strong>（50%）<br>
+              · 同期正常引流转化率均值仅 <strong>0.275 ~ 0.3</strong><br><br>
+              <strong>转化率直接翻倍</strong>，远超其余所有渠道的平均值——以至于引流数据表现过于突出，平台监测系统判定小程序码可能存在异常，主动联系提醒。
+            </div>
+            <div class="conclusion">
+              <strong>结论：</strong>私域转化率不是靠「更多曝光」解决的，而是靠精准击碎用户的每一个信任障碍——解释规则、拆解步骤、提前透明、主动声明。话术设计的本质是「信任工程」。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conclusion" style="margin-top:14px;">→ 流转至环节六</div>
+    </div>
+
+    <!-- ====== SEC 6: 数据分析（原环节七） ====== -->
     <div class="sec" id="sec-6">
-      <div class="sec-bar"><h2>06 // Conversion · 私域转化</h2><span class="code">NODE: 06.PVT</span></div>
-      <div class="flow-row">
-        <div class="card">
-          <div class="card-top"><span class="card-phase">01 // 诊断</span><span class="badge badge-human">🧠 人工</span></div>
-          <h3>判断用户顾虑<br>和信任缺口</h3>
-          <div class="detail">
-            <strong>诊断维度：</strong><br>
-            · 用户看到后可能的顾虑是什么？<br>
-            · 像骗子？引导不够清晰？<br>
-            · 信任缺口在哪一步？<br>
-            · 成交节奏是否合理？
-          </div>
-        </div>
-        <div class="conn-h"><span class="arr"></span></div>
-        <div class="card">
-          <div class="card-top"><span class="card-phase">02 // 执行</span><span class="badge badge-ai">🤖 Agent</span></div>
-          <h3>优化话术<br>生成回复</h3>
-          <div class="detail">
-            <strong>输入：</strong>顾虑诊断 + 信任缺口<br>
-            <strong>执行：</strong>优化引导话术 · 生成自动回复模板 · AB 测试不同话术版本<br>
-            <strong>输出：</strong>话术方案 + 测试结果
-          </div>
-          <div class="conclusion">→ 流转至环节七</div>
+      <div class="sec-bar"><h2>06 // Analytics · 数据分析</h2><span class="code">NODE: 06.DAT</span></div>
+
+      <!-- STEP 01: 方向判断 -->
+      <div class="card">
+        <div class="card-top"><span class="card-phase">01 // 方向定义</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>选择核心指标与优先级</h3>
+        <div class="detail">
+          <strong>背景：</strong>刚接手时，数据不升反降——封面点击率均值从 16.2% 跌到 14.4%，甚至比未接手时更差。这说明单纯换人操盘但不改变方法论，数据只会更差而不会更好。<br><br>
+          <strong>判断逻辑：</strong>资源有限，不能什么都改，必须选对优先级。先解决「转化效率」再解决「流量规模」——因为流量漏斗的底部不修好，上面灌再多流量都是浪费。<br><br>
+          <strong>执行优先级：</strong><br>
+          · <strong>第一优先级：</strong>封面点击率提升 — 直接影响帖子能否过初始流量池<br>
+          · <strong>第二优先级：</strong>私域转化率提升 — 直接影响商业变现效率<br>
+          · <strong>第三优先级：</strong>改变账号流量来源结构 — 从工具类用户转向岗位用户<br>
+          · <strong>第四优先级：</strong>涨粉量提升 — 长期积累，跟随前三个指标自然增长
         </div>
       </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- STEP 02: 数据对比 -->
+      <div class="card">
+        <div class="card-top"><span class="card-phase">02 // 数据对比</span><span><span class="badge badge-human">🧠 人工</span> <span class="badge badge-ai">🤖 Agent</span></span></div>
+        <h3>三阶段数据对比：AI Agent 介入前后</h3>
+        <div class="desc">用数据验证方法论的有效性——同一个账号、同一个品类，唯一变量是「是否引入 AI Agent 进行深度共创」</div>
+
+        <!-- 封面点击率对比 -->
+        <div style="margin-top:18px;padding:16px 18px;border:1px solid rgba(255,0,0,.15);background:var(--r08);">
+          <div class="chart-title">COVER CTR · 封面点击率三阶段对比</div>
+
+          <!-- Phase 1 -->
+          <div class="bar-group">
+            <div class="bar-group-label">未接手基线<span class="period">~ 4.30</span></div>
+            <div class="bar-row"><span class="bar-label">AVG</span><div class="bar-track"><div class="bar-fill fill-dim" style="width:68%;">16.2%</div></div></div>
+            <div class="bar-row"><span class="bar-label">MAX</span><div class="bar-track"><div class="bar-fill fill-dim" style="width:100%;">23.7%</div></div></div>
+            <div class="bar-row"><span class="bar-label">MIN</span><div class="bar-track"><div class="bar-fill fill-dim" style="width:38%;">9.1%</div></div></div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="bar-group">
+            <div class="bar-group-label">接手后 · 未用 AI Agent<span class="period">5.1 ~ 5.20</span></div>
+            <div class="bar-row"><span class="bar-label">AVG</span><div class="bar-track"><div class="bar-fill fill-mid" style="width:61%;">14.4% <span class="delta delta-down" style="margin-left:4px;">▼ 1.8</span></div></div></div>
+            <div class="bar-row"><span class="bar-label">MAX</span><div class="bar-track"><div class="bar-fill fill-mid" style="width:76%;">17.9% <span class="delta delta-down" style="margin-left:4px;">▼ 5.8</span></div></div></div>
+            <div class="bar-row"><span class="bar-label">MIN</span><div class="bar-track"><div class="bar-fill fill-mid" style="width:50%;">11.8% <span class="delta delta-up" style="margin-left:4px;">▲ 2.7</span></div></div></div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="bar-group">
+            <div class="bar-group-label" style="color:var(--red);font-weight:900;">接手后 · 引入 AI Agent 共创<span class="period">5.21 ~ 6.4</span></div>
+            <div class="bar-row"><span class="bar-label">AVG</span><div class="bar-track"><div class="bar-fill fill-hot" style="width:74%;">17.63% <span style="margin-left:4px;opacity:.85;">▲ 3.23</span></div></div></div>
+            <div class="bar-row"><span class="bar-label">MAX</span><div class="bar-track"><div class="bar-fill fill-hot" style="width:89%;">21.2% <span style="margin-left:4px;opacity:.85;">▲ 3.3</span></div></div></div>
+            <div class="bar-row"><span class="bar-label">MIN</span><div class="bar-track"><div class="bar-fill fill-hot" style="width:57%;">13.5% <span style="margin-left:4px;opacity:.85;">▲ 1.7</span></div></div></div>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-num">+1.43%</div>
+            <div class="kpi-sub">vs 未接手基线</div>
+            <div class="kpi-label">平均点击率提升</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-num">+3.23%</div>
+            <div class="kpi-sub">vs 接手未用 AI</div>
+            <div class="kpi-label">AI 介入后提升</div>
+          </div>
+          <div class="kpi-card kpi-highlight">
+            <div class="kpi-num">+22.4%</div>
+            <div class="kpi-sub">相对增幅</div>
+            <div class="kpi-label">点击率提升比例</div>
+          </div>
+        </div>
+
+        <div class="conclusion">
+          <strong>关键洞察：</strong>接手后不用 AI Agent，数据反而比接手前更差（均值 14.4% vs 16.2%）。引入 AI Agent 深度共创后，均值回升至 17.63%，不仅超过接手前基线 +1.43%，更比未用 AI 阶段提升 +3.23 个百分点，相对提升 22.4%。最低点击率从 9.1% 提升至 13.5%，下限被显著拉高——说明 AI Agent 不是偶尔做出爆款，而是系统性地提升了整体水平。
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- STEP 03: 私域转化效果 -->
+      <div class="card">
+        <div class="card-top"><span class="card-phase">03 // 效果验证</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>私域转化率：同类账号 No.1</h3>
+
+        <div class="metric-compare">
+          <div class="metric-box">
+            <div class="metric-val" style="opacity:.3;">20%</div>
+            <div class="metric-label">同类账号平均转化率</div>
+          </div>
+          <div class="metric-vs">VS</div>
+          <div class="metric-box" style="background:var(--red);color:var(--white);border-color:var(--red);">
+            <div class="metric-val">50%</div>
+            <div class="metric-label" style="opacity:.7;">优化后转化率 · No.1</div>
+          </div>
+        </div>
+
+        <div class="detail">
+          经过话术优化（环节五），私域转化率从行业平均水平直接提升至 <strong>50%</strong>，是同类账号均值 20% 的 <strong>2.5 倍</strong>，位列所有同类账号 <strong>No.1</strong>。<br><br>
+          单周引流至私域 92 条，转化效率之高以至于引起平台注意——平台主动联系反馈「引流数据非常好，可能会导致平台监测」。这个「副作用」本身就是效果的最好证明。
+        </div>
+      </div>
+
+      <div class="conn-v"><span class="arr"></span></div>
+
+      <!-- STEP 04: 总结 -->
+      <div class="card" style="border-width:2px;">
+        <div class="card-top"><span class="card-phase">04 // 数据总结</span><span class="badge badge-human">🧠 人工</span></div>
+        <h3>方法论验证：数据说明了什么</h3>
+        <div class="detail">
+          <strong>三组对比回答了一个核心问题：AI Agent 到底有没有用？</strong><br><br>
+          <strong>对比一 · 换人不换方法 = 数据更差。</strong>接手后前 20 天没有引入 AI Agent，纯靠人工经验操盘，封面点击率均值反而下降 1.8 个百分点（16.2% → 14.4%）。说明光换人是不够的，方法论才是关键变量。<br><br>
+          <strong>对比二 · 引入 AI Agent = 系统性提升。</strong>从 5.21 开始引入 AI Agent 深度共创——不是把 AI 当工具用，而是让 AI 参与从分析、到策略、到执行的全链路。均值 +3.23%，最低值 +1.7%，最高值 +3.3%，三个指标全面上升。<br><br>
+          <strong>对比三 · 私域转化率 2.5 倍于同行。</strong>话术优化不是「换几个字」的事，而是系统性地击碎用户的每一个信任障碍——解释规则、拆解步骤、提前透明、主动声明。结果是 50% vs 20%，转化率直接拉到 No.1。
+        </div>
+        <div class="conclusion">
+          <strong>核心结论：</strong>数据证明了这套方法论的有效性——人负责定义问题、设计逻辑、判断优先级；AI 负责分析数据、提炼规律、批量执行。不是「人 or AI」，而是「人 × AI」。
+        </div>
+      </div>
+
+      <div class="conclusion" style="margin-top:14px;">→ 流转至环节七</div>
     </div>
 
-    <!-- ====== SEC 7: 数据分析 ====== -->
+    <!-- ====== SEC 7: 增长优化（原环节八） ====== -->
     <div class="sec" id="sec-7">
-      <div class="sec-bar"><h2>07 // Analytics · 数据分析</h2><span class="code">NODE: 07.DAT</span></div>
-      <div class="flow-row">
-        <div class="card">
-          <div class="card-top"><span class="card-phase">01 // 定方向</span><span class="badge badge-human">🧠 人工</span></div>
-          <h3>选择核心指标<br>判断优先级</h3>
-          <div class="detail">
-            <strong>战略判断：</strong><br>
-            · 当前阶段优先提高什么？<br>
-            · 是提高私域转化率？<br>
-            · 还是提高流量曝光？<br>
-            · 有限资源先解决哪个问题？
-          </div>
-        </div>
-        <div class="conn-h"><span class="arr"></span></div>
-        <div class="card">
-          <div class="card-top"><span class="card-phase">02 // 跑数据</span><span class="badge badge-ai">🤖 Agent</span></div>
-          <h3>对比数据<br>识别异常</h3>
-          <div class="detail">
-            <strong>输入：</strong>核心指标 + 优先级<br>
-            <strong>执行：</strong>跨维度对比数据 · 识别异常波动 · 生成复盘报告<br>
-            <strong>输出：</strong>数据复盘 + 优化建议
-          </div>
-          <div class="conclusion">→ 流转至环节八</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====== SEC 8: 增长优化 ====== -->
-    <div class="sec" id="sec-8">
-      <div class="sec-bar"><h2>08 // Growth · 增长优化</h2><span class="code">NODE: 08.GRW</span></div>
+      <div class="sec-bar"><h2>07 // Growth · 增长优化</h2><span class="code">NODE: 07.GRW</span></div>
       <div class="flow-row">
         <div class="card">
           <div class="card-top"><span class="card-phase">01 // 持续发现</span><span class="badge badge-human">🧠 人工</span></div>
@@ -678,7 +886,7 @@
         </div>
         <div class="conn-h"><span class="arr"></span></div>
         <div class="card">
-          <div class="card-top"><span class="card-phase">02 // 分析更新</span><span class="badge badge-ai">🤖 Agent</span></div>
+          <div class="card-top"><span class="card-phase">02 // AI 输出</span><span class="badge badge-ai">🤖 Agent</span></div>
           <h3>执行分析<br>找到共性</h3>
           <div class="detail">
             <strong>输入：</strong>竞品/爆款样本<br>
@@ -693,7 +901,7 @@
         <div class="card-top"><span class="card-phase">∞ // 增长飞轮</span></div>
         <h3>闭环反馈至全链路</h3>
         <div class="detail" style="text-align:center;">
-          增长优化 → 账号分析 → 封面风格 → 封面文案 → 正文标题 → 文案制作 → 私域转化 → 数据分析 → 增长优化 → ∞
+          增长优化 → 账号分析 → 封面制作 → 标题输出 → 文案制作 → 私域转化 → 数据分析 → 增长优化 → ∞
         </div>
       </div>
     </div>
@@ -704,13 +912,12 @@
   <div class="sidebar">
     <div class="nav-item active" data-target="sec-0">SYSTEM OVERVIEW<span class="cn">链路拆解及路由</span></div>
     <div class="nav-item" data-target="sec-1">MODULE 01<span class="cn">环节一：账号分析</span></div>
-    <div class="nav-item" data-target="sec-2">MODULE 02<span class="cn">环节二：封面风格制作</span></div>
-    <div class="nav-item" data-target="sec-3">MODULE 03<span class="cn">环节三：封面文案制作</span></div>
-    <div class="nav-item" data-target="sec-4">MODULE 04<span class="cn">环节四：正文标题</span></div>
-    <div class="nav-item" data-target="sec-5">MODULE 05<span class="cn">环节五：文案制作</span></div>
-    <div class="nav-item" data-target="sec-6">MODULE 06<span class="cn">环节六：私域转化</span></div>
-    <div class="nav-item" data-target="sec-7">MODULE 07<span class="cn">环节七：数据分析</span></div>
-    <div class="nav-item" data-target="sec-8">MODULE 08<span class="cn">环节八：增长优化</span></div>
+    <div class="nav-item" data-target="sec-2">MODULE 02<span class="cn">环节二：封面制作</span></div>
+    <div class="nav-item" data-target="sec-3">MODULE 03<span class="cn">环节三：标题输出</span></div>
+    <div class="nav-item" data-target="sec-4">MODULE 04<span class="cn">环节四：文案制作</span></div>
+    <div class="nav-item" data-target="sec-5">MODULE 05<span class="cn">环节五：私域转化</span></div>
+    <div class="nav-item" data-target="sec-6">MODULE 06<span class="cn">环节六：数据分析</span></div>
+    <div class="nav-item" data-target="sec-7">MODULE 07<span class="cn">环节七：增长优化</span></div>
   </div>
 </div>
 
